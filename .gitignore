@@ -1,0 +1,22 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.zip
+dist/
+
+# Logs
+*.log
+
+# Node modules (if you add any build tools later)
+node_modules/
+
+# Package files (if you add any build tools later)
+package-lock.json
+yarn.lock

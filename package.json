@@ -1,0 +1,30 @@
+{
+  "name": "toast",
+  "version": "1.4.0",
+  "description": "Full-screen celebration visuals for Foundry VTT",
+  "main": "scripts/toast.js",
+  "scripts": {
+    "build": "node build.js",
+    "build:zip": "node build.js && node build-zip.js",
+    "clean": "node -e \"const fs=require('fs'); const path=require('path'); const dir=path.join(__dirname,'dist'); if(fs.existsSync(dir)){fs.rmSync(dir,{recursive:true}); console.log('✅ Cleaned dist/');}\"",
+    "test": "echo \"No tests configured\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/toast.git"
+  },
+  "keywords": [
+    "foundry-vtt",
+    "foundryvtt",
+    "module",
+    "toast",
+    "celebration",
+    "notifications"
+  ],
+  "author": "Dynvar",
+  "license": "MIT",
+  "devDependencies": {},
+  "optionalDependencies": {
+    "archiver": "^6.0.0"
+  }
+}

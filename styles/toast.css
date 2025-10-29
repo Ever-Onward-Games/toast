@@ -1,0 +1,213 @@
+/**
+ * Toast Module - Full Screen Celebration Styles
+ */
+
+/* Full-screen overlay */
+.toast-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  pointer-events: none;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0);
+  animation: toast-fade-in 0.3s ease-in;
+}
+
+/* Fade in animation */
+@keyframes toast-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fade out when removing */
+.toast-overlay.toast-fade-out {
+  animation: toast-fade-out-anim 0.5s ease-out forwards;
+}
+
+@keyframes toast-fade-out-anim {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Individual toast elements */
+.toast-element {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  will-change: transform, opacity, left, top;
+}
+
+/* Image elements */
+.toast-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Token images - default circular */
+.toast-token {
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Actor images */
+.toast-actor {
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Text elements */
+.toast-text {
+  font-family: "Signika", sans-serif;
+  font-size: 72px;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  text-shadow:
+    3px 3px 6px rgba(0, 0, 0, 0.8),
+    -1px -1px 3px rgba(0, 0, 0, 0.8),
+    1px -1px 3px rgba(0, 0, 0, 0.8),
+    -1px 1px 3px rgba(0, 0, 0, 0.8);
+  letter-spacing: 2px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Utility classes for common effects */
+.toast-glow {
+  filter: drop-shadow(0 0 20px currentColor);
+}
+
+.toast-pulse {
+  animation: toast-pulse 1s ease-in-out infinite;
+}
+
+@keyframes toast-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.toast-shake {
+  animation: toast-shake 0.5s ease-in-out;
+}
+
+@keyframes toast-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-10px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(10px);
+  }
+}
+
+.toast-bounce {
+  animation: toast-bounce 1s ease-out;
+}
+
+@keyframes toast-bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-30px);
+  }
+  60% {
+    transform: translateY(-15px);
+  }
+}
+
+/* Multi-stage animations for slide-in, pause, slide-out */
+
+/* Slide from left, pause, exit right */
+@keyframes toast-slide-left-right {
+  0% {
+    transform: translateX(-100vw);
+  }
+  25% {
+    transform: translateX(0);
+  }
+  75% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100vw);
+  }
+}
+
+/* Slide from right, pause, exit left */
+@keyframes toast-slide-right-left {
+  0% {
+    transform: translateX(100vw);
+  }
+  25% {
+    transform: translateX(0);
+  }
+  75% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100vw);
+  }
+}
+
+/* Slide from top, pause, exit bottom */
+@keyframes toast-slide-top-bottom {
+  0% {
+    transform: translateY(-100vh);
+  }
+  25% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+/* Slide from bottom, pause, exit top */
+@keyframes toast-slide-bottom-top {
+  0% {
+    transform: translateY(100vh);
+  }
+  25% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100vh);
+  }
+}
+
+/* Shape element - for colored rectangles, circles, etc */
+.toast-shape {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
