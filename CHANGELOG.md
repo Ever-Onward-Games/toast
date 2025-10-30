@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 2.1.2 - Images Directory Fix (2025-10-30)
+
+### 🐛 Bug Fix
+
+**Toast Studio images directory missing:**
+- Added `images/` directory to build INCLUDE list
+- Toast Studio can now browse and display image assets
+- Fixed "Directory modules/toast/images does not exist" error
+
+### Files Changed
+- `build.js` - Added `images/` to INCLUDE array
+
+---
+
 ## Version 2.1.1 - Build System Fix (2025-10-30)
 
 ### 🐛 Bug Fix

@@ -30,6 +30,7 @@ const INCLUDE = [
   'scripts/',
   'styles/',
   'sounds/',
+  'images/',
   'templates/'
 ];
 
