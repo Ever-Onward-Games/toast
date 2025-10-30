@@ -13,6 +13,7 @@ This document provides example macros for using Toast without AI generation. Per
 - [Token and Actor Images](#token-and-actor-images)
 - [Combining Elements](#combining-elements)
 - [Practical Game Examples](#practical-game-examples)
+- [Helper Functions](#helper-functions)
 
 ---
 
@@ -42,10 +43,10 @@ if (game.toast.hasPermission()) {
 The simplest possible toast - just text:
 
 ```javascript
-game.toast.show({
-  text: "CRITICAL HIT!",
-  sound: "dominating"
-});
+game.toast.show([
+  game.toast.sound("dominating"),
+  game.toast.simpleText("CRITICAL HIT!")
+]);
 ```
 
 **What it does:**
@@ -58,23 +59,18 @@ game.toast.show({
 
 ### Example 2: Custom Text Styling
 
-Customize the appearance:
+Customize the appearance using options:
 
 ```javascript
-game.toast.show({
-  text: "VICTORY!",
-  sound: "first-blood",
-  elements: [
-    {
-      type: "text",
-      text: "BOSS DEFEATED!",
-      color: "#FFD700",           // Gold color
-      fontSize: "120px",
-      fontWeight: "bold",
-      textShadow: "0 0 50px #FFD700"
-    }
-  ]
-});
+game.toast.show([
+  game.toast.sound("first-blood"),
+  game.toast.simpleText("BOSS DEFEATED!", {
+    color: "#FFD700",           // Gold color
+    fontSize: "120px",
+    fontWeight: "bold",
+    textShadow: "0 0 50px #FFD700"
+  })
+]);
 ```
 
 **Result:** Large gold text with glowing effect
@@ -86,33 +82,31 @@ game.toast.show({
 Show multiple pieces of text:
 
 ```javascript
-game.toast.show({
-  sound: "holy-shit",
-  elements: [
-    {
-      type: "text",
-      text: "FLAWLESS VICTORY",
-      color: "#FFD700",
-      fontSize: "100px",
-      animation: {
-        startX: window.innerWidth / 2 - 400,
-        startY: window.innerHeight / 4,
-        duration: 3
-      }
-    },
-    {
-      type: "text",
-      text: "No damage taken!",
-      color: "#00ff00",
-      fontSize: "60px",
-      animation: {
-        startX: window.innerWidth / 2 - 200,
-        startY: window.innerHeight / 2,
-        duration: 3
-      }
+game.toast.show([
+  game.toast.sound("holy-shit"),
+  {
+    type: "text",
+    text: "FLAWLESS VICTORY",
+    color: "#FFD700",
+    fontSize: "100px",
+    animation: {
+      startX: window.innerWidth / 2 - 400,
+      startY: window.innerHeight / 4,
+      duration: 3
     }
-  ]
-});
+  },
+  {
+    type: "text",
+    text: "No damage taken!",
+    color: "#00ff00",
+    fontSize: "60px",
+    animation: {
+      startX: window.innerWidth / 2 - 200,
+      startY: window.innerHeight / 2,
+      duration: 3
+    }
+  }
+]);
 ```
 
 **Result:** Two text elements at different positions
@@ -127,7 +121,7 @@ Templates use token replacement for dynamic text without AI.
 
 ```javascript
 // Register a template (do this once at game start)
-game.toast.registerTemplate("player-kill", {
+game.toast.templates.register("player-kill", {
   text: "{killer} eliminates {victim}!",
   ttsTemplate: "{killer} eliminates {victim}"
 });
@@ -149,7 +143,7 @@ Combine templates with visuals:
 
 ```javascript
 // Register template
-game.toast.registerTemplate("boss-kill", {
+game.toast.templates.register("boss-kill", {
   text: "{killer} defeats {boss}!",
   ttsTemplate: "{killer} has defeated the mighty {boss}"
 });
@@ -185,7 +179,7 @@ game.toast.showDynamic("boss-kill",
 
 ```javascript
 // Register
-game.toast.registerTemplate("critical-hit", {
+game.toast.templates.register("critical-hit", {
   text: "CRITICAL HIT! {damage} damage!",
   ttsTemplate: "Critical hit for {damage} damage"
 });
@@ -224,34 +218,32 @@ game.toast.showDynamic("critical-hit",
 Add colored rectangles or circles:
 
 ```javascript
-game.toast.show({
-  elements: [
-    {
-      type: "shape",
-      shape: "rect",
-      color: "#ff0000",
-      width: "400px",
-      height: "200px",
-      animation: {
-        startX: window.innerWidth / 2 - 200,
-        startY: window.innerHeight / 2 - 100,
-        duration: 2
-      }
-    },
-    {
-      type: "text",
-      text: "DANGER!",
-      color: "#ffffff",
-      fontSize: "80px",
-      fontWeight: "bold",
-      animation: {
-        startX: window.innerWidth / 2 - 150,
-        startY: window.innerHeight / 2 - 40,
-        duration: 2
-      }
+game.toast.show([
+  {
+    type: "shape",
+    shape: "rect",
+    color: "#ff0000",
+    width: "400px",
+    height: "200px",
+    animation: {
+      startX: window.innerWidth / 2 - 200,
+      startY: window.innerHeight / 2 - 100,
+      duration: 2
     }
-  ]
-});
+  },
+  {
+    type: "text",
+    text: "DANGER!",
+    color: "#ffffff",
+    fontSize: "80px",
+    fontWeight: "bold",
+    animation: {
+      startX: window.innerWidth / 2 - 150,
+      startY: window.innerHeight / 2 - 40,
+      duration: 2
+    }
+  }
+]);
 ```
 
 **Result:** Red rectangle with "DANGER!" text
@@ -263,21 +255,17 @@ game.toast.show({
 Display custom images:
 
 ```javascript
-game.toast.show({
-  elements: [
-    {
-      type: "image",
-      src: "modules/toast/images/victory.png", // Your custom image
-      width: "400px",
-      height: "400px",
-      animation: {
-        startX: window.innerWidth / 2 - 200,
-        startY: window.innerHeight / 2 - 200,
-        duration: 3
-      }
+game.toast.show([
+  game.toast.image("modules/toast/images/victory.png", {
+    width: "400px",
+    height: "400px",
+    animation: {
+      startX: window.innerWidth / 2 - 200,
+      startY: window.innerHeight / 2 - 200,
+      duration: 3
     }
-  ]
-});
+  })
+]);
 ```
 
 **Result:** Displays your custom victory image
@@ -291,28 +279,26 @@ game.toast.show({
 Slide text across the screen:
 
 ```javascript
-game.toast.show({
-  sound: "godlike",
-  elements: [
-    {
-      type: "text",
-      text: "UNSTOPPABLE!",
-      color: "#ff00ff",
-      fontSize: "100px",
-      fontWeight: "bold",
-      animation: {
-        // Start off-screen left
-        startX: -500,
-        startY: window.innerHeight / 2 - 50,
-        // End off-screen right
-        endX: window.innerWidth + 500,
-        endY: window.innerHeight / 2 - 50,
-        duration: 3,
-        easing: "linear"
-      }
+game.toast.show([
+  game.toast.sound("godlike"),
+  {
+    type: "text",
+    text: "UNSTOPPABLE!",
+    color: "#ff00ff",
+    fontSize: "100px",
+    fontWeight: "bold",
+    animation: {
+      // Start off-screen left
+      startX: -500,
+      startY: window.innerHeight / 2 - 50,
+      // End off-screen right
+      endX: window.innerWidth + 500,
+      endY: window.innerHeight / 2 - 50,
+      duration: 3,
+      easing: "linear"
     }
-  ]
-});
+  }
+]);
 ```
 
 **Result:** Text slides from left to right across screen
@@ -324,24 +310,22 @@ game.toast.show({
 Make text grow and shrink:
 
 ```javascript
-game.toast.show({
-  elements: [
-    {
-      type: "text",
-      text: "BOOM!",
-      color: "#ff0000",
-      fontSize: "150px",
-      fontWeight: "bold",
-      animation: {
-        startX: window.innerWidth / 2 - 200,
-        startY: window.innerHeight / 2 - 75,
-        startScale: 0.1,    // Start tiny
-        endScale: 2.0,      // End huge
-        duration: 1.5
-      }
+game.toast.show([
+  {
+    type: "text",
+    text: "BOOM!",
+    color: "#ff0000",
+    fontSize: "150px",
+    fontWeight: "bold",
+    animation: {
+      startX: window.innerWidth / 2 - 200,
+      startY: window.innerHeight / 2 - 75,
+      startScale: 0.1,    // Start tiny
+      endScale: 2.0,      // End huge
+      duration: 1.5
     }
-  ]
-});
+  }
+]);
 ```
 
 **Result:** Text grows from tiny to huge
@@ -353,23 +337,21 @@ game.toast.show({
 Fade in and out:
 
 ```javascript
-game.toast.show({
-  elements: [
-    {
-      type: "text",
-      text: "Sneaking...",
-      color: "#666666",
-      fontSize: "80px",
-      animation: {
-        startX: window.innerWidth / 2 - 250,
-        startY: window.innerHeight / 2 - 40,
-        startOpacity: 0,
-        endOpacity: 1,
-        duration: 2
-      }
+game.toast.show([
+  {
+    type: "text",
+    text: "Sneaking...",
+    color: "#666666",
+    fontSize: "80px",
+    animation: {
+      startX: window.innerWidth / 2 - 250,
+      startY: window.innerHeight / 2 - 40,
+      startOpacity: 0,
+      endOpacity: 1,
+      duration: 2
     }
-  ]
-});
+  }
+]);
 ```
 
 **Result:** Text fades in gradually
@@ -384,34 +366,34 @@ Use built-in announcer sounds:
 
 ```javascript
 // Single kill
-game.toast.show({
-  text: "First Blood!",
-  sound: "first-blood"
-});
+game.toast.show([
+  game.toast.sound("first-blood"),
+  game.toast.simpleText("First Blood!")
+]);
 
 // Double kill
-game.toast.show({
-  text: "Double Kill!",
-  sound: "double-kill"
-});
+game.toast.show([
+  game.toast.sound("double-kill"),
+  game.toast.simpleText("Double Kill!")
+]);
 
 // Multi-kill
-game.toast.show({
-  text: "Multi Kill!",
-  sound: "multi-kill"
-});
+game.toast.show([
+  game.toast.sound("multi-kill"),
+  game.toast.simpleText("Multi Kill!")
+]);
 
 // Killing spree
-game.toast.show({
-  text: "Killing Spree!",
-  sound: "killing-spree"
-});
+game.toast.show([
+  game.toast.sound("killing-spree"),
+  game.toast.simpleText("Killing Spree!")
+]);
 
 // Dominating
-game.toast.show({
-  text: "DOMINATING!",
-  sound: "dominating"
-});
+game.toast.show([
+  game.toast.sound("dominating"),
+  game.toast.simpleText("DOMINATING!")
+]);
 ```
 
 **Available sounds:** See [ANNOUNCER-PACKS.md](ANNOUNCER-PACKS.md)
@@ -423,10 +405,10 @@ game.toast.show({
 Use your own audio:
 
 ```javascript
-game.toast.show({
-  text: "Achievement Unlocked!",
-  sound: "modules/my-module/sounds/achievement.mp3"
-});
+game.toast.show([
+  game.toast.sound("modules/my-module/sounds/achievement.mp3"),
+  game.toast.simpleText("Achievement Unlocked!")
+]);
 ```
 
 **Result:** Plays your custom sound file
@@ -447,34 +429,28 @@ if (!token) {
   return;
 }
 
-game.toast.show({
-  sound: "dominating",
-  elements: [
-    {
-      type: "tokenImage",
-      tokenId: token.id,
-      width: "300px",
-      height: "300px",
-      animation: {
-        startX: window.innerWidth / 2 - 150,
-        startY: window.innerHeight / 2 - 150,
-        duration: 3
-      }
-    },
-    {
-      type: "text",
-      text: token.name,
-      color: "#FFD700",
-      fontSize: "80px",
-      fontWeight: "bold",
-      animation: {
-        startX: window.innerWidth / 2 - 200,
-        startY: window.innerHeight / 2 + 200,
-        duration: 3
-      }
+game.toast.show([
+  game.toast.sound("dominating"),
+  game.toast.tokenImage(token.id, {
+    width: "300px",
+    height: "300px",
+    animation: {
+      startX: window.innerWidth / 2 - 150,
+      startY: window.innerHeight / 2 - 150,
+      duration: 3
     }
-  ]
-});
+  }),
+  game.toast.simpleText(token.name, {
+    color: "#FFD700",
+    fontSize: "80px",
+    fontWeight: "bold",
+    animation: {
+      startX: window.innerWidth / 2 - 200,
+      startY: window.innerHeight / 2 + 200,
+      duration: 3
+    }
+  })
+]);
 ```
 
 **Result:** Shows token image with name below
@@ -493,22 +469,18 @@ if (!token) {
   return;
 }
 
-game.toast.show({
-  sound: "holy-shit",
-  elements: [
-    {
-      type: "actorImage",
-      actorId: token.actor.id,
-      width: "400px",
-      height: "400px",
-      animation: {
-        startX: window.innerWidth / 2 - 200,
-        startY: window.innerHeight / 2 - 200,
-        duration: 3
-      }
+game.toast.show([
+  game.toast.sound("holy-shit"),
+  game.toast.actorImage(token.actor.id, {
+    width: "400px",
+    height: "400px",
+    animation: {
+      startX: window.innerWidth / 2 - 200,
+      startY: window.innerHeight / 2 - 200,
+      duration: 3
     }
-  ]
-});
+  })
+]);
 ```
 
 **Result:** Shows actor portrait (not token image)
@@ -528,45 +500,39 @@ if (!attacker || !defender) {
   return;
 }
 
-game.toast.show({
-  sound: "dominating",
-  elements: [
-    {
-      type: "tokenImage",
-      tokenId: attacker.id,
-      width: "250px",
-      height: "250px",
-      animation: {
-        startX: window.innerWidth / 4 - 125,
-        startY: window.innerHeight / 2 - 125,
-        duration: 3
-      }
-    },
-    {
-      type: "text",
-      text: "VS",
-      color: "#ff0000",
-      fontSize: "100px",
-      fontWeight: "bold",
-      animation: {
-        startX: window.innerWidth / 2 - 50,
-        startY: window.innerHeight / 2 - 50,
-        duration: 3
-      }
-    },
-    {
-      type: "tokenImage",
-      tokenId: defender.id,
-      width: "250px",
-      height: "250px",
-      animation: {
-        startX: (window.innerWidth * 3/4) - 125,
-        startY: window.innerHeight / 2 - 125,
-        duration: 3
-      }
+game.toast.show([
+  game.toast.sound("dominating"),
+  game.toast.tokenImage(attacker.id, {
+    width: "250px",
+    height: "250px",
+    animation: {
+      startX: window.innerWidth / 4 - 125,
+      startY: window.innerHeight / 2 - 125,
+      duration: 3
     }
-  ]
-});
+  }),
+  {
+    type: "text",
+    text: "VS",
+    color: "#ff0000",
+    fontSize: "100px",
+    fontWeight: "bold",
+    animation: {
+      startX: window.innerWidth / 2 - 50,
+      startY: window.innerHeight / 2 - 50,
+      duration: 3
+    }
+  },
+  game.toast.tokenImage(defender.id, {
+    width: "250px",
+    height: "250px",
+    animation: {
+      startX: (window.innerWidth * 3/4) - 125,
+      startY: window.innerHeight / 2 - 125,
+      duration: 3
+    }
+  })
+]);
 ```
 
 **Result:** Shows attacker VS defender with images
@@ -580,50 +546,48 @@ game.toast.show({
 Combine text, images, and shapes:
 
 ```javascript
-game.toast.show({
-  sound: "godlike",
-  elements: [
-    // Background shape
-    {
-      type: "shape",
-      shape: "rect",
-      color: "rgba(0, 0, 0, 0.7)",
-      width: "800px",
-      height: "400px",
-      animation: {
-        startX: window.innerWidth / 2 - 400,
-        startY: window.innerHeight / 2 - 200,
-        duration: 3
-      }
-    },
-    // Title
-    {
-      type: "text",
-      text: "LEGENDARY!",
-      color: "#FFD700",
-      fontSize: "100px",
-      fontWeight: "bold",
-      textShadow: "0 0 50px #FFD700",
-      animation: {
-        startX: window.innerWidth / 2 - 300,
-        startY: window.innerHeight / 2 - 150,
-        duration: 3
-      }
-    },
-    // Subtitle
-    {
-      type: "text",
-      text: "10 Kills Without Dying",
-      color: "#ffffff",
-      fontSize: "50px",
-      animation: {
-        startX: window.innerWidth / 2 - 300,
-        startY: window.innerHeight / 2 - 50,
-        duration: 3
-      }
+game.toast.show([
+  game.toast.sound("godlike"),
+  // Background shape
+  {
+    type: "shape",
+    shape: "rect",
+    color: "rgba(0, 0, 0, 0.7)",
+    width: "800px",
+    height: "400px",
+    animation: {
+      startX: window.innerWidth / 2 - 400,
+      startY: window.innerHeight / 2 - 200,
+      duration: 3
     }
-  ]
-});
+  },
+  // Title
+  {
+    type: "text",
+    text: "LEGENDARY!",
+    color: "#FFD700",
+    fontSize: "100px",
+    fontWeight: "bold",
+    textShadow: "0 0 50px #FFD700",
+    animation: {
+      startX: window.innerWidth / 2 - 300,
+      startY: window.innerHeight / 2 - 150,
+      duration: 3
+    }
+  },
+  // Subtitle
+  {
+    type: "text",
+    text: "10 Kills Without Dying",
+    color: "#ffffff",
+    fontSize: "50px",
+    animation: {
+      startX: window.innerWidth / 2 - 300,
+      startY: window.innerHeight / 2 - 50,
+      duration: 3
+    }
+  }
+]);
 ```
 
 **Result:** Layered announcement with background
@@ -647,23 +611,19 @@ if (!token) {
 // Get initiative roll (adjust for your system)
 const initiative = 18;
 
-game.toast.show({
-  sound: "prepare",
-  elements: [
-    {
-      type: "text",
-      text: `Initiative: ${initiative}`,
-      color: "#00ff00",
-      fontSize: "80px",
-      fontWeight: "bold",
-      animation: {
-        startX: window.innerWidth / 2 - 250,
-        startY: window.innerHeight / 2 - 40,
-        duration: 2
-      }
+game.toast.show([
+  game.toast.sound("prepare"),
+  game.toast.simpleText(`Initiative: ${initiative}`, {
+    color: "#00ff00",
+    fontSize: "80px",
+    fontWeight: "bold",
+    animation: {
+      startX: window.innerWidth / 2 - 250,
+      startY: window.innerHeight / 2 - 40,
+      duration: 2
     }
-  ]
-});
+  })
+]);
 ```
 
 ---
@@ -673,35 +633,33 @@ game.toast.show({
 Celebrate loot:
 
 ```javascript
-game.toast.show({
-  sound: "double-kill",
-  elements: [
-    {
-      type: "text",
-      text: "LEGENDARY ITEM FOUND!",
-      color: "#ff8800",
-      fontSize: "90px",
-      fontWeight: "bold",
-      textShadow: "0 0 50px #ff8800",
-      animation: {
-        startX: window.innerWidth / 2 - 450,
-        startY: window.innerHeight / 3,
-        duration: 3
-      }
-    },
-    {
-      type: "text",
-      text: "Sword of Ultimate Power",
-      color: "#FFD700",
-      fontSize: "60px",
-      animation: {
-        startX: window.innerWidth / 2 - 350,
-        startY: window.innerHeight / 2,
-        duration: 3
-      }
+game.toast.show([
+  game.toast.sound("double-kill"),
+  {
+    type: "text",
+    text: "LEGENDARY ITEM FOUND!",
+    color: "#ff8800",
+    fontSize: "90px",
+    fontWeight: "bold",
+    textShadow: "0 0 50px #ff8800",
+    animation: {
+      startX: window.innerWidth / 2 - 450,
+      startY: window.innerHeight / 3,
+      duration: 3
     }
-  ]
-});
+  },
+  {
+    type: "text",
+    text: "Sword of Ultimate Power",
+    color: "#FFD700",
+    fontSize: "60px",
+    animation: {
+      startX: window.innerWidth / 2 - 350,
+      startY: window.innerHeight / 2,
+      duration: 3
+    }
+  }
+]);
 ```
 
 ---
@@ -720,46 +678,38 @@ if (!token) {
 
 const newLevel = 5; // Get from actor
 
-game.toast.show({
-  sound: "godlike",
-  elements: [
-    {
-      type: "tokenImage",
-      tokenId: token.id,
-      width: "250px",
-      height: "250px",
-      animation: {
-        startX: window.innerWidth / 2 - 125,
-        startY: window.innerHeight / 3 - 125,
-        duration: 3
-      }
-    },
-    {
-      type: "text",
-      text: "LEVEL UP!",
-      color: "#FFD700",
-      fontSize: "100px",
-      fontWeight: "bold",
-      textShadow: "0 0 50px #FFD700",
-      animation: {
-        startX: window.innerWidth / 2 - 250,
-        startY: window.innerHeight / 2 + 100,
-        duration: 3
-      }
-    },
-    {
-      type: "text",
-      text: `Now Level ${newLevel}`,
-      color: "#00ff00",
-      fontSize: "60px",
-      animation: {
-        startX: window.innerWidth / 2 - 180,
-        startY: window.innerHeight / 2 + 200,
-        duration: 3
-      }
+game.toast.show([
+  game.toast.sound("godlike"),
+  game.toast.tokenImage(token.id, {
+    width: "250px",
+    height: "250px",
+    animation: {
+      startX: window.innerWidth / 2 - 125,
+      startY: window.innerHeight / 3 - 125,
+      duration: 3
     }
-  ]
-});
+  }),
+  game.toast.simpleText("LEVEL UP!", {
+    color: "#FFD700",
+    fontSize: "100px",
+    fontWeight: "bold",
+    textShadow: "0 0 50px #FFD700",
+    animation: {
+      startX: window.innerWidth / 2 - 250,
+      startY: window.innerHeight / 2 + 100,
+      duration: 3
+    }
+  }),
+  game.toast.simpleText(`Now Level ${newLevel}`, {
+    color: "#00ff00",
+    fontSize: "60px",
+    animation: {
+      startX: window.innerWidth / 2 - 180,
+      startY: window.innerHeight / 2 + 200,
+      duration: 3
+    }
+  })
+]);
 ```
 
 ---
@@ -779,12 +729,11 @@ if (!token) {
 const rollResult = 15; // Get from roll
 const success = rollResult >= 10;
 
-game.toast.show({
-  sound: success ? "first-blood" : "prepare",
-  elements: [
+game.toast.show([
+  game.toast.sound(success ? "first-blood" : "prepare"),
+  game.toast.simpleText(
+    success ? "DEATH SAVE: SUCCESS!" : "DEATH SAVE: FAILURE!",
     {
-      type: "text",
-      text: success ? "DEATH SAVE: SUCCESS!" : "DEATH SAVE: FAILURE!",
       color: success ? "#00ff00" : "#ff0000",
       fontSize: "90px",
       fontWeight: "bold",
@@ -795,8 +744,8 @@ game.toast.show({
         duration: 2.5
       }
     }
-  ]
-});
+  )
+]);
 ```
 
 ---
@@ -808,38 +757,106 @@ Announce combat rounds:
 ```javascript
 const roundNumber = game.combat?.round || 1;
 
-game.toast.show({
-  sound: "prepare",
-  elements: [
-    {
-      type: "text",
-      text: `ROUND ${roundNumber}`,
-      color: "#ffffff",
-      fontSize: "100px",
-      fontWeight: "bold",
-      animation: {
-        startX: window.innerWidth / 2 - 250,
-        startY: window.innerHeight / 2 - 50,
-        duration: 2
-      }
-    },
-    {
-      type: "text",
-      text: "FIGHT!",
-      color: "#ff0000",
-      fontSize: "80px",
-      fontWeight: "bold",
-      textShadow: "0 0 40px #ff0000",
-      animation: {
-        startX: window.innerWidth / 2 - 150,
-        startY: window.innerHeight / 2 + 80,
-        startScale: 0.5,
-        endScale: 1.5,
-        duration: 1.5
-      }
+game.toast.show([
+  game.toast.sound("prepare"),
+  game.toast.simpleText(`ROUND ${roundNumber}`, {
+    color: "#ffffff",
+    fontSize: "100px",
+    fontWeight: "bold",
+    animation: {
+      startX: window.innerWidth / 2 - 250,
+      startY: window.innerHeight / 2 - 50,
+      duration: 2
     }
-  ]
-});
+  }),
+  {
+    type: "text",
+    text: "FIGHT!",
+    color: "#ff0000",
+    fontSize: "80px",
+    fontWeight: "bold",
+    textShadow: "0 0 40px #ff0000",
+    animation: {
+      startX: window.innerWidth / 2 - 150,
+      startY: window.innerHeight / 2 + 80,
+      startScale: 0.5,
+      endScale: 1.5,
+      duration: 1.5
+    }
+  }
+]);
+```
+
+---
+
+## Helper Functions
+
+Toast provides helper functions to make creating elements easier:
+
+### game.toast.simpleText(text, options)
+
+Creates a text element with default styling:
+
+```javascript
+game.toast.simpleText("Hello World")
+// Returns: { type: "text", text: "Hello World" }
+
+game.toast.simpleText("Styled Text", {
+  color: "#ff0000",
+  fontSize: "80px",
+  fontWeight: "bold"
+})
+// Returns: { type: "text", text: "Styled Text", color: "#ff0000", fontSize: "80px", fontWeight: "bold" }
+```
+
+### game.toast.sound(soundName)
+
+Creates a sound element:
+
+```javascript
+game.toast.sound("dominating")
+// Returns: { type: "sound", src: "dominating" }
+
+game.toast.sound("modules/my-module/sounds/custom.mp3")
+// Returns: { type: "sound", src: "modules/my-module/sounds/custom.mp3" }
+```
+
+### game.toast.image(src, options)
+
+Creates an image element:
+
+```javascript
+game.toast.image("modules/toast/images/logo.png", {
+  width: "200px",
+  height: "200px"
+})
+// Returns: { type: "image", src: "...", width: "200px", height: "200px" }
+```
+
+### game.toast.tokenImage(tokenId, options)
+
+Creates a token image element:
+
+```javascript
+const token = canvas.tokens.controlled[0];
+game.toast.tokenImage(token.id, {
+  width: "300px",
+  height: "300px"
+})
+// Returns: { type: "tokenImage", tokenId: "...", width: "300px", height: "300px" }
+```
+
+### game.toast.actorImage(actorId, options)
+
+Creates an actor image element:
+
+```javascript
+const token = canvas.tokens.controlled[0];
+game.toast.actorImage(token.actor.id, {
+  width: "400px",
+  height: "400px"
+})
+// Returns: { type: "actorImage", actorId: "...", width: "400px", height: "400px" }
 ```
 
 ---

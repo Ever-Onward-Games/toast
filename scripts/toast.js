@@ -2007,7 +2007,7 @@ class ToastManager {
 
         case "shape":
           result.content = {
-            backgroundColor: element.backgroundColor,
+            backgroundColor: element.color || element.backgroundColor,
             width: element.width,
             height: element.height
           };
@@ -2741,7 +2741,8 @@ class ToastManager {
     if (element.height) container.style.height = element.height;
 
     // Apply styling
-    if (element.backgroundColor) shape.style.backgroundColor = element.backgroundColor;
+    const bgColor = element.color || element.backgroundColor;
+    if (bgColor) shape.style.backgroundColor = bgColor;
     if (element.borderRadius) shape.style.borderRadius = element.borderRadius;
     if (element.border) shape.style.border = element.border;
     if (element.boxShadow) shape.style.boxShadow = element.boxShadow;

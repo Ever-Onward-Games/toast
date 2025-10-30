@@ -1,5 +1,33 @@
 # Changelog
 
+## Version 2.0.3 - Shape Element Fix (2025-10-30)
+
+### 🐛 Bug Fix
+
+**Shape elements not rendering:**
+- Fixed shape elements not appearing when using `color` property
+- Shape elements now accept both `color` and `backgroundColor` properties
+- `color` is now the recommended property name (more intuitive for users)
+- `backgroundColor` still supported for backwards compatibility
+
+**Example:**
+```javascript
+game.toast.show([
+  {
+    type: "shape",
+    shape: "rect",
+    color: "#ff0000",  // Now works correctly!
+    width: "400px",
+    height: "200px"
+  }
+]);
+```
+
+### Files Changed
+- `src/core/ToastManager.js` - Updated shape element rendering to accept both `color` and `backgroundColor`
+
+---
+
 ## Version 2.0.2 - API Fix (2025-10-30)
 
 ### 🐛 Critical Bug Fix
