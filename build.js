@@ -51,6 +51,49 @@ const EXCLUDE = [
   'docs/'
 ];
 
+// Source modules in build order (single source of truth)
+// These are concatenated in this exact order
+const SOURCE_MODULES = [
+  // TTS Layer
+  'tts/TTSCacheManager.js',
+  'tts/ElevenLabsAPI.js',
+
+  // AI Layer
+  'ai/AIStatusWindow.js',
+  'ai/AIProvider.js',
+  'ai/ClaudeProvider.js',
+  'ai/OpenAIProvider.js',
+  'ai/AIProviderFactory.js',
+
+  // Templates Layer
+  'templates/TemplateManager.js',
+
+  // UI Layer
+  'ui/ToastStudioApp.js',
+
+  // Core Layer
+  'core/ToastManager.js',
+  'core/ToastManagerIntegration.js',
+
+  // Entry point (hooks)
+  'index.js'
+];
+
+// Classes that should be present in the build output
+// (derived from SOURCE_MODULES, but index.js doesn't export a class)
+const REQUIRED_CLASSES = [
+  'TTSCacheManager',
+  'ElevenLabsAPI',
+  'AIStatusWindow',
+  'AIProvider',
+  'ClaudeProvider',
+  'OpenAIProvider',
+  'AIProviderFactory',
+  'TemplateManager',
+  'ToastStudioApp',
+  'ToastManager'
+];
+
 /**
  * Logger with levels
  */
@@ -94,25 +137,9 @@ function validateSourceModules() {
   log.info('🔍 Validating source modules...');
 
   const SRC_DIR = path.join(__dirname, 'src');
-
-  const modules = [
-    'tts/TTSCacheManager.js',
-    'tts/ElevenLabsAPI.js',
-    'ai/AIStatusWindow.js',
-    'ai/AIProvider.js',
-    'ai/ClaudeProvider.js',
-    'ai/OpenAIProvider.js',
-    'ai/AIProviderFactory.js',
-    'templates/TemplateManager.js',
-    'ui/ToastStudioApp.js',
-    'core/ToastManager.js',
-    'core/ToastManagerIntegration.js',
-    'index.js'
-  ];
-
   const missing = [];
 
-  for (const module of modules) {
+  for (const module of SOURCE_MODULES) {
     const modulePath = path.join(SRC_DIR, module);
     if (!fs.existsSync(modulePath)) {
       missing.push(module);
@@ -127,7 +154,7 @@ function validateSourceModules() {
     process.exit(1);
   }
 
-  log.verbose(`All ${modules.length} source modules found`);
+  log.verbose(`All ${SOURCE_MODULES.length} source modules found`);
 }
 
 /**
@@ -248,34 +275,10 @@ function concatenateModules() {
   const SRC_DIR = path.join(__dirname, 'src');
   const OUTPUT_FILE = path.join(__dirname, 'scripts', 'toast.js');
 
-  // Module files in order of dependencies
-  const modules = [
-    // TTS Layer
-    'tts/TTSCacheManager.js',
-    'tts/ElevenLabsAPI.js',
-
-    // AI Layer
-    'ai/AIStatusWindow.js',
-    'ai/AIProvider.js',
-    'ai/ClaudeProvider.js',
-    'ai/OpenAIProvider.js',
-    'ai/AIProviderFactory.js',
-
-    // Templates Layer
-    'templates/TemplateManager.js',
-
-    // Core Layer
-    'core/ToastManager.js',
-    'core/ToastManagerIntegration.js',
-
-    // Entry point (hooks)
-    'index.js'
-  ];
-
   let concatenated = '';
   let totalLines = 0;
 
-  for (const module of modules) {
+  for (const module of SOURCE_MODULES) {
     const modulePath = path.join(SRC_DIR, module);
 
     if (!fs.existsSync(modulePath)) {
@@ -297,7 +300,7 @@ function concatenateModules() {
   const sizeKB = (concatenated.length / 1024).toFixed(1);
   log.success(`✅ Created scripts/toast.js (${sizeKB} KB, ${totalLines} lines)`);
 
-  return { size: sizeKB, lines: totalLines, modules: modules.length };
+  return { size: sizeKB, lines: totalLines, modules: SOURCE_MODULES.length };
 }
 
 /**
@@ -316,21 +319,9 @@ function validateOutput() {
   const content = fs.readFileSync(outputFile, 'utf8');
 
   // Check for required classes
-  const requiredClasses = [
-    'TTSCacheManager',
-    'ElevenLabsAPI',
-    'AIStatusWindow',
-    'AIProvider',
-    'ClaudeProvider',
-    'OpenAIProvider',
-    'AIProviderFactory',
-    'TemplateManager',
-    'ToastManager'
-  ];
-
   const missingClasses = [];
 
-  for (const className of requiredClasses) {
+  for (const className of REQUIRED_CLASSES) {
     const pattern = new RegExp(`class ${className}`);
     if (!pattern.test(content)) {
       missingClasses.push(className);
