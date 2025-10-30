@@ -1,8 +1,9 @@
 /**
  * Toast Module - Full Screen Celebration Styles
+ * All styles are scoped to .toast-overlay to prevent affecting Foundry layout
  */
 
-/* Full-screen overlay */
+/* Full-screen overlay - root container for all toast elements */
 .toast-overlay {
   position: fixed;
   top: 0;
@@ -40,8 +41,8 @@
   }
 }
 
-/* Individual toast elements */
-.toast-element {
+/* Individual toast elements - only apply inside toast overlay */
+.toast-overlay .toast-element {
   position: absolute;
   display: flex;
   align-items: center;
@@ -50,30 +51,30 @@
   will-change: transform, opacity, left, top;
 }
 
-/* Image elements */
-.toast-image {
+/* Image elements - scoped to toast overlay */
+.toast-overlay .toast-image {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
   display: block;
 }
 
-/* Token images - default circular */
-.toast-token {
+/* Token images - default circular - scoped to toast overlay */
+.toast-overlay .toast-token {
   border-radius: 50%;
   border: 3px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
-/* Actor images */
-.toast-actor {
+/* Actor images - scoped to toast overlay */
+.toast-overlay .toast-actor {
   border-radius: 8px;
   border: 2px solid rgba(255, 255, 255, 0.6);
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
 }
 
-/* Text elements */
-.toast-text {
+/* Text elements - scoped to toast overlay */
+.toast-overlay .toast-text {
   font-family: "Signika", sans-serif;
   font-size: 72px;
   font-weight: bold;
@@ -89,12 +90,12 @@
   user-select: none;
 }
 
-/* Utility classes for common effects */
-.toast-glow {
+/* Utility classes for common effects - scoped to toast overlay */
+.toast-overlay .toast-glow {
   filter: drop-shadow(0 0 20px currentColor);
 }
 
-.toast-pulse {
+.toast-overlay .toast-pulse {
   animation: toast-pulse 1s ease-in-out infinite;
 }
 
@@ -107,7 +108,7 @@
   }
 }
 
-.toast-shake {
+.toast-overlay .toast-shake {
   animation: toast-shake 0.5s ease-in-out;
 }
 
@@ -123,7 +124,7 @@
   }
 }
 
-.toast-bounce {
+.toast-overlay .toast-bounce {
   animation: toast-bounce 1s ease-out;
 }
 
@@ -205,8 +206,8 @@
   }
 }
 
-/* Shape element - for colored rectangles, circles, etc */
-.toast-shape {
+/* Shape element - for colored rectangles, circles, etc - scoped to toast overlay */
+.toast-overlay .toast-shape {
   display: block;
   width: 100%;
   height: 100%;

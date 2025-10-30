@@ -1228,8 +1228,7 @@ class ToastManager {
         "role": "By Role",
         "username": "By Username"
       },
-      default: "gm-only",
-      onChange: () => {}
+      default: "gm-only"
     });
 
     // Allowed roles setting
@@ -1245,8 +1244,7 @@ class ToastManager {
         "3": "Assistant GM",
         "4": "Game Master"
       },
-      default: "4",
-      onChange: () => {}
+      default: "4"
     });
 
     // Allowed usernames setting
@@ -1256,8 +1254,7 @@ class ToastManager {
       scope: "world",
       config: true,
       type: String,
-      default: "",
-      onChange: () => {}
+      default: ""
     });
 
     // Announcer pack setting
@@ -1270,8 +1267,7 @@ class ToastManager {
       choices: {
         "unreal-tournament": "Unreal Tournament"
       },
-      default: "unreal-tournament",
-      onChange: () => {}
+      default: "unreal-tournament"
     });
 
     // ElevenLabs API Key (client-side, user-specific)
@@ -1281,8 +1277,7 @@ class ToastManager {
       scope: "client",
       config: true,
       type: String,
-      default: "",
-      onChange: () => {}
+      default: ""
     });
 
     // ElevenLabs Voice ID (client-side, user-specific)
@@ -1292,8 +1287,7 @@ class ToastManager {
       scope: "client",
       config: true,
       type: String,
-      default: "21m00Tcm4TlvDq8ikWAM", // Default: Rachel
-      onChange: () => {}
+      default: "21m00Tcm4TlvDq8ikWAM" // Default: Rachel
     });
 
     // TTS Cache Enabled
@@ -1303,8 +1297,7 @@ class ToastManager {
       scope: "client",
       config: true,
       type: Boolean,
-      default: true,
-      onChange: () => {}
+      default: true
     });
 
     // TTS Cache Size
@@ -1314,8 +1307,7 @@ class ToastManager {
       scope: "client",
       config: true,
       type: Number,
-      default: 100,
-      onChange: () => {}
+      default: 100
     });
 
     // ===== AI GENERATION SETTINGS (World - GM Only) =====
@@ -1327,8 +1319,7 @@ class ToastManager {
       scope: "world",
       config: true,
       type: Boolean,
-      default: false,
-      onChange: () => {}
+      default: false
     });
 
     // AI Provider
@@ -1342,8 +1333,7 @@ class ToastManager {
         "claude": "Claude (Anthropic)",
         "openai": "OpenAI"
       },
-      default: "claude",
-      onChange: () => {}
+      default: "claude"
     });
 
     // Claude API Key (World)
@@ -1353,8 +1343,7 @@ class ToastManager {
       scope: "world",
       config: true,
       type: String,
-      default: "",
-      onChange: () => {}
+      default: ""
     });
 
     // OpenAI API Key (World)
@@ -1364,8 +1353,7 @@ class ToastManager {
       scope: "world",
       config: true,
       type: String,
-      default: "",
-      onChange: () => {}
+      default: ""
     });
 
     // Share AI Keys With
@@ -1382,7 +1370,6 @@ class ToastManager {
         "username": "By Username"
       },
       default: "none",
-      onChange: () => {}
     });
 
     // Allowed Roles for AI Keys
@@ -1399,7 +1386,6 @@ class ToastManager {
         "4": "Game Master"
       },
       default: "4",
-      onChange: () => {}
     });
 
     // Allowed Usernames for AI Keys
@@ -1410,7 +1396,6 @@ class ToastManager {
       config: true,
       type: String,
       default: "",
-      onChange: () => {}
     });
 
     // AI Model Selection
@@ -1432,7 +1417,6 @@ class ToastManager {
         "gpt-3.5-turbo": "GPT-3.5 Turbo"
       },
       default: "claude-3-5-sonnet-20241022",
-      onChange: () => {}
     });
 
     // OpenAI Mode
@@ -1448,7 +1432,6 @@ class ToastManager {
         "fine-tuned": "Fine-tuned Model"
       },
       default: "standard",
-      onChange: () => {}
     });
 
     // OpenAI Assistant/Model ID
@@ -1459,7 +1442,6 @@ class ToastManager {
       config: true,
       type: String,
       default: "",
-      onChange: () => {}
     });
 
     // Max Tokens
@@ -1470,7 +1452,6 @@ class ToastManager {
       config: true,
       type: Number,
       default: 150,
-      onChange: () => {}
     });
 
     // Temperature
@@ -1481,7 +1462,6 @@ class ToastManager {
       config: true,
       type: Number,
       default: 0.7,
-      onChange: () => {}
     });
 
     // ===== AI GENERATION SETTINGS (Client - User Override) =====
@@ -1494,7 +1474,6 @@ class ToastManager {
       config: true,
       type: Boolean,
       default: false,
-      onChange: () => {}
     });
 
     // AI Provider (Client)
@@ -1509,7 +1488,6 @@ class ToastManager {
         "openai": "OpenAI"
       },
       default: "claude",
-      onChange: () => {}
     });
 
     // Claude API Key (Client)
@@ -1520,7 +1498,6 @@ class ToastManager {
       config: true,
       type: String,
       default: "",
-      onChange: () => {}
     });
 
     // OpenAI API Key (Client)
@@ -1531,7 +1508,6 @@ class ToastManager {
       config: true,
       type: String,
       default: "",
-      onChange: () => {}
     });
 
     // OpenAI Mode (Client)
@@ -1547,7 +1523,6 @@ class ToastManager {
         "fine-tuned": "Fine-tuned Model"
       },
       default: "standard",
-      onChange: () => {}
     });
 
     // OpenAI Custom ID (Client)
@@ -1558,7 +1533,6 @@ class ToastManager {
       config: true,
       type: String,
       default: "",
-      onChange: () => {}
     });
   }
 
