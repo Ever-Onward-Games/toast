@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.1.1 - Build System Fix (2025-10-30)
+
+### 🐛 Bug Fix
+
+**Build system refactoring:**
+- Fixed ToastStudioApp not being included in build output
+- Refactored build.js to use single source of truth for module list
+- `SOURCE_MODULES` constant now used by all build functions
+- Eliminates duplicate module list maintenance
+
+### Files Changed
+- `build.js` - Refactored to use centralized `SOURCE_MODULES` and `REQUIRED_CLASSES` constants
+
+---
+
 ## Version 2.1.0 - Toast Studio (Phase 4.1) (2025-10-30)
 
 ### ✨ New Feature: Toast Studio
