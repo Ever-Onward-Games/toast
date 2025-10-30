@@ -1,5 +1,48 @@
 # Changelog
 
+## Version 2.0.1 - Bug Fixes (2025-10-30)
+
+### 🐛 Bug Fixes
+
+**Settings Registration Error:**
+- Fixed "object is not iterable" error when opening Foundry Settings menu
+- Removed empty `onChange` handlers from all 26 settings registrations
+- Improves compatibility with dnd5e and other systems
+
+**CSS Scope Issues:**
+- Scoped all CSS selectors to `.toast-overlay` parent
+- Prevents Toast styles from affecting Foundry VTT layout
+- Fixed CSS bleed into sidebar, chat, and controls
+- 10 selectors updated for proper isolation
+
+### 📚 Documentation
+
+**Reorganized Examples:**
+- Moved all AI examples from `EXAMPLES.md` to `AI-GENERATION.md`
+- Created new `EXAMPLES.md` with 22 basic, non-AI examples
+- Covers simple toasts, templates, animations, audio, images
+- Practical game examples (initiative, treasure, level up, death saves)
+- Clear separation between basic and AI features
+
+### 🔧 Technical Changes
+
+- Removed 26 empty `onChange: () => {}` handlers from settings
+- Scoped CSS: `.toast-element` → `.toast-overlay .toast-element`
+- Scoped CSS: `.toast-text` → `.toast-overlay .toast-text`
+- Scoped CSS: `.toast-glow` → `.toast-overlay .toast-glow`
+- And 7 more CSS scoping fixes
+
+### Files Changed
+
+- `src/core/ToastManager.js` - Settings registration fix
+- `styles/toast.css` - CSS scoping
+- `docs/EXAMPLES.md` - New basic examples (22 examples, 904 lines)
+- `docs/AI-GENERATION.md` - Added AI examples (18 examples)
+- `package.json` - Version bump
+- `module.json` - Version bump
+
+---
+
 ## Version 2.0.0 - AI Text Generation (Phase 3)
 
 ### 🤖 Major Feature: Dynamic AI-Generated Announcements
