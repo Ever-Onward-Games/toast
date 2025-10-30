@@ -23,30 +23,40 @@
 
     .asset-search {
       flex: 1;
-      padding: 0.5rem;
+      padding: 0.75rem;
+      height: 36px;
       border: 1px solid var(--color-border-dark);
       border-radius: 4px;
       background: var(--color-bg);
       color: var(--color-text-dark-primary);
+      font-size: 14px;
+      line-height: 1.2;
     }
 
     .asset-filter {
-      padding: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      height: 36px;
       border: 1px solid var(--color-border-dark);
       border-radius: 4px;
       background: var(--color-bg);
       color: var(--color-text-dark-primary);
-      min-width: 150px;
+      min-width: 200px;
+      font-size: 14px;
+      line-height: 1.2;
     }
 
     .refresh-assets-btn {
-      padding: 0.5rem 1rem;
+      padding: 0.5rem 0.75rem;
+      height: 36px;
       background: var(--color-bg-btn);
       border: 1px solid var(--color-border-dark);
       border-radius: 4px;
       color: var(--color-text-dark-primary);
       cursor: pointer;
       transition: background 0.2s;
+      white-space: nowrap;
+      font-size: 14px;
+      line-height: 1.2;
 
       &:hover {
         background: var(--color-bg-option);

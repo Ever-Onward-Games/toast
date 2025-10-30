@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.3.2 - Assets Toolbar UI Fix (2025-10-30)
+
+### 🐛 Bug Fix
+
+**Fixed assets toolbar control sizing:**
+- Text search field now taller (36px height) with better padding for readability
+- Dropdown filter wider (200px min-width) and taller (36px height) so text is readable
+- Refresh button narrower (reduced horizontal padding) to fit better
+- All controls now consistent 36px height with 14px font size
+- Improved alignment and visual consistency in toolbar
+
+### Files Changed
+- `styles/components/_assets-tab.scss` - Updated toolbar control dimensions
+
+---
+
 ## Version 2.3.1 - CSS Scope Fix (2025-10-30)
 
 ### 🐛 Bug Fix
