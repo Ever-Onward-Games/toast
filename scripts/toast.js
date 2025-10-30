@@ -2579,8 +2579,30 @@ class ToastManager {
       }
     });
 
+    // Add close button
+    const closeButton = document.createElement("button");
+    closeButton.className = "toast-close-button";
+    closeButton.textContent = "Close";
+    closeButton.setAttribute("title", "Dismiss this toast");
+    overlay.appendChild(closeButton);
+
     // Add to document
     document.body.appendChild(overlay);
+
+    // Helper function to dismiss toast
+    const dismissToast = () => {
+      if (autoRemoveTimeout) {
+        clearTimeout(autoRemoveTimeout);
+      }
+      if (fadeOutTimeout) {
+        clearTimeout(fadeOutTimeout);
+      }
+      overlay.classList.add("toast-fade-out");
+      setTimeout(() => overlay.remove(), 500);
+    };
+
+    // Close button event listener
+    closeButton.addEventListener("click", dismissToast);
 
     // Start animations for visual elements
     requestAnimationFrame(() => {
@@ -2601,9 +2623,11 @@ class ToastManager {
       const delay = (e.animation?.delay || 0) * 1000;
       return duration + delay;
     })) + 1000;
-    setTimeout(() => {
+
+    let autoRemoveTimeout, fadeOutTimeout;
+    autoRemoveTimeout = setTimeout(() => {
       overlay.classList.add("toast-fade-out");
-      setTimeout(() => overlay.remove(), 500);
+      fadeOutTimeout = setTimeout(() => overlay.remove(), 500);
     }, maxDuration);
   }
 
@@ -3005,15 +3029,23 @@ class ToastManager {
       }
     });
 
+    // Add close button
+    const closeButton = document.createElement("button");
+    closeButton.className = "toast-close-button";
+    closeButton.textContent = "Close";
+    closeButton.setAttribute("title", "Dismiss this toast");
+    overlay.appendChild(closeButton);
+
     // Add to document
     document.body.appendChild(overlay);
 
     // Play TTS audio
+    let ttsAudioElement = null;
     if (ttsAudio) {
       try {
-        const audio = new Audio(ttsAudio);
-        audio.volume = 0.8; // Default volume
-        audio.play().catch(err => {
+        ttsAudioElement = new Audio(ttsAudio);
+        ttsAudioElement.volume = 0.8; // Default volume
+        ttsAudioElement.play().catch(err => {
           console.warn("Toast | Failed to play TTS audio:", err.message);
         });
         console.log("Toast | Playing TTS audio");
@@ -3021,6 +3053,25 @@ class ToastManager {
         console.warn("Toast | Error creating TTS audio element:", err.message);
       }
     }
+
+    // Helper function to dismiss toast
+    const dismissToast = () => {
+      if (autoRemoveTimeout) {
+        clearTimeout(autoRemoveTimeout);
+      }
+      if (fadeOutTimeout) {
+        clearTimeout(fadeOutTimeout);
+      }
+      if (ttsAudioElement) {
+        ttsAudioElement.pause();
+        ttsAudioElement.currentTime = 0;
+      }
+      overlay.classList.add("toast-fade-out");
+      setTimeout(() => overlay.remove(), 500);
+    };
+
+    // Close button event listener
+    closeButton.addEventListener("click", dismissToast);
 
     // Start animations for visual elements
     requestAnimationFrame(() => {
@@ -3041,9 +3092,10 @@ class ToastManager {
       return duration + delay;
     }), 5000) + 1000; // Minimum 5 seconds for TTS audio
 
-    setTimeout(() => {
+    let autoRemoveTimeout, fadeOutTimeout;
+    autoRemoveTimeout = setTimeout(() => {
       overlay.classList.add("toast-fade-out");
-      setTimeout(() => overlay.remove(), 500);
+      fadeOutTimeout = setTimeout(() => overlay.remove(), 500);
     }, maxDuration);
   }
 

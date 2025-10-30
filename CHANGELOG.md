@@ -1,5 +1,27 @@
 # Changelog
 
+## Version 2.1.3 - Close Button (2025-10-30)
+
+### ✨ New Feature
+
+**Close button for toasts:**
+- Added "CLOSE" button in bottom-right corner of all toasts
+- Users can now dismiss toasts early by clicking the button
+- Button has `pointer-events: auto` while overlay maintains clickthrough
+- Automatically stops TTS audio when closed
+- Cancels auto-remove timers properly
+
+**UX Improvements:**
+- Toast overlay maintains `pointer-events: none` for UI clickthrough
+- Close button styled with hover and active states
+- Smooth fade-out animation when dismissed
+
+### Files Changed
+- `styles/toast.css` - Added close button styles
+- `src/core/ToastManager.js` - Added close button to `renderToast()` and `renderToastWithTTS()`
+
+---
+
 ## Version 2.1.2 - Images Directory Fix (2025-10-30)
 
 ### 🐛 Bug Fix
