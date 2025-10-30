@@ -1770,10 +1770,39 @@ class ToastManager {
    */
   static registerAPI() {
     game.toast = {
+      // Main API methods
       show: (elements) => this.showToast(elements),
       showLocal: (elements) => this.renderToast(elements),
       showDynamic: (templateId, tokens, elements) => this.showDynamic(templateId, tokens, elements),
       showDynamicAI: (config) => this.showDynamicAI(config),
+
+      // Helper functions for creating common elements
+      simpleText: (text, options = {}) => ({
+        type: "text",
+        text: text,
+        ...options
+      }),
+      sound: (soundName) => ({
+        type: "sound",
+        src: soundName
+      }),
+      image: (src, options = {}) => ({
+        type: "image",
+        src: src,
+        ...options
+      }),
+      tokenImage: (tokenId, options = {}) => ({
+        type: "tokenImage",
+        tokenId: tokenId,
+        ...options
+      }),
+      actorImage: (actorId, options = {}) => ({
+        type: "actorImage",
+        actorId: actorId,
+        ...options
+      }),
+
+      // Utility methods
       hasPermission: () => this.hasPermission(),
       resolveElement: (element) => this.resolveElement(element),
       randomSound: (sources, options = {}) => this.createRandomSoundElement(sources, options),

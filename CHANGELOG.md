@@ -1,5 +1,60 @@
 # Changelog
 
+## Version 2.0.2 - API Fix (2025-10-30)
+
+### 🐛 Critical Bug Fix
+
+**game.toast.show() API Error:**
+- Fixed `TypeError: elements.forEach is not a function`
+- `game.toast.show()` now correctly accepts an array of elements
+- Removed incorrect config object pattern
+
+**New Clean API Design:**
+```javascript
+// Simple case
+game.toast.show([
+  game.toast.sound("first-blood"),
+  game.toast.simpleText("VICTORY!")
+]);
+
+// Complex case with helper functions
+game.toast.show([
+  game.toast.sound("dominating"),
+  game.toast.simpleText("BOSS DEFEATED!", {
+    color: "#FFD700",
+    fontSize: "120px",
+    fontWeight: "bold"
+  }),
+  game.toast.tokenImage(token.id, { width: "300px", height: "300px" })
+]);
+
+// Or use raw element objects
+game.toast.show([
+  {
+    type: "text",
+    text: "Custom",
+    color: "#ff0000"
+  }
+]);
+```
+
+### ✨ New Helper Functions
+
+Added convenience methods for creating common elements:
+- `game.toast.simpleText(text, options)` - Create text element
+- `game.toast.sound(soundName)` - Create sound element
+- `game.toast.image(src, options)` - Create image element
+- `game.toast.tokenImage(tokenId, options)` - Create token image element
+- `game.toast.actorImage(actorId, options)` - Create actor image element
+
+### Files Changed
+
+- `src/core/ToastManager.js` - Fixed API registration and added helpers
+- `package.json` - Version bump to 2.0.2
+- `module.json` - Version bump to 2.0.2
+
+---
+
 ## Version 2.0.1 - Bug Fixes (2025-10-30)
 
 ### 🐛 Bug Fixes
