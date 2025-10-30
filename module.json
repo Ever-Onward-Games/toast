@@ -2,7 +2,7 @@
   "id": "toast",
   "title": "Toast - Full Screen Celebrations",
   "description": "Display full-screen visuals and celebration text to all players. Perfect for critical hits, finishing blows, and other memorable moments.",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "compatibility": {
     "minimum": "13",
     "verified": "13"

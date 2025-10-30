@@ -3,20 +3,29 @@
 .vscode/
 *.iml
 
+# Claude Code
+.claude/
+
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Build artifacts
-*.zip
 dist/
+*.zip
 
 # Logs
 *.log
+npm-debug.log*
 
-# Node modules (if you add any build tools later)
+# Dependencies
 node_modules/
 
-# Package files (if you add any build tools later)
-package-lock.json
+# Lock files (yarn only - keep package-lock.json for npm)
 yarn.lock
+
+# Temporary files
+*.tmp
+*.bak
+*~

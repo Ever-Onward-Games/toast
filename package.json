@@ -1,6 +1,6 @@
 {
   "name": "toast",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "description": "Full-screen celebration visuals for Foundry VTT",
   "main": "scripts/toast.js",
   "scripts": {

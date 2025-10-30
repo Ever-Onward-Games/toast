@@ -27,11 +27,15 @@ const EXCLUDE = [
   '.idea',
   'node_modules',
   'dist',
+  'src',
   '.gitignore',
   'build.js',
+  'build-zip.js',
   'package.json',
   'package-lock.json',
-  '.claude'
+  '.claude',
+  'PLANNING.md',
+  'AI-EXAMPLES.md'
 ];
 
 /**
@@ -85,10 +89,66 @@ function copyFile(src, dest) {
 }
 
 /**
+ * Concatenate source modules into single toast.js file
+ */
+function concatenateModules() {
+  console.log('🔧 Concatenating source modules...');
+
+  const SRC_DIR = path.join(__dirname, 'src');
+  const OUTPUT_FILE = path.join(__dirname, 'scripts', 'toast.js');
+
+  // Module files in order of dependencies
+  const modules = [
+    // TTS Layer
+    'tts/TTSCacheManager.js',
+    'tts/ElevenLabsAPI.js',
+
+    // AI Layer
+    'ai/AIStatusWindow.js',
+    'ai/AIProvider.js',
+    'ai/ClaudeProvider.js',
+    'ai/OpenAIProvider.js',
+    'ai/AIProviderFactory.js',
+
+    // Templates Layer
+    'templates/TemplateManager.js',
+
+    // Core Layer
+    'core/ToastManager.js',
+    'core/ToastManagerIntegration.js',
+
+    // Entry point (hooks)
+    'index.js'
+  ];
+
+  let concatenated = '';
+
+  for (const module of modules) {
+    const modulePath = path.join(SRC_DIR, module);
+
+    if (!fs.existsSync(modulePath)) {
+      console.error(`❌ Module not found: ${module}`);
+      process.exit(1);
+    }
+
+    const content = fs.readFileSync(modulePath, 'utf8');
+    concatenated += content + '\n\n';
+    console.log(`  ✓ ${module}`);
+  }
+
+  // Write concatenated file
+  fs.writeFileSync(OUTPUT_FILE, concatenated, 'utf8');
+  console.log(`✅ Created scripts/toast.js (${(concatenated.length / 1024).toFixed(1)} KB)`);
+}
+
+/**
  * Main build function
  */
 function build() {
   console.log('🔨 Building Toast module...');
+
+  // Concatenate source modules first
+  concatenateModules();
 
   // Clean dist directory
   console.log('🧹 Cleaning dist directory...');

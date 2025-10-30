@@ -1,5 +1,410 @@
 # Changelog
 
+## Version 2.0.0 - AI Text Generation (Phase 3)
+
+### 🤖 Major Feature: Dynamic AI-Generated Announcements
+
+Transform your toast notifications with AI-powered text generation! Instead of fixed templates, the AI creates unique, contextual announcements based on game state.
+
+**Before (v1.5.0):**
+```javascript
+// Fixed template with token replacement
+await game.toast.showDynamic("boss-kill", {
+  killer: "Alice",
+  boss: "Dragon"
+});
+// Output: "Alice strikes the final blow against Dragon! Victory is yours!"
+```
+
+**Now (v2.0.0):**
+```javascript
+// AI generates unique text from context
+await game.toast.showDynamicAI({
+  prompt: "[triumphant] Announce this as an epic fantasy narrator",
+  actor: { name: "Alice", class: "Paladin", level: 8, weapon: "Holy Avenger" },
+  target: { name: "Ancient Dragon", cr: 24 },
+  context: "finishing-blow",
+  damageDealt: 89
+});
+// AI Output: "With a mighty swing of her Holy Avenger, Paladin Alice delivers
+// a devastating 89 damage blow, bringing the Ancient Dragon crashing down in defeat!"
+```
+
+### New Features
+
+#### 🧠 AI Text Generation System
+- **Multi-Provider Support**: Choose between Claude (Anthropic) or OpenAI
+- **Model Selection**: Claude 3.5 Sonnet, Haiku, Opus, GPT-4o, GPT-4, GPT-3.5 Turbo
+- **Custom GPT Support**: Use your trained Custom GPTs via OpenAI Assistants API
+- **Fine-tuned Models**: Support for fine-tuned OpenAI models
+- **User-Defined Context**: System-agnostic - you define what data matters
+- **Free-Text Prompts**: No style presets - craft exact tone you want
+- **ElevenLabs v3 Brackets**: Use `[angry]`, `[triumphant]`, `[gentle]` for voice tone
+
+#### 🔑 Hybrid API Key System
+**GM Keys (World Settings):**
+- GM configures AI API keys (Claude + OpenAI)
+- Granular sharing controls: None, All Players, By Role, By Username
+- World-level model/temperature settings
+
+**User Override (Client Settings):**
+- Players can use their own API keys
+- Overrides GM's shared keys
+- Own provider, model, and Custom GPT selection
+
+#### ⚠️ Security Warnings
+- Prominent warnings on all API key settings
+- Transparent about Foundry's lack of module sandboxing
+- Best practices documentation
+- Recommendations for separate keys with spending limits
+
+#### 📊 Status Window for User Feedback
+- Shows "Generating announcement..." with spinner
+- 10-second timeout with clear notification
+- Retry button on errors/timeout
+- Fallback to template option
+- Error messages with details
+
+#### 🎯 Permission System
+- Respects existing toast permissions
+- Additional AI key access check
+- Clear error messages for permission issues
+
+### API Methods
+
+**New method: `game.toast.showDynamicAI(config)`**
+
+```javascript
+await game.toast.showDynamicAI({
+  // Required: Tone/style prompt
+  prompt: "Speak as an epic fantasy narrator",
+
+  // Optional: User-defined context (any structure)
+  actor: {
+    name: "Alice",
+    class: "Paladin",
+    level: 8,
+    hp: 45,
+    maxHp: 68,
+    weapon: "Holy Avenger"
+  },
+
+  target: {
+    name: "Ancient Dragon",
+    type: "Dragon",
+    cr: 24
+  },
+
+  // Optional: Additional context
+  context: "finishing-blow",
+  damageDealt: 89,
+  abilityUsed: "Divine Smite",
+  location: "Dragon's lair",
+
+  // Optional: Visual elements
+  elements: [
+    { type: "text", text: "BOSS DEFEATED!", color: "#FFD700", fontSize: "100px" }
+  ],
+
+  // Optional: Fallback template if AI fails
+  fallbackTemplate: "boss-kill"
+});
+```
+
+**Features:**
+- AI generates text from context
+- ElevenLabs converts to speech
+- Broadcasts to all players
+- Synchronized playback
+- Automatic retry/fallback on errors
+
+### Settings Added
+
+**World Settings (14 new settings):**
+- Enable AI Text Generation
+- AI Provider (Claude/OpenAI)
+- Claude API Key (GM)
+- OpenAI API Key (GM)
+- Share AI Keys With (none/all/role/username)
+- AI Keys - Allowed Roles
+- AI Keys - Allowed Usernames
+- AI Model Selection
+- OpenAI Mode (standard/custom-gpt/fine-tuned)
+- OpenAI Custom ID
+- Max Tokens (default: 150)
+- Temperature (default: 0.7)
+
+**Client Settings (5 new settings):**
+- Use Own AI API Keys
+- AI Provider (Your Keys)
+- Claude API Key (Your Key)
+- OpenAI API Key (Your Key)
+- OpenAI Mode (Your Key)
+- OpenAI Custom ID (Your Key)
+
+### Technical Implementation
+
+**AI Provider Architecture:**
+- `AIProvider` base class - Interface for all providers
+- `ClaudeProvider` - Claude Messages API integration
+- `OpenAIProvider` - Chat Completions + Assistants API
+- `AIProviderFactory` - Provider routing and instantiation
+
+**Status Window System:**
+- `AIStatusWindow` class - User feedback UI
+- Generating spinner with CSS animation
+- Error/timeout icons
+- Retry/fallback/cancel buttons
+- Auto-close on success
+
+**Core Flow:**
+1. Permission checks (toast + AI key access)
+2. API key resolution (user's own or GM's shared)
+3. Show status window: "Generating..."
+4. 10-second timeout protection
+5. AI provider generates text
+6. ElevenLabs generates TTS
+7. Broadcast to all players
+8. Synchronized playback
+
+### Use Cases
+
+**Epic Boss Kills:**
+```javascript
+await game.toast.showDynamicAI({
+  prompt: "[triumphant] Epic fantasy narrator with gravitas",
+  actor: { name: "Alice", class: "Paladin", level: 8 },
+  target: { name: "Ancient Dragon", cr: 24 },
+  context: "finishing-blow",
+  damageDealt: 89
+});
+```
+
+**Clutch Heals:**
+```javascript
+await game.toast.showDynamicAI({
+  prompt: "[gentle] Describe this as a merciful act",
+  actor: { name: "Cleric Bob", class: "Life Cleric" },
+  target: { name: "Wounded Alice", hp: 2, maxHp: 68 },
+  context: "clutch-heal",
+  healingAmount: 34
+});
+```
+
+**Hype Announcements:**
+```javascript
+await game.toast.showDynamicAI({
+  prompt: "[excited] Sports commentator announcing the winning goal!",
+  actor: { name: "Charlie", class: "Fighter" },
+  target: { name: "Lich King" },
+  context: "critical-hit",
+  damageDealt: 156,
+  wasCritical: true
+});
+```
+
+### System-Agnostic Design
+
+Works with **any** game system - you define the context:
+
+**D&D 5e:**
+```javascript
+actor: {
+  name: token.name,
+  class: token.actor.system.details.class,
+  level: token.actor.system.details.level
+}
+```
+
+**Pathfinder 2e:**
+```javascript
+actor: {
+  name: token.name,
+  class: token.actor.system.details.class.value,
+  level: token.actor.system.details.level.value
+}
+```
+
+**Custom Homebrew:**
+```javascript
+actor: {
+  name: "Alice",
+  "favorite food": "Pizza",
+  "backstory": "Orphaned as a child",
+  "secret": "Actually a dragon in disguise"
+}
+```
+
+### Migration Notes
+
+**Breaking Changes:** None - all changes are backwards compatible
+
+**New Capabilities:**
+- Configure AI provider in Module Settings
+- Use `game.toast.showDynamicAI()` for AI-generated announcements
+- Existing `game.toast.showDynamic()` (template-based) still works
+- All v1.5.0 features remain unchanged
+
+**Setup Required:**
+1. Enable AI Text Generation in Module Settings (GM)
+2. Configure AI provider (Claude or OpenAI)
+3. Add API key (GM or individual users)
+4. Optionally configure key sharing permissions
+5. Start using `game.toast.showDynamicAI()`
+
+**Security Considerations:**
+- Review API key security warnings in settings
+- Use separate API keys for Foundry
+- Set spending limits on API keys
+- Monitor API usage regularly
+- Only install trusted modules
+
+### Documentation
+
+- Added comprehensive AI generation guide to README
+- Added security warning section
+- Updated API reference with `showDynamicAI()`
+- Added example macros for common scenarios
+- System-specific context mapping examples
+
+### File Changes
+- `scripts/toast.js`: +917 lines (AI providers, settings, status window, core method)
+- `README.md`: Updated with Phase 3 documentation
+- `CHANGELOG.md`: v2.0.0 entry
+- New file: Example macros for AI generation
+
+---
+
+## Version 1.5.0 - ElevenLabs TTS Integration (Phase 2)
+
+### New Features
+
+#### 🎙️ AI Voice Generation with ElevenLabs
+- **Dynamic TTS generation**: Convert templates to AI-generated voice announcements
+- **New API method**: `game.toast.showDynamic(templateId, tokens, elements)` - Generate TTS and display toasts
+- **ElevenLabs integration**: Uses ElevenLabs API for high-quality text-to-speech
+- **Per-user API keys**: Each player configures their own ElevenLabs API key (client-scoped settings)
+- **Voice selection**: Choose from 100+ voices in the ElevenLabs voice library
+- **Synchronized playback**: All players hear the same generated audio simultaneously
+
+**Example:**
+```javascript
+// Generates AI voice and displays to all players
+await game.toast.showDynamic("boss-kill", {
+  killer: "Bob",
+  boss: "Ancient Dragon"
+}, [
+  { type: "text", text: "BOSS DEFEATED!", color: "#FFD700", fontSize: "100px" }
+]);
+```
+
+#### 💾 Smart Caching System
+- **IndexedDB caching**: Generated audio cached locally in browser storage
+- **Cache key hashing**: Audio cached based on text + voice ID combination
+- **LRU eviction**: Oldest items automatically removed when cache exceeds size limit
+- **Configurable cache size**: Set maximum cache size (default: 100MB)
+- **Cache persistence**: Cached audio survives browser restarts
+- **Cache management API**: Clear cache, check size, and count cached items
+
+#### ⚙️ User Settings
+- **ElevenLabs API Key** (client-scoped): Personal API key for TTS generation
+- **Voice ID** (client-scoped): Selected voice for TTS (default: Rachel)
+- **Enable TTS Cache** (client-scoped): Toggle caching on/off (default: on)
+- **Cache Size** (client-scoped): Maximum cache size in MB (default: 100MB)
+
+#### 🔒 Security Architecture
+- **Triggering user pays**: User who triggers toast generates TTS with their own API key
+- **Client-side keys**: API keys never transmitted to server or other clients
+- **GM validation**: TTS requests validated by GM before broadcasting
+- **Audio broadcast**: Generated audio sent to all clients for synchronized playback
+
+### API Methods
+
+**New method: `game.toast.showDynamic(templateId, tokens, elements)`**
+- Renders template with tokens
+- Generates TTS audio using user's ElevenLabs API key
+- Caches generated audio locally
+- Sends to GM for validation
+- GM broadcasts to all players
+- All players hear synchronized audio
+
+**New namespace: `game.toast.cache`**
+- `clear()` - Clear all cached TTS audio
+- `getSize()` - Get total cache size in bytes
+- `getCount()` - Get number of cached audio files
+
+**Examples:**
+```javascript
+// Generate TTS toast
+await game.toast.showDynamic("boss-kill", {
+  killer: "Bob",
+  boss: "Ancient Dragon"
+});
+
+// Check cache status
+const size = await game.toast.cache.getSize();
+const count = await game.toast.cache.getCount();
+console.log(`Cache: ${count} files, ${(size / 1024 / 1024).toFixed(2)} MB`);
+
+// Clear cache
+await game.toast.cache.clear();
+```
+
+### Use Cases
+- **Epic boss kills**: "Bob strikes the final blow against Ancient Dragon! Victory is yours!"
+- **Clutch heals**: "Alice comes in with a clutch heal on Bob, pulling them back from the brink!"
+- **Kill streaks**: "Charlie just eliminated three enemies in rapid succession! Unstoppable!"
+- **Party achievements**: "The party has completed The Lost Temple! Huzzah!"
+- **Personalized moments**: Every announcement unique with player/enemy names
+
+### Technical Changes
+- Added `showDynamic(templateId, tokens, elements)` method (scripts/toast.js:949-1035)
+- Added `renderToastWithTTS(elements, ttsAudio)` method (scripts/toast.js:1043-1109)
+- Added `TTSCacheManager` class with IndexedDB integration (scripts/toast.js:1285-1496)
+  - `init()` - Initialize IndexedDB
+  - `get(key)` - Retrieve cached audio
+  - `set(key, audioData)` - Cache audio data
+  - `getSize()` - Calculate total cache size
+  - `count()` - Count cached items
+  - `clear()` - Clear all cached audio
+  - `evictIfNeeded(maxSizeMB)` - LRU cache eviction
+  - `generateKey(text, voiceId)` - Hash-based cache key generation
+- Added `ElevenLabsAPI` class for TTS generation (scripts/toast.js:1498-1579)
+  - `generateTTS(text, apiKey, voiceId)` - Generate TTS via ElevenLabs API
+  - `testAPIKey(apiKey)` - Validate API key
+- Added TTS socket constants: `SOCKET_TTS_REQUEST`, `SOCKET_TTS_BROADCAST` (scripts/toast.js:9-10)
+- Added TTS socket handlers for request/broadcast pattern (scripts/toast.js:537-571)
+- Added cache initialization on module ready (scripts/toast.js:32-38)
+- Exposed `showDynamic` in global API (scripts/toast.js:581)
+- Exposed `game.toast.cache` namespace in API (scripts/toast.js:597-601)
+- Added 4 new client-scoped settings for ElevenLabs configuration (scripts/toast.js:93-136)
+
+### Documentation
+- Updated "Dynamic TTS Templates" section in README.md
+- Added "ElevenLabs Setup" section with configuration instructions
+- Added "Cache Management" section with API examples
+- Updated API Reference with `showDynamic()` documentation
+- Updated API Reference with `game.toast.cache` methods
+- Added TTS usage examples throughout documentation
+- Removed "Phase 2 coming soon" notes - it's here!
+
+### Migration Notes
+**Breaking Changes:** None - all changes are backwards compatible
+
+**New Capabilities:**
+- Configure ElevenLabs API key in Module Settings
+- Use `game.toast.showDynamic()` for AI voice announcements
+- Manage TTS cache via `game.toast.cache` methods
+- Templates from v1.4.0 work seamlessly with TTS
+
+**Setup Required:**
+1. Sign up at [elevenlabs.io](https://elevenlabs.io) (free tier available)
+2. Get your API key from profile settings
+3. Configure in Module Settings → Toast → ElevenLabs API Key
+4. Optionally choose a voice ID (default: Rachel)
+
+---
+
 ## Version 1.4.0 - Dynamic TTS Templates (Phase 1)
 
 ### New Features
