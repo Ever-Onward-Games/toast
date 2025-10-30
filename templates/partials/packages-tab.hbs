@@ -1,0 +1,13 @@
+{{!-- Packages Tab - Manage saved toast packages --}}
+<div class="tab-panel {{#if tabs.packages.active}}active{{/if}}" data-tab="packages">
+  <div class="packages-container">
+    <div class="packages-header">
+      <h2>Toast Packages</h2>
+      <p class="coming-soon">Package manager coming in Phase 4.2!</p>
+    </div>
+    {{> "modules/toast/templates/partials/empty-state.hbs"
+      icon="fas fa-box-open"
+      message="Save and manage your toast presentations"
+      submessage="Coming soon in v2.1.0"}}
+  </div>
+</div>

@@ -1,5 +1,50 @@
 # Changelog
 
+## Version 2.3.0 - Template & Style Modularization (2025-10-30)
+
+### ✨ Enhancement
+
+**Modularized templates and styles:**
+- Split large `toast-studio.hbs` (138 lines) into 7 component partials
+- Organized styles into component-specific SCSS files
+- Created reusable components (empty-state, asset items)
+- Aligned styles with template structure for better maintainability
+
+**New Directory Structure:**
+```
+templates/
+├── toast-studio.hbs (main, 17 lines)
+└── partials/
+    ├── assets-tab.hbs
+    ├── audio-asset-item.hbs
+    ├── image-asset-item.hbs
+    ├── packages-tab.hbs
+    ├── studio-tab.hbs
+    └── empty-state.hbs (reusable)
+
+styles/
+├── toast.scss (imports all)
+└── components/
+    ├── _toast-overlay.scss (overlay & animations)
+    ├── _toast-studio.scss (studio window & tabs)
+    └── _assets-tab.scss (assets tab)
+```
+
+**Benefits:**
+- Each component's template and styles are logically grouped
+- Easier to find and modify specific features
+- Reusable components reduce duplication
+- Better code organization and maintainability
+- Smaller, more focused files
+
+### Files Changed
+- `templates/toast-studio.hbs` - Refactored to use partials
+- Added 6 new template partials in `templates/partials/`
+- `styles/toast.scss` - Now imports component stylesheets
+- Added 3 new SCSS component files in `styles/components/`
+
+---
+
 ## Version 2.2.0 - SCSS Refactor (2025-10-30)
 
 ### ✨ Enhancement

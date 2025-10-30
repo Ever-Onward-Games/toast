@@ -1,0 +1,198 @@
+/**
+ * Toast Overlay Component
+ * Styles for the full-screen toast display overlay
+ */
+
+// ==========================================
+// Animations
+// ==========================================
+
+// Fade in animation
+@keyframes toast-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// Fade out animation
+@keyframes toast-fade-out-anim {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+// Pulse animation
+@keyframes toast-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+// Shake animation
+@keyframes toast-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+  20%, 40%, 60%, 80% { transform: translateX(10px); }
+}
+
+// Spin animation
+@keyframes toast-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Bounce animation
+@keyframes toast-bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-30px); }
+  60% { transform: translateY(-15px); }
+}
+
+// Float animation
+@keyframes toast-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+// Slide in from top
+@keyframes toast-slide-in-top {
+  from { transform: translateY(-100vh); }
+  to { transform: translateY(0); }
+}
+
+// Slide out to bottom
+@keyframes toast-slide-out-bottom {
+  0% { transform: translateY(0); }
+  75% { transform: translateY(0); }
+  100% { transform: translateY(-100vh); }
+}
+
+// ==========================================
+// Toast Overlay
+// ==========================================
+
+.toast-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  pointer-events: none;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0);
+  animation: toast-fade-in 0.3s ease-in;
+
+  // Fade out modifier
+  &.toast-fade-out {
+    animation: toast-fade-out-anim 0.5s ease-out forwards;
+  }
+
+  // Individual toast elements
+  .toast-element {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    will-change: transform, opacity, left, top;
+  }
+
+  // Image elements
+  .toast-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  // Token images - default circular
+  .toast-token {
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  // Actor images
+  .toast-actor {
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+  }
+
+  // Text elements
+  .toast-text {
+    font-family: "Signika", sans-serif;
+    font-size: 72px;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+    text-shadow:
+      3px 3px 6px rgba(0, 0, 0, 0.8),
+      -1px -1px 3px rgba(0, 0, 0, 0.8),
+      1px -1px 3px rgba(0, 0, 0, 0.8),
+      -1px 1px 3px rgba(0, 0, 0, 0.8);
+    letter-spacing: 2px;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  // Utility classes for common effects
+  .toast-glow {
+    filter: drop-shadow(0 0 20px currentColor);
+  }
+
+  .toast-pulse {
+    animation: toast-pulse 1s ease-in-out infinite;
+  }
+
+  .toast-shake {
+    animation: toast-shake 0.5s ease-in-out;
+  }
+
+  .toast-spin {
+    animation: toast-spin 2s linear infinite;
+  }
+
+  .toast-bounce {
+    animation: toast-bounce 1s ease-in-out infinite;
+  }
+
+  .toast-float {
+    animation: toast-float 3s ease-in-out infinite;
+  }
+
+  // Shape element - for colored rectangles, circles, etc
+  .toast-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  // Close button - allows users to dismiss toast early
+  .toast-close-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 10001;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.9);
+      border-color: rgba(255, 255, 255, 0.6);
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
