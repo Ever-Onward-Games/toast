@@ -1,0 +1,145 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [closed]
+    branches:
+      - master
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    # Only run on push to master OR when PR is merged to master
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install archiver
+
+      - name: Build module
+        run: npm run build:release
+
+      - name: Get version from module.json
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./module.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Module version: $VERSION"
+
+      - name: Verify build artifacts
+        run: |
+          echo "Checking dist/ directory..."
+          ls -lh dist/
+          echo ""
+          echo "Checking for ZIP file..."
+          ls -lh dist/*.zip
+          echo ""
+          echo "Checking dist/toast/ directory..."
+          ls -lh dist/toast/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          body: |
+            Automated release for Toast v${{ steps.get_version.outputs.version }}
+
+            ## Installation
+
+            **Foundry VTT Manifest URL:**
+            ```
+            https://github.com/Ever-Onward-Games/toast/releases/latest/download/module.json
+            ```
+
+            **Direct Download:**
+            - [Download toast.zip](https://github.com/Ever-Onward-Games/toast/releases/latest/download/toast.zip)
+
+            ## Changes
+
+            See [CHANGELOG.md](https://github.com/Ever-Onward-Games/toast/blob/${{ github.sha }}/CHANGELOG.md) for details.
+          draft: false
+          prerelease: false
+          files: |
+            dist/toast-v*.zip
+            dist/toast/module.json
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update latest release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: latest
+          name: Latest Release
+          body: |
+            Latest automated release for Toast
+
+            **Current Version:** v${{ steps.get_version.outputs.version }}
+
+            ## Installation
+
+            **Foundry VTT Manifest URL:**
+            ```
+            https://github.com/Ever-Onward-Games/toast/releases/latest/download/module.json
+            ```
+
+            **Direct Download:**
+            - [Download toast.zip](https://github.com/Ever-Onward-Games/toast/releases/latest/download/toast.zip)
+
+            ## Changes
+
+            See [CHANGELOG.md](https://github.com/Ever-Onward-Games/toast/blob/${{ github.sha }}/CHANGELOG.md) for details.
+
+            ---
+
+            This is an automatically updated release that always points to the latest version.
+          draft: false
+          prerelease: false
+          files: |
+            dist/toast-v*.zip
+            dist/toast/module.json
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Rename ZIP for latest release
+        run: |
+          cp dist/toast-v*.zip dist/toast.zip
+          echo "Created dist/toast.zip"
+
+      - name: Upload to latest release (toast.zip)
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: latest
+          files: dist/toast.zip
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## Build and Release Complete! :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** v${{ steps.get_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Release URLs" >> $GITHUB_STEP_SUMMARY
+          echo "- Manifest: https://github.com/Ever-Onward-Games/toast/releases/latest/download/module.json" >> $GITHUB_STEP_SUMMARY
+          echo "- Download: https://github.com/Ever-Onward-Games/toast/releases/latest/download/toast.zip" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation in Foundry VTT" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "https://github.com/Ever-Onward-Games/toast/releases/latest/download/module.json" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

@@ -5,13 +5,18 @@
   "main": "scripts/toast.js",
   "scripts": {
     "build": "node build.js",
+    "build:production": "node build.js --production",
+    "build:verbose": "node build.js --verbose",
     "build:zip": "node build.js && node build-zip.js",
+    "build:zip:version": "node build.js && node build-zip.js --version",
+    "build:zip:verbose": "node build.js && node build-zip.js --verbose",
+    "build:release": "node build.js --production && node build-zip.js --version",
     "clean": "node -e \"const fs=require('fs'); const path=require('path'); const dir=path.join(__dirname,'dist'); if(fs.existsSync(dir)){fs.rmSync(dir,{recursive:true}); console.log('✅ Cleaned dist/');}\"",
     "test": "echo \"No tests configured\" && exit 0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/toast.git"
+    "url": "https://github.com/Ever-Onward-Games/toast.git"
   },
   "keywords": [
     "foundry-vtt",
