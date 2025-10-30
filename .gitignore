@@ -15,6 +15,10 @@ desktop.ini
 dist/
 *.zip
 
+# Compiled CSS from SCSS
+styles/toast.css
+styles/toast.css.map
+
 # Logs
 *.log
 npm-debug.log*

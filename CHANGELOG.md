@@ -1,5 +1,35 @@
 # Changelog
 
+## Version 2.2.0 - SCSS Refactor (2025-10-30)
+
+### ✨ Enhancement
+
+**Migrated from CSS to SCSS:**
+- Converted `styles/toast.css` to `styles/toast.scss`
+- Improved maintainability with nested selectors and SCSS features
+- Added automatic SCSS compilation to build process
+- Production builds use compressed CSS, development builds use expanded
+- Added `sass` package as dev dependency
+
+**Build Process:**
+- SCSS automatically compiles to CSS during build
+- Compiled CSS is gitignored (generated from source)
+- Source SCSS is version controlled
+
+**Benefits:**
+- Cleaner, more maintainable stylesheet code
+- Better organization with nesting under `.toast-overlay`
+- Easier to align styles with UI template structure
+- Smaller production CSS with compression
+
+### Files Changed
+- Renamed `styles/toast.css` → `styles/toast.scss`
+- `build.js` - Added SCSS compilation step with `sass` package
+- `.gitignore` - Added compiled CSS files
+- `package.json` - Added `sass` dev dependency
+
+---
+
 ## Version 2.1.3 - Close Button (2025-10-30)
 
 ### ✨ New Feature

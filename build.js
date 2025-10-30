@@ -10,6 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const sass = require('sass');
 
 // Configuration
 const MODULE_NAME = 'toast';
@@ -169,7 +170,7 @@ function validateRequiredFiles() {
     'package.json',
     'README.md',
     'CHANGELOG.md',
-    'styles/toast.css'
+    'styles/toast.scss'
   ];
 
   const missing = [];
@@ -347,6 +348,40 @@ function validateOutput() {
 }
 
 /**
+ * Compile SCSS to CSS
+ */
+function compileScss() {
+  log.info('🎨 Compiling SCSS to CSS...');
+
+  const scssFile = path.join(__dirname, 'styles', 'toast.scss');
+  const cssFile = path.join(__dirname, 'styles', 'toast.css');
+
+  if (!fs.existsSync(scssFile)) {
+    log.error(`SCSS file not found: ${scssFile}`);
+    process.exit(1);
+  }
+
+  try {
+    const result = sass.compile(scssFile, {
+      style: PRODUCTION ? 'compressed' : 'expanded',
+      sourceMap: !PRODUCTION
+    });
+
+    fs.writeFileSync(cssFile, result.css, 'utf8');
+
+    const sizeKB = (result.css.length / 1024).toFixed(1);
+    log.success(`✅ Compiled toast.scss → toast.css (${sizeKB} KB)`);
+    log.verbose(`   Style: ${PRODUCTION ? 'compressed' : 'expanded'}`);
+  } catch (err) {
+    log.error(`SCSS compilation failed: ${err.message}`);
+    if (VERBOSE) {
+      console.error(err.stack);
+    }
+    process.exit(1);
+  }
+}
+
+/**
  * Main build function
  */
 function build() {
@@ -363,6 +398,9 @@ function build() {
     validateChangelog(version);
     log.info('');
   }
+
+  // Compile SCSS to CSS
+  compileScss();
 
   // Concatenate source modules first
   const buildStats = concatenateModules();
