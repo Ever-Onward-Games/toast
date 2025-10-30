@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.3.1 - CSS Scope Fix (2025-10-30)
+
+### 🐛 Bug Fix
+
+**Scoped assets tab styles to prevent CSS collisions:**
+- Wrapped all styles in `_assets-tab.scss` under `#toast-studio` selector
+- Prevents collision with other modules using generic class names like `.asset-item`, `.asset-list`, etc.
+- Matches scoping pattern used in other component files
+- Ensures Toast styles only apply within Toast Studio window
+
+### Files Changed
+- `styles/components/_assets-tab.scss` - Added `#toast-studio` scope wrapper
+
+---
+
 ## Version 2.3.0 - Template & Style Modularization (2025-10-30)
 
 ### ✨ Enhancement
