@@ -360,6 +360,38 @@ class ToastManager {
       type: String,
       default: "",
     });
+
+    // ===== TOAST STUDIO SETTINGS =====
+
+    // Studio Default Tab
+    game.settings.register(this.MODULE_ID, "studio-default-tab", {
+      name: "Studio Default Tab",
+      hint: "Which tab to show when opening Toast Studio.",
+      scope: "client",
+      config: true,
+      type: String,
+      choices: {
+        "assets": "Assets",
+        "packages": "Packages",
+        "studio": "Studio"
+      },
+      default: "assets"
+    });
+
+    // Asset Preview Volume
+    game.settings.register(this.MODULE_ID, "asset-preview-volume", {
+      name: "Asset Preview Volume",
+      hint: "Default volume for audio preview in Toast Studio (0.0 to 1.0).",
+      scope: "client",
+      config: true,
+      type: Number,
+      range: {
+        min: 0,
+        max: 1,
+        step: 0.1
+      },
+      default: 0.5
+    });
   }
 
   /**
@@ -648,6 +680,11 @@ class ToastManager {
         clear: () => TTSCacheManager.clear(),
         getSize: () => TTSCacheManager.getSize(),
         getCount: () => TTSCacheManager.count()
+      },
+      // Toast Studio
+      studio: {
+        open: (options = {}) => this.openStudio(options),
+        close: () => this.closeStudio()
       }
     };
     console.log("Toast | API registered at game.toast");
@@ -1646,6 +1683,37 @@ class ToastManager {
       setTimeout(runAnimation, delay);
     } else {
       runAnimation();
+    }
+  }
+
+  /**
+   * Open Toast Studio window
+   * @param {Object} options - Studio options
+   * @param {String} options.tab - Initial tab to open ("assets", "packages", "studio")
+   */
+  static openStudio(options = {}) {
+    // Check if studio is already open
+    if (this.studioApp) {
+      this.studioApp.bringToTop();
+      return this.studioApp;
+    }
+
+    // Create new studio instance
+    this.studioApp = new ToastStudioApp(options);
+    this.studioApp.render(true);
+
+    console.log("Toast Studio | Opened");
+    return this.studioApp;
+  }
+
+  /**
+   * Close Toast Studio window
+   */
+  static closeStudio() {
+    if (this.studioApp) {
+      this.studioApp.close();
+      this.studioApp = null;
+      console.log("Toast Studio | Closed");
     }
   }
 }

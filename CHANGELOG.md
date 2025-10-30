@@ -1,5 +1,50 @@
 # Changelog
 
+## Version 2.1.0 - Toast Studio (Phase 4.1) (2025-10-30)
+
+### ✨ New Feature: Toast Studio
+
+Introducing **Toast Studio** - a comprehensive GUI for browsing and managing toast assets!
+
+**Open Toast Studio:**
+```javascript
+game.toast.studio.open();
+```
+
+**Features:**
+- 🎵 **Audio Browser** - Browse, preview, and copy code for all audio files in the module
+- 🖼️ **Image Browser** - Browse, preview, and use images from the module
+- 🔍 **Search & Filter** - Quickly find assets with search and category filters
+- 📋 **Copy to Clipboard** - One-click code copying for easy toast creation
+- 🎨 **Tabbed Interface** - Clean, organized UI with tabs for Assets, Packages (coming soon), and Studio (coming soon)
+
+**New Files:**
+- `src/ui/ToastStudioApp.js` - Main GUI application
+- `templates/toast-studio.hbs` - Handlebars template
+- Updated CSS with Toast Studio styles
+
+**New API Methods:**
+- `game.toast.studio.open(options)` - Open Toast Studio window
+- `game.toast.studio.close()` - Close Toast Studio window
+
+**New Settings:**
+- **Studio Default Tab** (Client) - Choose which tab opens by default
+- **Asset Preview Volume** (Client) - Set default volume for audio previews
+
+**Phase 4.2 Coming Soon:**
+- Package Manager for saving and launching toast presentations
+- DALL-E 3 integration for image generation
+- Visual presentation editor
+
+### Files Changed
+- Added `src/ui/ToastStudioApp.js` - Toast Studio application
+- Added `templates/toast-studio.hbs` - Studio template
+- Updated `styles/toast.css` - Added studio styles
+- Updated `src/core/ToastManager.js` - Added studio API and settings
+- Updated `build.js` - Added UI files to build process
+
+---
+
 ## Version 2.0.3 - Shape Element Fix (2025-10-30)
 
 ### 🐛 Bug Fix

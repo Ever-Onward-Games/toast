@@ -29,7 +29,8 @@ const INCLUDE = [
   'CHANGELOG.md',
   'scripts/',
   'styles/',
-  'sounds/'
+  'sounds/',
+  'templates/'
 ];
 
 // Files and directories to exclude
@@ -103,6 +104,7 @@ function validateSourceModules() {
     'ai/OpenAIProvider.js',
     'ai/AIProviderFactory.js',
     'templates/TemplateManager.js',
+    'ui/ToastStudioApp.js',
     'core/ToastManager.js',
     'core/ToastManagerIntegration.js',
     'index.js'
