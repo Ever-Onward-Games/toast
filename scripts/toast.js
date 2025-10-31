@@ -1459,7 +1459,10 @@ class ToastStudioApp extends FormApplication {
     const ext = path.split(".").pop().toLowerCase();
     // Note: Can't definitively determine without reading file
     // This is a heuristic based on extension
-    return ["gif", "webp", "apng"].includes(ext);
+    // GIF: Always animated capability
+    // WebP: Can be animated (though not all are)
+    // APNG: Uses .png extension, so can't detect by extension alone
+    return ["gif", "webp"].includes(ext);
   }
 
   // ==========================================

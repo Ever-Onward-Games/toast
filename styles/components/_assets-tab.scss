@@ -197,11 +197,46 @@
     background: var(--color-bg-option);
     border-radius: 4px;
     overflow: hidden;
+    position: relative;
 
     img {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
+    }
+  }
+
+  // Animated Image Badge
+  .animated-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(139, 0, 139, 0.9); // Dark magenta
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+
+    i {
+      font-size: 0.65rem;
+    }
+  }
+
+  .animated-indicator {
+    color: #8b008b; // Dark magenta
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    i {
+      font-size: 0.85rem;
     }
   }
 

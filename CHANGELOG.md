@@ -1,5 +1,44 @@
 # Changelog
 
+## Version 2.4.0-alpha.5 - Animated Image Badges (2025-10-31)
+
+### ✨ Enhancement - Animated Image Detection
+
+**Added visual indicators for animated images:**
+- GIF and WebP images now display an "Animated" badge
+- Badge appears on thumbnail overlay (top-right corner)
+- Additional "Animated" indicator in asset metadata
+- Dark magenta color scheme for animated indicators
+
+**Visual Design:**
+- Thumbnail badge: Dark magenta background with film icon and "GIF" label
+- Metadata indicator: Film icon + "Animated" text in asset info
+- Badge positioned absolutely on thumbnail (non-intrusive)
+- Shadow effect for better visibility
+
+**Detection Logic:**
+- GIF files: Always marked as animated (extension: .gif)
+- WebP files: Marked as potentially animated (extension: .webp)
+- Note: Not all WebP files are animated, but detected by extension
+- APNG: Not detected (uses .png extension, can't distinguish)
+
+**Technical Implementation:**
+- Updated `_isAnimatedImage()` to detect GIF and WebP only
+- Clarified detection limitations in code comments
+- `animated` property already set in Step 3, now visible in UI
+
+**SCSS Additions:**
+- `.animated-badge` - Overlay badge on thumbnails
+- `.animated-indicator` - Text indicator in metadata
+- Dark magenta (#8b008b) theme color
+
+### Files Changed
+- `templates/partials/image-asset-item.hbs` - Added badge and indicator
+- `src/ui/ToastStudioApp.js` - Refined animated detection
+- `styles/components/_assets-tab.scss` - Added badge styling
+
+---
+
 ## Version 2.4.0-alpha.4 - Audio Playback Controls (2025-10-31)
 
 ### ✨ Enhancement - Audio Preview UI
