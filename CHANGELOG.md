@@ -1,5 +1,64 @@
 # Changelog
 
+## Version 2.4.0-beta.1 - FilePicker Directory Management (2025-10-31)
+
+### ✨ Feature Complete - Asset Browser Beta
+
+**Implemented FilePicker UI for directory management:**
+- Add custom directories with Foundry's native FilePicker
+- Edit directory properties (type and label)
+- Full dialog-based workflow with validation
+- Professional user experience matching Foundry's UI patterns
+
+**Add Directory Dialog:**
+- Browse button opens Foundry's FilePicker (folder mode)
+- Directory type selector: Audio Only / Images Only / Audio & Images
+- Optional display label input
+- Directory path validation before adding
+- User-friendly error messages
+
+**Edit Directory Dialog:**
+- Edit directory type and label
+- Path is read-only (remove and re-add to change path)
+- Pre-populated with current values
+- Save changes or cancel
+
+**Directory Validation:**
+- New `_validateDirectory()` method checks accessibility
+- Uses FilePicker.browse() to confirm directory exists
+- Prevents adding non-existent or inaccessible directories
+- Clear error notifications for invalid paths
+
+**Technical Implementation:**
+- Complete _onAddDirectory() implementation (~75 lines)
+- Complete _onEditDirectory() implementation (~60 lines)
+- Dialog render hooks for FilePicker integration
+- Async validation with proper error handling
+- Uses jQuery for DOM manipulation (Foundry standard)
+- Integrates with existing CRUD methods
+
+**User Experience:**
+- Inline Browse button in add dialog
+- Form validation with helpful messages
+- Success notifications on completion
+- Consistent with Foundry's dialog patterns
+- Disabled path field in edit dialog (with explanation)
+
+**Beta Status:**
+Asset Browser is now feature-complete and ready for testing:
+- ✅ Multi-source directory scanning
+- ✅ Animated image detection (GIF, WebP, APNG)
+- ✅ Audio playback controls
+- ✅ Source indicators
+- ✅ Filtering by source/animation type
+- ✅ FilePicker directory management
+- ✅ Full CRUD operations
+
+### Files Changed
+- `src/ui/ToastStudioApp.js` - FilePicker dialogs and validation (~150 lines)
+
+---
+
 ## Version 2.4.0-alpha.8 - Asset Source Indicators (2025-10-31)
 
 ### ✨ Enhancement - Asset Source Display

@@ -1870,6 +1870,21 @@ class ToastStudioApp extends FormApplication {
     return "Unknown";
   }
 
+  /**
+   * Validate that a directory exists and is accessible
+   */
+  async _validateDirectory(path) {
+    try {
+      const FilePicker = foundry.applications.apps.FilePicker.implementation;
+      // Try to browse the directory - if it fails, it doesn't exist or isn't accessible
+      const result = await FilePicker.browse("data", path);
+      return result && (result.files || result.dirs);
+    } catch (err) {
+      console.warn(`Toast Studio | Error validating directory ${path}:`, err);
+      return false;
+    }
+  }
+
   // ==========================================
   // Directory Management CRUD Methods
   // ==========================================
@@ -1981,8 +1996,82 @@ class ToastStudioApp extends FormApplication {
    */
   async _onAddDirectory(event) {
     event.preventDefault();
-    // TODO: Implement in Step 5 - For now just show a notification
-    ui.notifications.info("Directory picker will be implemented in Step 5 (UI/UX Implementation)");
+
+    // Create dialog for directory configuration
+    new Dialog({
+      title: "Add Custom Directory",
+      content: `
+        <form>
+          <div class="form-group">
+            <label>Directory Path:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" name="path" id="directory-path" placeholder="Select a directory..." style="flex: 1;" />
+              <button type="button" id="browse-directory" style="width: auto; padding: 0 1rem;">
+                <i class="fas fa-folder-open"></i> Browse
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Directory Type:</label>
+            <select name="type" id="directory-type">
+              <option value="audio">Audio Only</option>
+              <option value="images">Images Only</option>
+              <option value="both">Audio & Images</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Display Label (optional):</label>
+            <input type="text" name="label" id="directory-label" placeholder="e.g., My Campaign Assets" />
+          </div>
+        </form>
+      `,
+      buttons: {
+        add: {
+          icon: '<i class="fas fa-plus"></i>',
+          label: "Add Directory",
+          callback: async (html) => {
+            const path = html.find("#directory-path").val().trim();
+            const type = html.find("#directory-type").val();
+            const label = html.find("#directory-label").val().trim();
+
+            if (!path) {
+              ui.notifications.warn("Please select a directory path");
+              return;
+            }
+
+            // Validate directory exists
+            const isValid = await this._validateDirectory(path);
+            if (!isValid) {
+              ui.notifications.error("Directory does not exist or is not accessible");
+              return;
+            }
+
+            await this.addCustomDirectory(path, type, label || path.split("/").pop());
+            ui.notifications.info("Directory added successfully");
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancel"
+        }
+      },
+      default: "add",
+      render: (html) => {
+        // Add FilePicker button handler
+        html.find("#browse-directory").on("click", async () => {
+          const FilePicker = foundry.applications.apps.FilePicker.implementation;
+          const current = html.find("#directory-path").val() || "";
+
+          new FilePicker({
+            type: "folder",
+            current: current,
+            callback: (path) => {
+              html.find("#directory-path").val(path);
+            }
+          }).render(true);
+        });
+      }
+    }).render(true);
   }
 
   /**
@@ -1991,8 +2080,62 @@ class ToastStudioApp extends FormApplication {
   async _onEditDirectory(event) {
     event.preventDefault();
     const id = event.currentTarget.dataset.directoryId;
-    // TODO: Implement in Step 5
-    ui.notifications.info("Edit directory will be implemented in Step 5");
+    const directories = this._getCustomDirectories();
+    const directory = directories.find(d => d.id === id);
+
+    if (!directory) {
+      ui.notifications.error("Directory not found");
+      return;
+    }
+
+    // Create dialog for directory editing
+    new Dialog({
+      title: "Edit Directory",
+      content: `
+        <form>
+          <div class="form-group">
+            <label>Directory Path:</label>
+            <input type="text" value="${directory.path}" disabled style="background: var(--color-bg-option);" />
+            <p style="font-size: 0.85rem; color: var(--color-text-dark-secondary); margin-top: 0.25rem;">
+              Path cannot be changed. Remove and re-add to change the directory.
+            </p>
+          </div>
+          <div class="form-group">
+            <label>Directory Type:</label>
+            <select name="type" id="edit-directory-type">
+              <option value="audio" ${directory.type === "audio" ? "selected" : ""}>Audio Only</option>
+              <option value="images" ${directory.type === "images" ? "selected" : ""}>Images Only</option>
+              <option value="both" ${directory.type === "both" ? "selected" : ""}>Audio & Images</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Display Label:</label>
+            <input type="text" name="label" id="edit-directory-label" value="${directory.label || ''}" placeholder="e.g., My Campaign Assets" />
+          </div>
+        </form>
+      `,
+      buttons: {
+        save: {
+          icon: '<i class="fas fa-save"></i>',
+          label: "Save Changes",
+          callback: async (html) => {
+            const type = html.find("#edit-directory-type").val();
+            const label = html.find("#edit-directory-label").val().trim();
+
+            await this.editCustomDirectory(id, {
+              type: type,
+              label: label || directory.path.split("/").pop()
+            });
+            ui.notifications.info("Directory updated successfully");
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancel"
+        }
+      },
+      default: "save"
+    }).render(true);
   }
 
   /**
