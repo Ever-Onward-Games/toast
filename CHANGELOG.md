@@ -1,5 +1,33 @@
 # Changelog
 
+## Version 2.3.6 - Assets Toolbar Flex Layout Fix v3 (2025-10-30)
+
+### 🐛 Bug Fix
+
+**Fixed assets toolbar flex layout with universal reset:**
+- Added `> * { flex: 0 0 auto; }` to neutralize any inherited flex behavior
+- Search box overrides with `flex: 1 1 0` and `min-width: 0` to fill remaining space
+- Dropdown and button inherit the `flex: 0 0 auto` from universal rule
+
+**Problem:**
+Previous attempts didn't account for potential inherited flex behavior from Foundry's
+global styles that could interfere with our flex layout.
+
+**Solution:**
+Reset all direct children to `flex: 0 0 auto` first, then specifically override the
+search box to grow and fill space. This ensures a clean slate regardless of global styles.
+
+**Result:**
+- Universal reset neutralizes any inherited flex behavior
+- Search box reliably fills remaining horizontal space
+- Dropdown stays at 200px width
+- Refresh button sized to content
+
+### Files Changed
+- `styles/components/_assets-tab.scss` - Added universal child selector reset
+
+---
+
 ## Version 2.3.5 - Assets Toolbar Flex Layout Fix v2 (2025-10-30)
 
 ### 🐛 Bug Fix

@@ -21,6 +21,11 @@
     background: var(--color-bg-option);
     border-radius: 4px;
 
+    // Neutralize any inherited flex from global styles
+    > * {
+      flex: 0 0 auto;
+    }
+
     .asset-search {
       flex: 1 1 0;
       min-width: 0;
@@ -35,7 +40,6 @@
     }
 
     .asset-filter {
-      flex: 0 0 200px;
       width: 200px;
       padding: 0.5rem 0.75rem;
       height: 36px;
@@ -48,7 +52,6 @@
     }
 
     .refresh-assets-btn {
-      flex: 0 0 auto;
       padding: 0.5rem 0.75rem;
       height: 36px;
       background: var(--color-bg-btn);
