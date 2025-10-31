@@ -1,5 +1,84 @@
 # Changelog
 
+## Version 2.4.0-beta.3 - Image Preview Pane (2025-10-31)
+
+### ✨ Enhancement - Integrated Image Preview
+
+**Added side-by-side image preview pane:**
+- Images tab now features split layout: image list + preview pane
+- Click any image item to preview without popup dialogs
+- Preview pane displays full image, filename, dimensions, and file size
+- Sticky-positioned preview stays accessible while scrolling
+- Selected image item gets highlighted border/glow effect
+- Removed separate preview button - entire image item is now clickable
+
+**Preview Pane Features:**
+- Large image display (max 400px height, auto-scaled)
+- Automatic dimension detection (width × height in pixels)
+- File size display via HEAD request (shown in KB)
+- Loading spinner during image load
+- Error handling for failed image loads
+- Placeholder state when no image selected
+
+**User Experience Improvements:**
+- 400px fixed-width preview pane on right side
+- Responsive grid layout (fluid list, fixed preview)
+- Visual feedback on image selection
+- Action buttons still functional without triggering preview
+- Preview updates instantly on image click
+
+**Technical Implementation:**
+- Updated images-subtab.hbs with `.images-split-layout` grid
+- New preview pane markup with placeholder and display states
+- Replaced `_onImagePreview()` popup with `_onImageSelect()` handler
+- New `_updateImagePreview()` method loads and displays image data
+- Event delegation prevents button clicks from triggering preview
+- Image load handlers for dimension detection
+- Fetch API for file size via HEAD request
+
+**CSS Grid Layout:**
+- `.images-split-layout` - Two-column grid (1fr + 400px)
+- `.image-preview-pane` - Sticky preview panel with header
+- `.image-item.selected` - Highlighted selection state with glow
+- Preview content styling with placeholder and display modes
+
+### Files Changed
+- `templates/partials/images-subtab.hbs` - Split layout with preview pane
+- `templates/partials/image-asset-item.hbs` - Removed preview button
+- `src/ui/ToastStudioApp.js` - Image selection and preview methods (~65 lines)
+- `styles/components/_assets-tab.scss` - Split layout and preview styling (~120 lines)
+
+---
+
+## Version 2.4.0-beta.2 - Directory Column Layout (2025-10-31)
+
+### ✨ Enhancement - Space-Efficient Directory Layout
+
+**Converted directories tab to 3-column grid:**
+- Changed from vertical stacking to horizontal columns
+- Three equal-width columns: Default | Announcer | Custom
+- Significantly reduced vertical scrolling requirements
+- Add Directory button now immediately accessible
+- Better space utilization on wider screens
+
+**Layout Changes:**
+- `.directories-list` → `.directories-grid` with CSS Grid
+- Three `.directory-column` containers for each type
+- Shortened section descriptions for compactness
+- Maintained all functionality while reducing vertical space
+
+**Technical Implementation:**
+- Updated directories-subtab.hbs with column structure
+- Added `.directories-grid` CSS Grid (3 equal columns, 1rem gap)
+- Added `.directory-column` flex containers
+- Preserved all directory management features
+
+### Files Changed
+- `templates/partials/directories-subtab.hbs` - Column grid layout
+- `styles/components/_assets-tab.scss` - Grid styling
+
+---
+
 ## Version 2.4.0-beta.1 - FilePicker Directory Management (2025-10-31)
 
 ### ✨ Feature Complete - Asset Browser Beta
