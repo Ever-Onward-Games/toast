@@ -1,5 +1,52 @@
 # Changelog
 
+## Version 2.4.0-alpha.8 - Asset Source Indicators (2025-10-31)
+
+### ✨ Enhancement - Asset Source Display
+
+**Added source badges to all assets:**
+- Every audio and image asset now displays its source
+- Color-coded badges for easy identification:
+  - 🔵 Blue: Default module assets
+  - 🟠 Orange: Announcer pack assets
+  - 🟢 Green: Custom user directories
+- Icons indicate source type (cube/bullhorn/folder-plus)
+- Tooltips show full source path on hover
+
+**Visual Design:**
+- Inline badges in asset metadata section
+- Small, unobtrusive design with icon + label
+- Consistent styling across audio and image items
+- Semi-transparent backgrounds with colored borders
+
+**Enhanced Filtering:**
+- Source filter now fully functional (default/announcer/custom)
+- Audio tab: Filter by source type
+- Images tab: Filter by source type or animated/static
+- Filter logic updated to check source-badge class
+- Combined filtering for animated/static criteria
+
+**Badge Colors:**
+- Default: Blue (#3498db) - rgba(52, 152, 219, 0.15) background
+- Announcer: Orange (#e67e22) - rgba(230, 126, 34, 0.15) background
+- Custom: Green (#2ecc71) - rgba(46, 204, 113, 0.15) background
+
+**Technical Implementation:**
+- Updated audio-asset-item.hbs with source badge
+- Updated image-asset-item.hbs with source badge
+- Added .source-badge SCSS with type-specific variants
+- Enhanced _onFilterAssets() to handle source filtering
+- Conditional rendering based on sourceLabel presence
+- Uses sourceType class for filtering logic
+
+### Files Changed
+- `templates/partials/audio-asset-item.hbs` - Added source badge
+- `templates/partials/image-asset-item.hbs` - Added source badge
+- `styles/components/_assets-tab.scss` - Source badge styling (~45 lines)
+- `src/ui/ToastStudioApp.js` - Enhanced filter logic (~30 lines)
+
+---
+
 ## Version 2.4.0-alpha.7 - APNG Detection Support (2025-10-31)
 
 ### ✨ Enhancement - Complete Animated Image Detection

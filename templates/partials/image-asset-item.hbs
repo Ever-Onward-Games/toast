@@ -23,6 +23,20 @@
           <i class="fas fa-film"></i> Animated
         </span>
       {{/if}}
+      {{#if sourceLabel}}
+        <span class="source-badge source-{{sourceType}}" title="Source: {{source}}">
+          {{#eq sourceType "default"}}
+            <i class="fas fa-cube"></i>
+          {{/eq}}
+          {{#eq sourceType "announcer"}}
+            <i class="fas fa-bullhorn"></i>
+          {{/eq}}
+          {{#eq sourceType "custom"}}
+            <i class="fas fa-folder-plus"></i>
+          {{/eq}}
+          {{sourceLabel}}
+        </span>
+      {{/if}}
       {{#if size}}
         <span class="asset-size">{{size}}</span>
       {{/if}}

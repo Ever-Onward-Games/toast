@@ -2177,12 +2177,34 @@ class ToastStudioApp extends FormApplication {
 
     assetList.find(".asset-item").each((i, item) => {
       const $item = $(item);
-      const category = $item.data("category")?.toString().toLowerCase() || "";
 
-      if (category.includes(filterValue)) {
-        $item.show();
+      // Get source badge element to check sourceType
+      const sourceBadge = $item.find(".source-badge");
+      const sourceType = sourceBadge.length > 0
+        ? sourceBadge.attr("class").match(/source-(\w+)/)?.[1] || ""
+        : "";
+
+      // Check if filtering by source type
+      if (["default", "announcer", "custom"].includes(filterValue)) {
+        if (sourceType === filterValue) {
+          $item.show();
+        } else {
+          $item.hide();
+        }
       } else {
-        $item.hide();
+        // Check if filtering by other criteria (animated/static)
+        const category = $item.data("category")?.toString().toLowerCase() || "";
+        const isAnimated = $item.find(".animated-indicator").length > 0;
+
+        if (filterValue === "animated" && isAnimated) {
+          $item.show();
+        } else if (filterValue === "static" && !isAnimated) {
+          $item.show();
+        } else if (category.includes(filterValue)) {
+          $item.show();
+        } else {
+          $item.hide();
+        }
       }
     });
   }
