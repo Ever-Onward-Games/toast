@@ -1,5 +1,54 @@
 # Changelog
 
+## Version 2.4.0-alpha.3 - Multi-Directory Scanning (2025-10-31)
+
+### ✨ New Feature - Phase 4.1.1 Step 3
+
+**Implemented multi-source asset scanning:**
+- Audio and Images sub-tabs now populate with files from ALL directory sources
+- Default module directories (sounds, images) automatically scanned
+- Registered announcer pack directories automatically scanned
+- Custom user directories automatically scanned
+- Each asset tagged with source information (path, type, label)
+
+**New Scanning Methods:**
+- `_scanAllDirectories()` - Aggregates and scans all directory sources
+- `_scanDirectory(path, type, sourceType, sourceLabel)` - Scans single directory with source tracking
+- `_createAudioAsset()` - Creates audio asset with full source metadata
+- `_createImageAsset()` - Creates image asset with source metadata and animated detection
+- `_isAnimatedImage()` - Detects potentially animated images (GIF, WebP, APNG)
+
+**Asset Data Structure:**
+Each asset now includes:
+- `path` - Full file path
+- `name` - Filename
+- `source` - Source directory path
+- `sourceType` - "default", "announcer", or "custom"
+- `sourceLabel` - Display label for source
+- `category` - Audio category (for audio files)
+- `animated` - Boolean flag (for image files)
+- `thumbnail` - Thumbnail path (for images)
+- `size` - File size (placeholder)
+
+**Technical Implementation:**
+- Uses Foundry's `FilePicker.browse()` API for all directory scanning
+- Supports "audio", "images", or "both" directory types
+- Error handling for inaccessible directories with console warnings
+- Maintained backwards compatibility with legacy methods
+- Updated `_getAssetData()` to use new scanning system
+
+**Animated Image Support:**
+- Detection based on file extension (.gif, .webp, .apng)
+- `animated` property added to all image assets
+- Ready for UI badges in Step 6
+
+**Next:** Step 4 will enhance animated image display and Step 5 will add FilePicker UI for directory management.
+
+### Files Changed
+- `src/ui/ToastStudioApp.js` - Added ~110 lines of multi-directory scanning logic
+
+---
+
 ## Version 2.4.0-alpha.2 - Directory Management Backend (2025-10-31)
 
 ### ✨ New Feature - Phase 4.1.1 Step 2

@@ -1277,9 +1277,10 @@ class ToastStudioApp extends FormApplication {
    * Get asset browser data
    */
   async _getAssetData() {
+    const scannedAssets = await this._scanAllDirectories();
     return {
-      audioFiles: await this._listAudioFiles(),
-      imageFiles: await this._listImageFiles(),
+      audioFiles: scannedAssets.audio,
+      imageFiles: scannedAssets.images,
       selectedCategory: "audio"
     };
   }
@@ -1353,6 +1354,117 @@ class ToastStudioApp extends FormApplication {
   _getCustomDirectories() {
     return game.settings.get("toast", "custom-asset-directories") || [];
   }
+
+  // ==========================================
+  // Multi-Directory Scanning Methods
+  // ==========================================
+
+  /**
+   * Scan all directories (default, announcer, custom) for assets
+   */
+  async _scanAllDirectories() {
+    const directories = await this._getDirectoriesData();
+
+    // Flatten all directories into a single array with source tracking
+    const allDirs = [
+      ...directories.default,
+      ...directories.announcers,
+      ...directories.custom
+    ];
+
+    const results = {
+      audio: [],
+      images: []
+    };
+
+    // Scan each directory based on its type
+    for (const dir of allDirs) {
+      const dirSource = dir.source || "custom";
+
+      if (dir.type === "audio" || dir.type === "both") {
+        const audioFiles = await this._scanDirectory(dir.path, "audio", dirSource, dir.label || dir.name);
+        results.audio.push(...audioFiles);
+      }
+
+      if (dir.type === "images" || dir.type === "both") {
+        const imageFiles = await this._scanDirectory(dir.path, "images", dirSource, dir.label || dir.name);
+        results.images.push(...imageFiles);
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Scan a single directory for files of a specific type
+   */
+  async _scanDirectory(path, type, sourceType, sourceLabel) {
+    const files = [];
+
+    try {
+      const FilePicker = foundry.applications.apps.FilePicker.implementation;
+      const result = await FilePicker.browse("data", path);
+
+      if (result.files) {
+        for (const file of result.files) {
+          if (type === "audio" && this._isAudioFile(file)) {
+            files.push(this._createAudioAsset(file, path, sourceType, sourceLabel));
+          } else if (type === "images" && this._isImageFile(file)) {
+            files.push(this._createImageAsset(file, path, sourceType, sourceLabel));
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(`Toast Studio | Error scanning directory ${path}:`, err);
+    }
+
+    return files;
+  }
+
+  /**
+   * Create audio asset object with source tracking
+   */
+  _createAudioAsset(path, sourcePath, sourceType, sourceLabel) {
+    return {
+      path: path,
+      name: path.split("/").pop(),
+      source: sourcePath,
+      sourceType: sourceType,
+      sourceLabel: sourceLabel,
+      category: this._getAudioCategory(path),
+      size: "Unknown" // Placeholder - requires server-side API
+    };
+  }
+
+  /**
+   * Create image asset object with source tracking
+   */
+  _createImageAsset(path, sourcePath, sourceType, sourceLabel) {
+    return {
+      path: path,
+      name: path.split("/").pop(),
+      source: sourcePath,
+      sourceType: sourceType,
+      sourceLabel: sourceLabel,
+      thumbnail: path,
+      animated: this._isAnimatedImage(path),
+      size: "Unknown" // Placeholder - requires server-side API
+    };
+  }
+
+  /**
+   * Check if image file is potentially animated
+   */
+  _isAnimatedImage(path) {
+    const ext = path.split(".").pop().toLowerCase();
+    // Note: Can't definitively determine without reading file
+    // This is a heuristic based on extension
+    return ["gif", "webp", "apng"].includes(ext);
+  }
+
+  // ==========================================
+  // Legacy Methods (kept for backwards compatibility)
+  // ==========================================
 
   /**
    * List all audio files in the module
