@@ -547,28 +547,76 @@ class ToastStudioApp extends FormApplication {
   }
 
   /**
-   * Handle audio preview
+   * Handle audio preview (play/stop toggle)
    */
   async _onAudioPreview(event) {
     event.preventDefault();
-    const audioPath = event.currentTarget.dataset.path;
+    const button = event.currentTarget;
+    const audioPath = button.dataset.path;
+    const isPlaying = button.dataset.playing === "true";
 
-    // Stop any currently playing audio
+    // If this audio is currently playing, stop it
+    if (isPlaying && this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio = null;
+      this._updateAudioButton(button, false);
+      return;
+    }
+
+    // Stop any other currently playing audio
     if (this.currentAudio) {
       this.currentAudio.pause();
       this.currentAudio = null;
+      // Reset the previous button
+      if (this.currentAudioButton) {
+        this._updateAudioButton(this.currentAudioButton, false);
+      }
     }
 
-    // Play the audio
+    // Play the new audio
     try {
       this.currentAudio = new Audio(audioPath);
       this.currentAudio.volume = game.settings.get("toast", "asset-preview-volume") || 0.5;
+
+      // When audio ends naturally, reset button
+      this.currentAudio.addEventListener("ended", () => {
+        this._updateAudioButton(button, false);
+        this.currentAudio = null;
+        this.currentAudioButton = null;
+      });
+
       await this.currentAudio.play();
+      this.currentAudioButton = button;
+      this._updateAudioButton(button, true);
 
       ui.notifications.info(`Playing: ${audioPath.split("/").pop()}`);
     } catch (err) {
       console.error("Toast Studio | Error playing audio:", err);
       ui.notifications.error("Failed to play audio file");
+      this._updateAudioButton(button, false);
+    }
+  }
+
+  /**
+   * Update audio button visual state
+   */
+  _updateAudioButton(button, isPlaying) {
+    const playIcon = button.querySelector(".play-icon");
+    const stopIcon = button.querySelector(".stop-icon");
+    const audioItem = button.closest(".audio-item");
+
+    if (isPlaying) {
+      button.dataset.playing = "true";
+      button.title = "Stop audio";
+      playIcon.style.display = "none";
+      stopIcon.style.display = "inline-block";
+      audioItem?.classList.add("playing");
+    } else {
+      button.dataset.playing = "false";
+      button.title = "Play audio";
+      playIcon.style.display = "inline-block";
+      stopIcon.style.display = "none";
+      audioItem?.classList.remove("playing");
     }
   }
 
@@ -680,10 +728,14 @@ class ToastStudioApp extends FormApplication {
    * Close handler - cleanup
    */
   async close(options) {
-    // Stop any playing audio
+    // Stop any playing audio and reset button state
     if (this.currentAudio) {
       this.currentAudio.pause();
       this.currentAudio = null;
+    }
+    if (this.currentAudioButton) {
+      this._updateAudioButton(this.currentAudioButton, false);
+      this.currentAudioButton = null;
     }
 
     return super.close(options);

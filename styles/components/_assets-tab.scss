@@ -163,6 +163,17 @@
       border-color: var(--color-border-highlight);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
+
+    // Currently playing audio state
+    &.playing {
+      background: rgba(var(--color-border-highlight-rgb, 255, 100, 0), 0.1);
+      border-color: var(--color-border-highlight);
+
+      .asset-icon {
+        background: var(--color-border-highlight);
+        color: white;
+      }
+    }
   }
 
   .asset-icon {
@@ -239,6 +250,20 @@
       &:hover {
         background: var(--color-border-highlight);
         color: white;
+      }
+    }
+
+    // Audio preview button with playing state
+    .audio-preview-btn {
+      &[data-playing="true"] {
+        background: var(--color-border-highlight);
+        border-color: var(--color-border-highlight);
+        color: white;
+
+        &:hover {
+          background: #cc0000;
+          border-color: #cc0000;
+        }
       }
     }
   }

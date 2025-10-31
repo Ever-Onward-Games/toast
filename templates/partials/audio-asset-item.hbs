@@ -13,8 +13,9 @@
     </div>
   </div>
   <div class="asset-actions">
-    <button type="button" class="audio-preview-btn" data-path="{{path}}" title="Preview">
-      <i class="fas fa-play"></i>
+    <button type="button" class="audio-preview-btn" data-path="{{path}}" data-playing="false" title="Play audio">
+      <i class="fas fa-play play-icon"></i>
+      <i class="fas fa-stop stop-icon" style="display: none;"></i>
     </button>
     <button type="button" class="use-asset-btn" data-path="{{path}}" data-type="audio" title="Copy code">
       <i class="fas fa-code"></i>

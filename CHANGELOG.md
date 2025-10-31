@@ -1,5 +1,48 @@
 # Changelog
 
+## Version 2.4.0-alpha.4 - Audio Playback Controls (2025-10-31)
+
+### ✨ Enhancement - Audio Preview UI
+
+**Enhanced audio playback controls:**
+- Audio preview buttons now toggle between play and stop
+- Visual feedback: stop icon appears when audio is playing
+- Currently playing audio items are highlighted with accent color
+- Play button changes to stop button when audio is playing
+- Clicking stop button pauses audio playback
+- Automatic cleanup: button resets when audio finishes naturally
+- Window close properly resets all audio states
+
+**UI Improvements:**
+- Playing audio items get highlighted background and border
+- Audio icon changes to accent color when playing
+- Stop button has red hover state for clear visual feedback
+- Button tooltips update based on state ("Play audio" / "Stop audio")
+
+**Technical Implementation:**
+- `_onAudioPreview()` - Handles play/stop toggle logic
+- `_updateAudioButton()` - Updates button and item visual states
+- `currentAudioButton` - Tracks which button is currently playing
+- Enhanced `close()` - Cleans up audio and button states on window close
+- Added `playing` class to audio items for CSS styling
+- Audio "ended" event listener auto-resets button state
+
+**Template Changes:**
+- Updated `audio-asset-item.hbs` with play and stop icons
+- Added `data-playing` attribute for state tracking
+
+**SCSS Enhancements:**
+- `.asset-item.playing` - Highlighted state with accent background
+- `.audio-preview-btn[data-playing="true"]` - Active button styling
+- Red hover color (#cc0000) for stop button
+
+### Files Changed
+- `templates/partials/audio-asset-item.hbs` - Added stop icon
+- `src/ui/ToastStudioApp.js` - Enhanced audio controls (~25 lines)
+- `styles/components/_assets-tab.scss` - Added playing state styles
+
+---
+
 ## Version 2.4.0-alpha.3 - Multi-Directory Scanning (2025-10-31)
 
 ### ✨ New Feature - Phase 4.1.1 Step 3
