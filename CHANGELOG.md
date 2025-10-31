@@ -1,5 +1,52 @@
 # Changelog
 
+## Version 2.4.0-alpha.7 - APNG Detection Support (2025-10-31)
+
+### ✨ Enhancement - Complete Animated Image Detection
+
+**Added APNG (Animated PNG) detection:**
+- PNG files now checked for acTL (animation control) chunk
+- Completes support for all major animated image formats: GIF, WebP, APNG
+- Badge now displays specific format type (GIF, WebP, or APNG)
+- Accurate detection prevents false positives for static PNG files
+
+**New Utility Module:**
+- `apng-anim-utils.js` - APNG detection via file header inspection
+- `parseAPNG()` - Core check with frame count
+- `isAPNG()` - Boolean convenience check
+- `isAPNGFromURL()` - Fetch and check PNG from URL
+- `apngFrameCountFromURL()` - Get animation frame count
+- `isAPNGFromBlob()` - Check from Blob/File object
+
+**Detection Algorithm:**
+- Verifies PNG signature (89 50 4E 47 0D 0A 1A 0A)
+- Searches for acTL chunk (animation control)
+- Reads frame count from acTL data (4 bytes, big-endian)
+- Optimization: Returns false if IDAT found before acTL (static PNG)
+- Stops at IEND chunk or end of file
+
+**Enhanced Asset Data:**
+- Added `animationType` field to image assets
+- Values: "gif", "webp", "apng", or null
+- Badge displays specific format name instead of generic "GIF"
+- Tooltips show format type
+
+**Technical Implementation:**
+- Added APNG detection to _createImageAsset()
+- New _checkAPNGAnimated() method for PNG inspection
+- PNG extension triggers APNG check
+- GIF remains instant detection
+- WebP uses existing robust detection
+- Updated image-asset-item.hbs with dynamic badge text
+
+### Files Changed
+- `src/utils/apng-anim-utils.js` - New utility module (~130 lines)
+- `src/ui/ToastStudioApp.js` - APNG detection integration (~40 lines)
+- `templates/partials/image-asset-item.hbs` - Dynamic badge text
+- `build.js` - Added APNG utils to build process
+
+---
+
 ## Version 2.4.0-alpha.6 - Robust WebP Animation Detection (2025-10-31)
 
 ### ✨ Enhancement - Accurate WebP Animation Detection

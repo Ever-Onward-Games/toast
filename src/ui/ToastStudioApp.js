@@ -271,19 +271,26 @@ class ToastStudioApp extends FormApplication {
 
   /**
    * Create image asset object with source tracking
-   * @async - Performs WebP animation detection for accurate results
+   * @async - Performs WebP and APNG animation detection for accurate results
    */
   async _createImageAsset(path, sourcePath, sourceType, sourceLabel) {
     const ext = path.split(".").pop().toLowerCase();
     let animated = false;
+    let animationType = null;
 
     // Determine if image is animated
     if (ext === "gif") {
       // GIF files are always considered animated
       animated = true;
+      animationType = "gif";
     } else if (ext === "webp") {
       // For WebP, check the actual file to determine if it's animated
       animated = await this._checkWebPAnimated(path);
+      if (animated) animationType = "webp";
+    } else if (ext === "png") {
+      // For PNG, check if it's actually an APNG
+      animated = await this._checkAPNGAnimated(path);
+      if (animated) animationType = "apng";
     }
 
     return {
@@ -294,6 +301,7 @@ class ToastStudioApp extends FormApplication {
       sourceLabel: sourceLabel,
       thumbnail: path,
       animated: animated,
+      animationType: animationType, // "gif", "webp", "apng", or null
       size: "Unknown" // Placeholder - requires server-side API
     };
   }
@@ -308,6 +316,21 @@ class ToastStudioApp extends FormApplication {
       return await isWebPAnimatedFromURL(path);
     } catch (err) {
       console.warn(`Toast Studio | Error checking WebP animation for ${path}:`, err);
+      // Default to false if we can't determine
+      return false;
+    }
+  }
+
+  /**
+   * Check if a PNG file is actually an APNG (Animated PNG)
+   * Uses robust file header inspection to detect acTL chunk
+   */
+  async _checkAPNGAnimated(path) {
+    try {
+      // isAPNGFromURL is provided by apng-anim-utils.js
+      return await isAPNGFromURL(path);
+    } catch (err) {
+      console.warn(`Toast Studio | Error checking APNG for ${path}:`, err);
       // Default to false if we can't determine
       return false;
     }

@@ -3,8 +3,15 @@
   <div class="asset-thumbnail">
     <img src="{{thumbnail}}" alt="{{name}}" loading="lazy">
     {{#if animated}}
-      <span class="animated-badge" title="Animated image">
-        <i class="fas fa-film"></i> GIF
+      <span class="animated-badge" title="Animated {{animationType}}">
+        <i class="fas fa-film"></i>
+        {{#if animationType}}
+          {{#eq animationType "gif"}}GIF{{/eq}}
+          {{#eq animationType "webp"}}WebP{{/eq}}
+          {{#eq animationType "apng"}}APNG{{/eq}}
+        {{else}}
+          ANIM
+        {{/if}}
       </span>
     {{/if}}
   </div>
