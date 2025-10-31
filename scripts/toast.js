@@ -1173,6 +1173,106 @@ class TemplateManager {
 
 
 /**
+ * WebP Animation Detection Utilities
+ *
+ * Provides robust detection of animated WebP files by reading file headers
+ * rather than relying on file extension alone.
+ */
+
+/**
+ * Convert bytes to ASCII string
+ * @private
+ */
+function _str(bytes, off, len) {
+  // Avoid allocating TextDecoder repeatedly; tiny enough for convenience:
+  return new TextDecoder("ascii").decode(bytes.subarray(off, off + len));
+}
+
+/**
+ * Core check from a Uint8Array of the file contents
+ * @param {Uint8Array} bytes - The file contents
+ * @returns {boolean} True if the WebP is animated
+ */
+export function isWebPAnimated(bytes) {
+  if (bytes.length < 12) return false;
+  if (_str(bytes, 0, 4) !== "RIFF" || _str(bytes, 8, 4) !== "WEBP") return false;
+
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let i = 12;
+  while (i + 8 <= bytes.length) {
+    const fourcc = _str(bytes, i, 4);
+    const size = dv.getUint32(i + 4, true);
+    const start = i + 8;
+
+    // VP8X feature flags (byte 0 of payload). Bit 1 (0x02) = animation.
+    if (fourcc === "VP8X" && size >= 1) {
+      const features = bytes[start];
+      if (features & 0x02) return true;
+    }
+    // ANIM chunk definitively indicates an animated WebP
+    if (fourcc === "ANIM") return true;
+
+    // chunks are padded to even sizes
+    i = start + size + (size & 1);
+  }
+  return false;
+}
+
+/**
+ * Optional: count frames (ANMF chunk occurrences)
+ * @param {Uint8Array} bytes - The file contents
+ * @returns {number} Number of animation frames
+ */
+export function countWebPFrames(bytes) {
+  if (_str(bytes, 0, 4) !== "RIFF" || _str(bytes, 8, 4) !== "WEBP") return 0;
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let i = 12, frames = 0;
+  while (i + 8 <= bytes.length) {
+    const fourcc = _str(bytes, i, 4);
+    const size = dv.getUint32(i + 4, true);
+    if (fourcc === "ANMF") frames += 1;
+    i = i + 8 + size + (size & 1);
+  }
+  return frames;
+}
+
+/**
+ * From a URL that Foundry serves (e.g., token/tiles artwork)
+ * @param {string} src - The URL to fetch
+ * @returns {Promise<boolean>} True if the WebP is animated
+ */
+export async function isWebPAnimatedFromURL(src) {
+  try {
+    const res = await fetch(src);
+    if (!res.ok) {
+      console.warn(`Toast | Failed to fetch ${src}: ${res.status}`);
+      return false;
+    }
+    const buf = new Uint8Array(await res.arrayBuffer());
+    return isWebPAnimated(buf);
+  } catch (err) {
+    console.warn(`Toast | Error checking WebP animation for ${src}:`, err);
+    return false;
+  }
+}
+
+/**
+ * From a Blob/File (e.g., from FilePicker onChange)
+ * @param {Blob} blob - The blob/file to check
+ * @returns {Promise<boolean>} True if the WebP is animated
+ */
+export async function isWebPAnimatedFromBlob(blob) {
+  try {
+    const buf = new Uint8Array(await blob.arrayBuffer());
+    return isWebPAnimated(buf);
+  } catch (err) {
+    console.warn(`Toast | Error checking WebP animation from blob:`, err);
+    return false;
+  }
+}
+
+
+/**
  * Toast Studio Application
  * Main GUI window for Toast content creation
  *
@@ -1406,13 +1506,20 @@ class ToastStudioApp extends FormApplication {
       const result = await FilePicker.browse("data", path);
 
       if (result.files) {
+        // Collect promises for async operations (WebP animation detection)
+        const filePromises = [];
+
         for (const file of result.files) {
           if (type === "audio" && this._isAudioFile(file)) {
             files.push(this._createAudioAsset(file, path, sourceType, sourceLabel));
           } else if (type === "images" && this._isImageFile(file)) {
-            files.push(this._createImageAsset(file, path, sourceType, sourceLabel));
+            filePromises.push(this._createImageAsset(file, path, sourceType, sourceLabel));
           }
         }
+
+        // Wait for all async image asset creation to complete
+        const imageAssets = await Promise.all(filePromises);
+        files.push(...imageAssets);
       }
     } catch (err) {
       console.warn(`Toast Studio | Error scanning directory ${path}:`, err);
@@ -1438,8 +1545,21 @@ class ToastStudioApp extends FormApplication {
 
   /**
    * Create image asset object with source tracking
+   * @async - Performs WebP animation detection for accurate results
    */
-  _createImageAsset(path, sourcePath, sourceType, sourceLabel) {
+  async _createImageAsset(path, sourcePath, sourceType, sourceLabel) {
+    const ext = path.split(".").pop().toLowerCase();
+    let animated = false;
+
+    // Determine if image is animated
+    if (ext === "gif") {
+      // GIF files are always considered animated
+      animated = true;
+    } else if (ext === "webp") {
+      // For WebP, check the actual file to determine if it's animated
+      animated = await this._checkWebPAnimated(path);
+    }
+
     return {
       path: path,
       name: path.split("/").pop(),
@@ -1447,21 +1567,36 @@ class ToastStudioApp extends FormApplication {
       sourceType: sourceType,
       sourceLabel: sourceLabel,
       thumbnail: path,
-      animated: this._isAnimatedImage(path),
+      animated: animated,
       size: "Unknown" // Placeholder - requires server-side API
     };
   }
 
   /**
-   * Check if image file is potentially animated
+   * Check if a WebP file is actually animated
+   * Uses robust file header inspection rather than extension alone
+   */
+  async _checkWebPAnimated(path) {
+    try {
+      // isWebPAnimatedFromURL is provided by webp-anim-utils.js
+      return await isWebPAnimatedFromURL(path);
+    } catch (err) {
+      console.warn(`Toast Studio | Error checking WebP animation for ${path}:`, err);
+      // Default to false if we can't determine
+      return false;
+    }
+  }
+
+  /**
+   * Check if image file is potentially animated (quick extension check)
+   * @deprecated - Use _checkWebPAnimated for accurate WebP detection
    */
   _isAnimatedImage(path) {
     const ext = path.split(".").pop().toLowerCase();
-    // Note: Can't definitively determine without reading file
-    // This is a heuristic based on extension
+    // Note: This is a quick heuristic check
+    // For accurate WebP detection, use _checkWebPAnimated
     // GIF: Always animated capability
-    // WebP: Can be animated (though not all are)
-    // APNG: Uses .png extension, so can't detect by extension alone
+    // WebP: Can be animated (requires file inspection to know for sure)
     return ["gif", "webp"].includes(ext);
   }
 

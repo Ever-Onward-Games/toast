@@ -232,13 +232,20 @@ class ToastStudioApp extends FormApplication {
       const result = await FilePicker.browse("data", path);
 
       if (result.files) {
+        // Collect promises for async operations (WebP animation detection)
+        const filePromises = [];
+
         for (const file of result.files) {
           if (type === "audio" && this._isAudioFile(file)) {
             files.push(this._createAudioAsset(file, path, sourceType, sourceLabel));
           } else if (type === "images" && this._isImageFile(file)) {
-            files.push(this._createImageAsset(file, path, sourceType, sourceLabel));
+            filePromises.push(this._createImageAsset(file, path, sourceType, sourceLabel));
           }
         }
+
+        // Wait for all async image asset creation to complete
+        const imageAssets = await Promise.all(filePromises);
+        files.push(...imageAssets);
       }
     } catch (err) {
       console.warn(`Toast Studio | Error scanning directory ${path}:`, err);
@@ -264,8 +271,21 @@ class ToastStudioApp extends FormApplication {
 
   /**
    * Create image asset object with source tracking
+   * @async - Performs WebP animation detection for accurate results
    */
-  _createImageAsset(path, sourcePath, sourceType, sourceLabel) {
+  async _createImageAsset(path, sourcePath, sourceType, sourceLabel) {
+    const ext = path.split(".").pop().toLowerCase();
+    let animated = false;
+
+    // Determine if image is animated
+    if (ext === "gif") {
+      // GIF files are always considered animated
+      animated = true;
+    } else if (ext === "webp") {
+      // For WebP, check the actual file to determine if it's animated
+      animated = await this._checkWebPAnimated(path);
+    }
+
     return {
       path: path,
       name: path.split("/").pop(),
@@ -273,21 +293,36 @@ class ToastStudioApp extends FormApplication {
       sourceType: sourceType,
       sourceLabel: sourceLabel,
       thumbnail: path,
-      animated: this._isAnimatedImage(path),
+      animated: animated,
       size: "Unknown" // Placeholder - requires server-side API
     };
   }
 
   /**
-   * Check if image file is potentially animated
+   * Check if a WebP file is actually animated
+   * Uses robust file header inspection rather than extension alone
+   */
+  async _checkWebPAnimated(path) {
+    try {
+      // isWebPAnimatedFromURL is provided by webp-anim-utils.js
+      return await isWebPAnimatedFromURL(path);
+    } catch (err) {
+      console.warn(`Toast Studio | Error checking WebP animation for ${path}:`, err);
+      // Default to false if we can't determine
+      return false;
+    }
+  }
+
+  /**
+   * Check if image file is potentially animated (quick extension check)
+   * @deprecated - Use _checkWebPAnimated for accurate WebP detection
    */
   _isAnimatedImage(path) {
     const ext = path.split(".").pop().toLowerCase();
-    // Note: Can't definitively determine without reading file
-    // This is a heuristic based on extension
+    // Note: This is a quick heuristic check
+    // For accurate WebP detection, use _checkWebPAnimated
     // GIF: Always animated capability
-    // WebP: Can be animated (though not all are)
-    // APNG: Uses .png extension, so can't detect by extension alone
+    // WebP: Can be animated (requires file inspection to know for sure)
     return ["gif", "webp"].includes(ext);
   }
 

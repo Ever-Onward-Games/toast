@@ -70,6 +70,9 @@ const SOURCE_MODULES = [
   // Templates Layer
   'templates/TemplateManager.js',
 
+  // Utils Layer
+  'utils/webp-anim-utils.js',
+
   // UI Layer
   'ui/ToastStudioApp.js',
 

@@ -1,5 +1,48 @@
 # Changelog
 
+## Version 2.4.0-alpha.6 - Robust WebP Animation Detection (2025-10-31)
+
+### ✨ Enhancement - Accurate WebP Animation Detection
+
+**Implemented file header inspection for WebP files:**
+- WebP files are now accurately detected as animated or static
+- Reads file headers to check for VP8X/ANIM chunks (definitive animation markers)
+- GIF files still instantly marked as animated
+- No more false positives for static WebP files
+
+**New Utility Module:**
+- `webp-anim-utils.js` - Robust WebP animation detection
+- `isWebPAnimated()` - Core check from file bytes
+- `isWebPAnimatedFromURL()` - Fetch and check from URL
+- `isWebPAnimatedFromBlob()` - Check from Blob/File object
+- `countWebPFrames()` - Optional frame counting utility
+
+**Detection Algorithm:**
+- Reads RIFF/WEBP file headers
+- Checks VP8X feature flags (bit 1 = animation)
+- Looks for ANIM chunk (definitive animated WebP marker)
+- Handles chunk padding correctly
+- Graceful error handling with fallback to false
+
+**Technical Changes:**
+- Updated `_createImageAsset()` to async method
+- New `_checkWebPAnimated()` method for WebP file inspection
+- `_scanDirectory()` now uses Promise.all for parallel checks
+- Deprecated `_isAnimatedImage()` (kept for compatibility)
+- Added webp-anim-utils.js to build process
+
+**Performance:**
+- Parallel async checks for all WebP files in directory
+- Fetches only necessary file headers (not full images)
+- Error handling prevents scan failures from single bad files
+
+### Files Changed
+- `src/utils/webp-anim-utils.js` - New utility module (~100 lines)
+- `src/ui/ToastStudioApp.js` - Async WebP detection (~50 lines modified)
+- `build.js` - Added utils layer to build process
+
+---
+
 ## Version 2.4.0-alpha.5 - Animated Image Badges (2025-10-31)
 
 ### ✨ Enhancement - Animated Image Detection
