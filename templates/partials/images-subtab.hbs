@@ -1,0 +1,33 @@
+{{!-- Images Sub-Tab - Browse and manage image assets --}}
+<div class="subtab-panel {{#if assetsSubTab.images.active}}active{{/if}}" data-subtab="images">
+
+  {{!-- Toolbar --}}
+  <div class="assets-toolbar">
+    <input type="text" class="asset-search" placeholder="Search image files..." data-search-type="images">
+    <select class="asset-filter" data-filter-type="images">
+      <option value="all">All Sources</option>
+      <option value="default">Default</option>
+      <option value="custom">Custom</option>
+      <option value="animated">Animated Only</option>
+      <option value="static">Static Only</option>
+    </select>
+    <button type="button" class="refresh-assets-btn" data-refresh-type="images">
+      <i class="fas fa-sync"></i> Refresh
+    </button>
+  </div>
+
+  {{!-- Image Files Section --}}
+  <section class="asset-section">
+    <h3><i class="fas fa-image"></i> Image Files ({{assets.imageFiles.length}})</h3>
+    <div class="asset-list image-list">
+      {{#if assets.imageFiles.length}}
+        {{#each assets.imageFiles}}
+          {{> "modules/toast/templates/partials/image-asset-item.hbs"}}
+        {{/each}}
+      {{else}}
+        {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-image" message="No image files found" submessage="Add custom directories in the Directories tab"}}
+      {{/if}}
+    </div>
+  </section>
+
+</div>

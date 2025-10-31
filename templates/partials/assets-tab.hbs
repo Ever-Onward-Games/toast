@@ -1,48 +1,26 @@
 {{!-- Assets Tab - Browse and manage audio/image assets --}}
 <div class="tab-panel {{#if tabs.assets.active}}active{{/if}}" data-tab="assets">
   <div class="assets-container">
-    {{!-- Toolbar --}}
-    <div class="assets-toolbar">
-      <input type="text" class="asset-search" placeholder="Search assets...">
-      <select class="asset-filter">
-        <option value="all">All Categories</option>
-        <option value="announcer">Announcers</option>
-        <option value="custom">Custom</option>
-      </select>
-      <button type="button" class="refresh-assets-btn">
-        <i class="fas fa-sync"></i> Refresh
-      </button>
+
+    {{!-- Sub-Tab Navigation --}}
+    <nav class="assets-subtabs" data-group="assets-subtabs">
+      <a class="subtab {{#if assetsSubTab.directories.active}}active{{/if}}" data-subtab="directories">
+        <i class="fas fa-folder"></i> Directories
+      </a>
+      <a class="subtab {{#if assetsSubTab.audio.active}}active{{/if}}" data-subtab="audio">
+        <i class="fas fa-music"></i> Audio
+      </a>
+      <a class="subtab {{#if assetsSubTab.images.active}}active{{/if}}" data-subtab="images">
+        <i class="fas fa-image"></i> Images
+      </a>
+    </nav>
+
+    {{!-- Sub-Tab Content --}}
+    <div class="assets-subtab-content">
+      {{> "modules/toast/templates/partials/directories-subtab.hbs"}}
+      {{> "modules/toast/templates/partials/audio-subtab.hbs"}}
+      {{> "modules/toast/templates/partials/images-subtab.hbs"}}
     </div>
 
-    {{!-- Assets Content --}}
-    <div class="assets-content">
-      {{!-- Audio Files Section --}}
-      <section class="asset-section">
-        <h3><i class="fas fa-volume-up"></i> Audio Files</h3>
-        <div class="asset-list audio-list">
-          {{#if assets.audioFiles.length}}
-            {{#each assets.audioFiles}}
-              {{> "modules/toast/templates/partials/audio-asset-item.hbs"}}
-            {{/each}}
-          {{else}}
-            {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-music" message="No audio files found"}}
-          {{/if}}
-        </div>
-      </section>
-
-      {{!-- Image Files Section --}}
-      <section class="asset-section">
-        <h3><i class="fas fa-image"></i> Image Files</h3>
-        <div class="asset-list image-list">
-          {{#if assets.imageFiles.length}}
-            {{#each assets.imageFiles}}
-              {{> "modules/toast/templates/partials/image-asset-item.hbs"}}
-            {{/each}}
-          {{else}}
-            {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-image" message="No image files found"}}
-          {{/if}}
-        </div>
-      </section>
-    </div>
   </div>
 </div>

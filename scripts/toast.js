@@ -1624,6 +1624,10 @@ class ToastManager {
   static async preloadTemplatePartials() {
     const partials = [
       "modules/toast/templates/partials/assets-tab.hbs",
+      "modules/toast/templates/partials/directories-subtab.hbs",
+      "modules/toast/templates/partials/audio-subtab.hbs",
+      "modules/toast/templates/partials/images-subtab.hbs",
+      "modules/toast/templates/partials/directory-item.hbs",
       "modules/toast/templates/partials/audio-asset-item.hbs",
       "modules/toast/templates/partials/image-asset-item.hbs",
       "modules/toast/templates/partials/packages-tab.hbs",

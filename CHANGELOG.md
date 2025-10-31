@@ -1,5 +1,50 @@
 # Changelog
 
+## Version 2.4.0-alpha.1 - Asset Browser Enhancement: Sub-Tabs (2025-10-31)
+
+### ✨ New Feature - Phase 4.1.1 Step 1
+
+**Added sub-tab navigation to Assets tab:**
+- Assets tab now split into 3 sub-tabs: Directories, Audio, Images
+- Clean organization separating directory management from asset browsing
+- Visual tab navigation with icons and active states
+
+**New Template Structure:**
+- Created `directories-subtab.hbs` - Manage asset source directories
+- Created `audio-subtab.hbs` - Browse audio files with dedicated toolbar
+- Created `images-subtab.hbs` - Browse images with animated/static filtering
+- Created `directory-item.hbs` - Reusable directory display component
+
+**UI Components:**
+- Sub-tab navigation with hover and active states
+- Directories sub-tab shows 3 sections: Default, Announcer Packs, Custom
+- "+ Add Directory" button for future custom directory support
+- Each sub-tab has its own toolbar (search, filter, refresh)
+- File count badges on section headers
+
+**SCSS Enhancements:**
+- Added comprehensive sub-tab navigation styles
+- Directory section and item styles with hover effects
+- Add directory button with dashed border styling
+- Animated image badge styles (for future use)
+- CSS increased from 9.3 KB to 13.5 KB
+
+**Technical:**
+- Preloaded 4 new Handlebars partials in ToastManager
+- Sub-tabs use display:none/block pattern for show/hide
+- All styles properly scoped under #toast-studio
+
+**Note:** This is Step 1 of Phase 4.1.1. Directory management, multi-source
+scanning, and animated image support will be implemented in subsequent alphas.
+
+### Files Changed
+- `templates/partials/assets-tab.hbs` - Added sub-tab navigation
+- Added 4 new template partials
+- `styles/components/_assets-tab.scss` - Added ~200 lines of sub-tab styles
+- `src/core/ToastManager.js` - Updated preloadTemplatePartials()
+
+---
+
 ## Version 2.3.6 - Assets Toolbar Flex Layout Fix v3 (2025-10-30)
 
 ### 🐛 Bug Fix

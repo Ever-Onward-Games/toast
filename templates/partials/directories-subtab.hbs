@@ -1,0 +1,50 @@
+{{!-- Directories Sub-Tab - Manage asset source directories --}}
+<div class="subtab-panel {{#if assetsSubTab.directories.active}}active{{/if}}" data-subtab="directories">
+  <div class="directories-list">
+
+    {{!-- Default Directories --}}
+    <div class="directory-section">
+      <h4><i class="fas fa-folder-open"></i> Default Directories</h4>
+      <p class="section-description">Built-in module directories (cannot be removed)</p>
+      {{#if directories.default.length}}
+        {{#each directories.default}}
+          {{> "modules/toast/templates/partials/directory-item.hbs" readonly=true}}
+        {{/each}}
+      {{else}}
+        {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-folder" message="No default directories"}}
+      {{/if}}
+    </div>
+
+    {{!-- Registered Announcer Packs --}}
+    <div class="directory-section">
+      <h4><i class="fas fa-bullhorn"></i> Registered Announcer Packs</h4>
+      <p class="section-description">Announcer packs registered by modules (cannot be removed)</p>
+      {{#if directories.announcers.length}}
+        {{#each directories.announcers}}
+          {{> "modules/toast/templates/partials/directory-item.hbs" readonly=true announcer=true}}
+        {{/each}}
+      {{else}}
+        {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-bullhorn" message="No announcer packs registered" submessage="Modules can register announcer packs via the API"}}
+      {{/if}}
+    </div>
+
+    {{!-- Custom Directories --}}
+    <div class="directory-section">
+      <h4><i class="fas fa-folder-plus"></i> Custom Directories</h4>
+      <p class="section-description">Your custom asset directories</p>
+      {{#if directories.custom.length}}
+        {{#each directories.custom}}
+          {{> "modules/toast/templates/partials/directory-item.hbs" readonly=false custom=true}}
+        {{/each}}
+      {{else}}
+        {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-folder-plus" message="No custom directories added" submessage="Add your own audio and image directories below"}}
+      {{/if}}
+
+      {{!-- Add Directory Button --}}
+      <button type="button" class="add-directory-btn">
+        <i class="fas fa-plus"></i> Add Custom Directory
+      </button>
+    </div>
+
+  </div>
+</div>
