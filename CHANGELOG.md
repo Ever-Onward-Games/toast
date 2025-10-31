@@ -1,5 +1,31 @@
 # Changelog
 
+## Version 2.3.3 - Foundry v13 Compatibility Fixes (2025-10-30)
+
+### 🐛 Bug Fix
+
+**Fixed Toast Studio compatibility issues with Foundry v13:**
+- Fixed deprecated FilePicker API usage - now uses `foundry.applications.apps.FilePicker.implementation`
+- Fixed "partial could not be found" error by preloading Handlebars partials on module init
+- Fixed bringToTop error by checking if window is rendered before calling method
+- Removed deprecation warnings from Foundry console
+
+**Technical Changes:**
+- Added `preloadTemplatePartials()` method to load all 6 partials during ready hook
+- Updated `_listAudioFiles()` and `_listImageFiles()` to use v13 FilePicker API
+- Added `rendered` check in `openStudio()` before calling `bringToTop()`
+
+**Fixes:**
+- "You are accessing the global FilePicker..." deprecation warning
+- "The partial modules/toast/templates/partials/assets-tab.hbs could not be found" error
+- "Failed to execute 'getComputedStyle' on 'Window'" error
+
+### Files Changed
+- `src/ui/ToastStudioApp.js` - Updated FilePicker API calls
+- `src/core/ToastManager.js` - Added partial preloading and bringToTop safety check
+
+---
+
 ## Version 2.3.2 - Assets Toolbar UI Fix (2025-10-30)
 
 ### 🐛 Bug Fix

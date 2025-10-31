@@ -113,7 +113,8 @@ class ToastStudioApp extends FormApplication {
       const source = "data";
       const target = "modules/toast/sounds";
 
-      // Use FilePicker to browse directory
+      // Use FilePicker to browse directory (v13 API)
+      const FilePicker = foundry.applications.apps.FilePicker.implementation;
       const result = await FilePicker.browse(source, target);
 
       if (result.files) {
@@ -147,7 +148,8 @@ class ToastStudioApp extends FormApplication {
       const source = "data";
       const target = "modules/toast/images";
 
-      // Use FilePicker to browse directory
+      // Use FilePicker to browse directory (v13 API)
+      const FilePicker = foundry.applications.apps.FilePicker.implementation;
       const result = await FilePicker.browse(source, target);
 
       if (result.files) {

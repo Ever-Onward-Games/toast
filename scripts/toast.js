@@ -1287,7 +1287,8 @@ class ToastStudioApp extends FormApplication {
       const source = "data";
       const target = "modules/toast/sounds";
 
-      // Use FilePicker to browse directory
+      // Use FilePicker to browse directory (v13 API)
+      const FilePicker = foundry.applications.apps.FilePicker.implementation;
       const result = await FilePicker.browse(source, target);
 
       if (result.files) {
@@ -1321,7 +1322,8 @@ class ToastStudioApp extends FormApplication {
       const source = "data";
       const target = "modules/toast/images";
 
-      // Use FilePicker to browse directory
+      // Use FilePicker to browse directory (v13 API)
+      const FilePicker = foundry.applications.apps.FilePicker.implementation;
       const result = await FilePicker.browse(source, target);
 
       if (result.files) {
@@ -1609,6 +1611,31 @@ class ToastManager {
       console.log("Toast | TTS cache initialized");
     } catch (err) {
       console.warn("Toast | Failed to initialize TTS cache:", err);
+    }
+
+    // Preload template partials
+    await this.preloadTemplatePartials();
+  }
+
+  /**
+   * Preload Handlebars template partials
+   * Required for partials to be available during rendering
+   */
+  static async preloadTemplatePartials() {
+    const partials = [
+      "modules/toast/templates/partials/assets-tab.hbs",
+      "modules/toast/templates/partials/audio-asset-item.hbs",
+      "modules/toast/templates/partials/image-asset-item.hbs",
+      "modules/toast/templates/partials/packages-tab.hbs",
+      "modules/toast/templates/partials/studio-tab.hbs",
+      "modules/toast/templates/partials/empty-state.hbs"
+    ];
+
+    try {
+      await loadTemplates(partials);
+      console.log("Toast | Template partials preloaded");
+    } catch (err) {
+      console.warn("Toast | Failed to preload template partials:", err);
     }
   }
 
@@ -3319,7 +3346,7 @@ class ToastManager {
    */
   static openStudio(options = {}) {
     // Check if studio is already open
-    if (this.studioApp) {
+    if (this.studioApp && this.studioApp.rendered) {
       this.studioApp.bringToTop();
       return this.studioApp;
     }
