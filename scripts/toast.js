@@ -1186,6 +1186,7 @@ class ToastStudioApp extends FormApplication {
     super({}, options);
 
     this.activeTab = options.tab || game.settings.get("toast", "studio-default-tab") || "assets";
+    this.activeAssetsSubTab = options.assetsSubTab || game.settings.get("toast", "assets-default-subtab") || "audio";
     this.assetBrowser = null;
   }
 
@@ -1243,6 +1244,24 @@ class ToastStudioApp extends FormApplication {
 
     // Get asset data
     if (this.activeTab === "assets") {
+      // Sub-tab data
+      data.assetsSubTab = {
+        directories: {
+          id: "directories",
+          active: this.activeAssetsSubTab === "directories"
+        },
+        audio: {
+          id: "audio",
+          active: this.activeAssetsSubTab === "audio"
+        },
+        images: {
+          id: "images",
+          active: this.activeAssetsSubTab === "images"
+        }
+      };
+
+      // Get directories and assets
+      data.directories = await this._getDirectoriesData();
       data.assets = await this._getAssetData();
     }
 
@@ -1274,6 +1293,65 @@ class ToastStudioApp extends FormApplication {
       packages: [],
       categories: ["combat", "exploration", "social", "other"]
     };
+  }
+
+  /**
+   * Get directories data for all types
+   */
+  async _getDirectoriesData() {
+    return {
+      default: this._getDefaultDirectories(),
+      announcers: this._getAnnouncerPackDirectories(),
+      custom: this._getCustomDirectories()
+    };
+  }
+
+  /**
+   * Get default module directories
+   */
+  _getDefaultDirectories() {
+    return [
+      {
+        path: "modules/toast/sounds",
+        type: "audio",
+        source: "default",
+        label: "Default Sounds"
+      },
+      {
+        path: "modules/toast/images",
+        type: "images",
+        source: "default",
+        label: "Default Images"
+      }
+    ];
+  }
+
+  /**
+   * Get registered announcer pack directories
+   */
+  _getAnnouncerPackDirectories() {
+    const announcers = [];
+    const registered = ToastManager.registeredAnnouncers || {};
+
+    for (const [id, config] of Object.entries(registered)) {
+      announcers.push({
+        id: id,
+        path: config.path,
+        name: config.name,
+        type: "audio",
+        source: "announcer",
+        label: config.name
+      });
+    }
+
+    return announcers;
+  }
+
+  /**
+   * Get custom user directories from settings
+   */
+  _getCustomDirectories() {
+    return game.settings.get("toast", "custom-asset-directories") || [];
   }
 
   /**
@@ -1384,6 +1462,49 @@ class ToastStudioApp extends FormApplication {
     return "Unknown";
   }
 
+  // ==========================================
+  // Directory Management CRUD Methods
+  // ==========================================
+
+  /**
+   * Add a custom directory
+   */
+  async addCustomDirectory(dirPath, type, label) {
+    const directories = this._getCustomDirectories();
+    directories.push({
+      id: foundry.utils.randomID(),
+      path: dirPath,
+      type: type,
+      label: label || dirPath,
+      addedAt: Date.now()
+    });
+    await game.settings.set("toast", "custom-asset-directories", directories);
+    this.render();
+  }
+
+  /**
+   * Remove a custom directory
+   */
+  async removeCustomDirectory(id) {
+    const directories = this._getCustomDirectories();
+    const filtered = directories.filter(d => d.id !== id);
+    await game.settings.set("toast", "custom-asset-directories", filtered);
+    this.render();
+  }
+
+  /**
+   * Edit a custom directory
+   */
+  async editCustomDirectory(id, updates) {
+    const directories = this._getCustomDirectories();
+    const index = directories.findIndex(d => d.id === id);
+    if (index >= 0) {
+      directories[index] = { ...directories[index], ...updates };
+      await game.settings.set("toast", "custom-asset-directories", directories);
+      this.render();
+    }
+  }
+
   /**
    * Activate event listeners
    */
@@ -1392,6 +1513,14 @@ class ToastStudioApp extends FormApplication {
 
     // Tab switching
     html.find(".tabs .tab").on("click", this._onTabChange.bind(this));
+
+    // Sub-tab switching
+    html.find(".assets-subtabs .subtab").on("click", this._onSubTabChange.bind(this));
+
+    // Directory management buttons
+    html.find(".add-directory-btn").on("click", this._onAddDirectory.bind(this));
+    html.find(".edit-directory-btn").on("click", this._onEditDirectory.bind(this));
+    html.find(".remove-directory-btn").on("click", this._onRemoveDirectory.bind(this));
 
     // Audio preview buttons
     html.find(".audio-preview-btn").on("click", this._onAudioPreview.bind(this));
@@ -1427,6 +1556,56 @@ class ToastStudioApp extends FormApplication {
 
     this.activeTab = tab;
     await this.render(true);
+  }
+
+  /**
+   * Handle sub-tab change
+   */
+  async _onSubTabChange(event) {
+    event.preventDefault();
+    const subtab = event.currentTarget.dataset.subtab;
+    this.activeAssetsSubTab = subtab;
+    await this.render(true);
+  }
+
+  /**
+   * Handle add directory button
+   */
+  async _onAddDirectory(event) {
+    event.preventDefault();
+    // TODO: Implement in Step 5 - For now just show a notification
+    ui.notifications.info("Directory picker will be implemented in Step 5 (UI/UX Implementation)");
+  }
+
+  /**
+   * Handle edit directory button
+   */
+  async _onEditDirectory(event) {
+    event.preventDefault();
+    const id = event.currentTarget.dataset.directoryId;
+    // TODO: Implement in Step 5
+    ui.notifications.info("Edit directory will be implemented in Step 5");
+  }
+
+  /**
+   * Handle remove directory button
+   */
+  async _onRemoveDirectory(event) {
+    event.preventDefault();
+    const id = event.currentTarget.dataset.directoryId;
+
+    const confirmed = await Dialog.confirm({
+      title: "Remove Directory",
+      content: "<p>Remove this directory from asset scanning?</p>",
+      yes: () => true,
+      no: () => false,
+      defaultYes: false
+    });
+
+    if (confirmed) {
+      await this.removeCustomDirectory(id);
+      ui.notifications.info("Directory removed");
+    }
   }
 
   /**
@@ -1981,6 +2160,31 @@ class ToastManager {
         "studio": "Studio"
       },
       default: "assets"
+    });
+
+    // Assets Default Sub-Tab
+    game.settings.register(this.MODULE_ID, "assets-default-subtab", {
+      name: "Assets Default Sub-Tab",
+      hint: "Which sub-tab to show when opening the Assets tab.",
+      scope: "client",
+      config: true,
+      type: String,
+      choices: {
+        "directories": "Directories",
+        "audio": "Audio",
+        "images": "Images"
+      },
+      default: "audio"
+    });
+
+    // Custom Asset Directories
+    game.settings.register(this.MODULE_ID, "custom-asset-directories", {
+      name: "Custom Asset Directories",
+      hint: "User-added directories for custom audio and image assets.",
+      scope: "client",
+      config: false, // Hidden - managed via Toast Studio
+      type: Array,
+      default: []
     });
 
     // Asset Preview Volume

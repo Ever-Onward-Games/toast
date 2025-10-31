@@ -1,5 +1,50 @@
 # Changelog
 
+## Version 2.4.0-alpha.2 - Directory Management Backend (2025-10-31)
+
+### ✨ New Feature - Phase 4.1.1 Step 2
+
+**Implemented directory management backend:**
+- Sub-tab switching now functional (Directories, Audio, Images)
+- Directory data providers for Default, Announcer Packs, Custom
+- CRUD operations for custom directories (add, edit, remove)
+- Settings integration for persistent directory storage
+
+**New Settings:**
+- `assets-default-subtab` (client) - Which sub-tab to show by default
+- `custom-asset-directories` (client, hidden) - User's custom directories array
+
+**ToastStudioApp Enhancements:**
+- Constructor now loads `activeAssetsSubTab` from settings
+- `getData()` populates `assetsSubTab` and `directories` data
+- `_getDirectoriesData()` - Fetches all directory types
+- `_getDefaultDirectories()` - Returns module's built-in directories
+- `_getAnnouncerPackDirectories()` - Gets registered announcer packs
+- `_getCustomDirectories()` - Loads user directories from settings
+- `addCustomDirectory()` - Add new directory with Foundry path
+- `removeCustomDirectory()` - Remove by ID with confirmation
+- `editCustomDirectory()` - Update directory properties
+
+**Event Handlers:**
+- Sub-tab switching (clicks switch between Directories/Audio/Images)
+- Remove directory (with Dialog confirmation)
+- Add/Edit directory placeholders (will be implemented in Step 5)
+
+**Technical:**
+- All directory methods use Foundry's settings API
+- Ready for FilePicker integration in Step 5
+- Settings stored per-client (user-specific)
+- Directory objects include: id, path, type, label, addedAt
+
+**Next:** Step 3 - Multi-Directory Scanning will scan all directory sources
+and populate the Audio/Images sub-tabs with files from all locations.
+
+### Files Changed
+- `src/core/ToastManager.js` - Added 2 new settings
+- `src/ui/ToastStudioApp.js` - Added ~130 lines of directory management
+
+---
+
 ## Version 2.4.0-alpha.1 - Asset Browser Enhancement: Sub-Tabs (2025-10-31)
 
 ### ✨ New Feature - Phase 4.1.1 Step 1

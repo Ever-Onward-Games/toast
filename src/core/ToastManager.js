@@ -407,6 +407,31 @@ class ToastManager {
       default: "assets"
     });
 
+    // Assets Default Sub-Tab
+    game.settings.register(this.MODULE_ID, "assets-default-subtab", {
+      name: "Assets Default Sub-Tab",
+      hint: "Which sub-tab to show when opening the Assets tab.",
+      scope: "client",
+      config: true,
+      type: String,
+      choices: {
+        "directories": "Directories",
+        "audio": "Audio",
+        "images": "Images"
+      },
+      default: "audio"
+    });
+
+    // Custom Asset Directories
+    game.settings.register(this.MODULE_ID, "custom-asset-directories", {
+      name: "Custom Asset Directories",
+      hint: "User-added directories for custom audio and image assets.",
+      scope: "client",
+      config: false, // Hidden - managed via Toast Studio
+      type: Array,
+      default: []
+    });
+
     // Asset Preview Volume
     game.settings.register(this.MODULE_ID, "asset-preview-volume", {
       name: "Asset Preview Volume",
