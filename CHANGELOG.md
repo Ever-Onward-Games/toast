@@ -1,5 +1,33 @@
 # Changelog
 
+## Version 2.3.5 - Assets Toolbar Flex Layout Fix v2 (2025-10-30)
+
+### 🐛 Bug Fix
+
+**Fixed assets toolbar flex layout with explicit width constraints:**
+- Search box: `flex: 1 1 0` with `min-width: 0` (forces it to fill remaining space)
+- Dropdown: `flex: 0 0 200px` with explicit `width: 200px` (locked to 200px)
+- Refresh button: `flex: 0 0 auto` (sizes to content)
+
+**Problem:**
+The previous fix in v2.3.4 using `flex: 1 1 auto` wasn't working correctly because
+flex-basis: auto uses the element's natural content size, which is unpredictable for inputs.
+
+**Solution:**
+Using `flex: 1 1 0` with `min-width: 0` forces the search box to be willing to shrink
+below its natural size and grow to fill all remaining space. The dropdown now has both
+flex-basis and explicit width to ensure it stays exactly 200px.
+
+**Result:**
+- Search box truly fills all remaining horizontal space
+- Dropdown locked at readable 200px width
+- Refresh button sized appropriately to content
+
+### Files Changed
+- `styles/components/_assets-tab.scss` - Updated flex properties with explicit constraints
+
+---
+
 ## Version 2.3.4 - Assets Toolbar Flex Layout Fix (2025-10-30)
 
 ### 🐛 Bug Fix
