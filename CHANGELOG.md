@@ -1,5 +1,29 @@
 # Changelog
 
+## Version 2.3.4 - Assets Toolbar Flex Layout Fix (2025-10-30)
+
+### 🐛 Bug Fix
+
+**Fixed assets toolbar flex layout:**
+- Search box now properly grows to fill available space
+- Added explicit flex values to all toolbar items
+- Search box: `flex: 1 1 auto` (grows to fill remaining space)
+- Dropdown: `flex: 0 0 auto` (stays at fixed 200px)
+- Refresh button: `flex: 0 0 auto` (stays at content size)
+
+**Before:**
+- Search box was too narrow (~5% of row)
+- Refresh button was too wide (~75% of row)
+
+**After:**
+- Search box takes up majority of horizontal space
+- Dropdown and button maintain appropriate fixed sizes
+
+### Files Changed
+- `styles/components/_assets-tab.scss` - Added flex values to all toolbar controls
+
+---
+
 ## Version 2.3.3 - Foundry v13 Compatibility Fixes (2025-10-30)
 
 ### 🐛 Bug Fix
