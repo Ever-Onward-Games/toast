@@ -1,49 +1,55 @@
 {{!-- Directories Sub-Tab - Manage asset source directories --}}
 <div class="subtab-panel {{#if assetsSubTab.directories.active}}active{{/if}}" data-subtab="directories">
-  <div class="directories-list">
+  <div class="directories-grid">
 
-    {{!-- Default Directories --}}
-    <div class="directory-section">
-      <h4><i class="fas fa-folder-open"></i> Default Directories</h4>
-      <p class="section-description">Built-in module directories (cannot be removed)</p>
-      {{#if directories.default.length}}
-        {{#each directories.default}}
-          {{> "modules/toast/templates/partials/directory-item.hbs" readonly=true}}
-        {{/each}}
-      {{else}}
-        {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-folder" message="No default directories"}}
-      {{/if}}
+    {{!-- Default Directories Column --}}
+    <div class="directory-column">
+      <div class="directory-section">
+        <h4><i class="fas fa-folder-open"></i> Default Directories</h4>
+        <p class="section-description">Built-in module directories</p>
+        {{#if directories.default.length}}
+          {{#each directories.default}}
+            {{> "modules/toast/templates/partials/directory-item.hbs" readonly=true}}
+          {{/each}}
+        {{else}}
+          {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-folder" message="No default directories"}}
+        {{/if}}
+      </div>
     </div>
 
-    {{!-- Registered Announcer Packs --}}
-    <div class="directory-section">
-      <h4><i class="fas fa-bullhorn"></i> Registered Announcer Packs</h4>
-      <p class="section-description">Announcer packs registered by modules (cannot be removed)</p>
-      {{#if directories.announcers.length}}
-        {{#each directories.announcers}}
-          {{> "modules/toast/templates/partials/directory-item.hbs" readonly=true announcer=true}}
-        {{/each}}
-      {{else}}
-        {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-bullhorn" message="No announcer packs registered" submessage="Modules can register announcer packs via the API"}}
-      {{/if}}
+    {{!-- Announcer Packs Column --}}
+    <div class="directory-column">
+      <div class="directory-section">
+        <h4><i class="fas fa-bullhorn"></i> Announcer Packs</h4>
+        <p class="section-description">Registered by modules</p>
+        {{#if directories.announcers.length}}
+          {{#each directories.announcers}}
+            {{> "modules/toast/templates/partials/directory-item.hbs" readonly=true announcer=true}}
+          {{/each}}
+        {{else}}
+          {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-bullhorn" message="No packs registered" submessage="Modules can register via API"}}
+        {{/if}}
+      </div>
     </div>
 
-    {{!-- Custom Directories --}}
-    <div class="directory-section">
-      <h4><i class="fas fa-folder-plus"></i> Custom Directories</h4>
-      <p class="section-description">Your custom asset directories</p>
-      {{#if directories.custom.length}}
-        {{#each directories.custom}}
-          {{> "modules/toast/templates/partials/directory-item.hbs" readonly=false custom=true}}
-        {{/each}}
-      {{else}}
-        {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-folder-plus" message="No custom directories added" submessage="Add your own audio and image directories below"}}
-      {{/if}}
+    {{!-- Custom Directories Column --}}
+    <div class="directory-column">
+      <div class="directory-section">
+        <h4><i class="fas fa-folder-plus"></i> Custom Directories</h4>
+        <p class="section-description">Your asset directories</p>
+        {{#if directories.custom.length}}
+          {{#each directories.custom}}
+            {{> "modules/toast/templates/partials/directory-item.hbs" readonly=false custom=true}}
+          {{/each}}
+        {{else}}
+          {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-folder-plus" message="No custom directories" submessage="Add your directories below"}}
+        {{/if}}
 
-      {{!-- Add Directory Button --}}
-      <button type="button" class="add-directory-btn">
-        <i class="fas fa-plus"></i> Add Custom Directory
-      </button>
+        {{!-- Add Directory Button --}}
+        <button type="button" class="add-directory-btn">
+          <i class="fas fa-plus"></i> Add Directory
+        </button>
+      </div>
     </div>
 
   </div>

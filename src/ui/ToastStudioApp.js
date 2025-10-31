@@ -539,8 +539,8 @@ class ToastStudioApp extends FormApplication {
     // Audio preview buttons
     html.find(".audio-preview-btn").on("click", this._onAudioPreview.bind(this));
 
-    // Image preview buttons
-    html.find(".image-preview-btn").on("click", this._onImagePreview.bind(this));
+    // Image item selection for preview pane
+    html.find(".image-item").on("click", this._onImageSelect.bind(this));
 
     // Use in toast buttons
     html.find(".use-asset-btn").on("click", this._onUseAsset.bind(this));
@@ -825,17 +825,68 @@ class ToastStudioApp extends FormApplication {
   }
 
   /**
-   * Handle image preview
+   * Handle image selection for preview pane
    */
-  async _onImagePreview(event) {
-    event.preventDefault();
-    const imagePath = event.currentTarget.dataset.path;
+  async _onImageSelect(event) {
+    // Don't intercept clicks on action buttons
+    if ($(event.target).closest(".asset-actions, .use-asset-btn").length > 0) {
+      return;
+    }
 
-    // Create image preview dialog
-    new ImagePopout(imagePath, {
-      title: imagePath.split("/").pop(),
-      shareable: false
-    }).render(true);
+    event.preventDefault();
+    const imageItem = $(event.currentTarget);
+    const imagePath = imageItem.find(".use-asset-btn").data("path");
+
+    // Update selected state
+    this.element.find(".image-item").removeClass("selected");
+    imageItem.addClass("selected");
+
+    // Update preview pane
+    this._updateImagePreview(imagePath);
+  }
+
+  /**
+   * Update the image preview pane
+   */
+  async _updateImagePreview(imagePath) {
+    const previewPane = this.element.find(".image-preview-pane");
+    const placeholder = previewPane.find(".preview-placeholder");
+    const display = previewPane.find(".preview-display");
+    const previewImg = display.find("#image-preview-img");
+    const filename = display.find(".preview-filename");
+    const dimensions = display.find(".preview-dimensions");
+    const size = display.find(".preview-size");
+
+    // Show loading state
+    placeholder.hide();
+    display.show();
+    previewImg.attr("src", imagePath);
+    filename.text(imagePath.split("/").pop());
+    dimensions.html('<i class="fas fa-spinner fa-spin"></i> Loading...');
+    size.text("");
+
+    // Load image to get dimensions
+    const img = new Image();
+    img.onload = () => {
+      dimensions.html(`<i class="fas fa-ruler-combined"></i> ${img.naturalWidth} × ${img.naturalHeight}px`);
+
+      // Try to get file size if available
+      fetch(imagePath, { method: 'HEAD' })
+        .then(response => {
+          const contentLength = response.headers.get('content-length');
+          if (contentLength) {
+            const sizeKB = (parseInt(contentLength) / 1024).toFixed(1);
+            size.html(`<i class="fas fa-file"></i> ${sizeKB} KB`);
+          }
+        })
+        .catch(err => {
+          console.warn("Could not fetch file size:", err);
+        });
+    };
+    img.onerror = () => {
+      dimensions.html('<i class="fas fa-exclamation-triangle"></i> Error loading image');
+    };
+    img.src = imagePath;
   }
 
   /**

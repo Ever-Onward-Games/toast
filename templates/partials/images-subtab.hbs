@@ -16,18 +16,46 @@
     </button>
   </div>
 
-  {{!-- Image Files Section --}}
-  <section class="asset-section">
-    <h3><i class="fas fa-image"></i> Image Files ({{assets.imageFiles.length}})</h3>
-    <div class="asset-list image-list">
-      {{#if assets.imageFiles.length}}
-        {{#each assets.imageFiles}}
-          {{> "modules/toast/templates/partials/image-asset-item.hbs"}}
-        {{/each}}
-      {{else}}
-        {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-image" message="No image files found" submessage="Add custom directories in the Directories tab"}}
-      {{/if}}
-    </div>
-  </section>
+  {{!-- Split Layout: Image List + Preview Pane --}}
+  <div class="images-split-layout">
+
+    {{!-- Image Files Section --}}
+    <section class="asset-section image-list-section">
+      <h3><i class="fas fa-image"></i> Image Files ({{assets.imageFiles.length}})</h3>
+      <div class="asset-list image-list">
+        {{#if assets.imageFiles.length}}
+          {{#each assets.imageFiles}}
+            {{> "modules/toast/templates/partials/image-asset-item.hbs"}}
+          {{/each}}
+        {{else}}
+          {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-image" message="No image files found" submessage="Add custom directories in the Directories tab"}}
+        {{/if}}
+      </div>
+    </section>
+
+    {{!-- Image Preview Pane --}}
+    <aside class="image-preview-pane">
+      <div class="preview-header">
+        <h3><i class="fas fa-eye"></i> Preview</h3>
+      </div>
+      <div class="preview-content">
+        <div class="preview-placeholder">
+          <i class="fas fa-image"></i>
+          <p>Select an image to preview</p>
+        </div>
+        <div class="preview-display" style="display: none;">
+          <img src="" alt="Preview" id="image-preview-img">
+          <div class="preview-info">
+            <div class="preview-filename"></div>
+            <div class="preview-metadata">
+              <span class="preview-dimensions"></span>
+              <span class="preview-size"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
 
 </div>
