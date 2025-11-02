@@ -1,5 +1,22 @@
 # Changelog
 
+## Version 2.5.0-beta.5 - UI Improvements (2025-11-02)
+
+### 🎨 UI Improvements
+
+**Images Toolbar Layout:**
+- Restructured images subtab toolbar to use a 2-line layout
+- Search input now has full width on first row
+- Filter dropdown and refresh button share second row
+- Prevents crowding of search box by fixed-width controls
+- Audio toolbar remains single-line as intended
+
+**Files Changed:**
+- `templates/partials/images-subtab.hbs` - Added 2-row structure with `images-toolbar-multiline` class
+- `styles/components/_assets-tab.scss` - Added `.images-toolbar-multiline` variant styles
+
+---
+
 ## Version 2.5.0-beta.4 - Tab Rendering Bug Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
