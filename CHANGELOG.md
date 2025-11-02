@@ -1,5 +1,24 @@
 # Changelog
 
+## Version 2.5.0-beta.7 - Packages Toolbar 2-Line Layout (2025-11-02)
+
+### 🎨 UI Improvements
+
+**Packages Toolbar Layout:**
+- Refactored packages toolbar to use a 2-line layout (matching images toolbar pattern)
+- Line 1: New Package button takes full width
+- Line 2: Search, filters, and action buttons equally distributed
+- All second-line items now use `flex: 1 1 0` for equal space distribution
+- Search input: `min-width: 0` for maximum flexibility
+- Filter selects: `min-width: 150px` to prevent over-shrinking
+- Action buttons: `min-width: 120px` to maintain readability
+- Prevents toolbar items from being squished at smaller window sizes
+
+**Files Changed:**
+- `styles/components/_packages-tab.scss` - Converted to 2-line flex layout with column direction
+
+---
+
 ## Version 2.5.0-beta.6 - Toolbar Layout Fixes (2025-11-02)
 
 ### 🐛 Bug Fixes
