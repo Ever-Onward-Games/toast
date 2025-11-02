@@ -1423,6 +1423,14 @@ class ToastStudioApp extends FormApplication {
     this.activeTab = options.tab || game.settings.get("toast", "studio-default-tab") || "assets";
     this.activeAssetsSubTab = options.assetsSubTab || game.settings.get("toast", "assets-default-subtab") || "audio";
     this.assetBrowser = null;
+
+    // Image preview zoom/pan state
+    this.previewZoom = 1.0;
+    this.previewPanX = 0;
+    this.previewPanY = 0;
+    this.isPanning = false;
+    this.panStartX = 0;
+    this.panStartY = 0;
   }
 
   /**
@@ -2261,10 +2269,17 @@ class ToastStudioApp extends FormApplication {
     const previewPane = this.element.find(".image-preview-pane");
     const placeholder = previewPane.find(".preview-placeholder");
     const display = previewPane.find(".preview-display");
+    const container = display.find(".preview-image-container");
     const previewImg = display.find("#image-preview-img");
     const filename = display.find(".preview-filename");
     const dimensions = display.find(".preview-dimensions");
     const size = display.find(".preview-size");
+    const zoomDisplay = display.find(".preview-zoom");
+
+    // Reset zoom and pan
+    this.previewZoom = 1.0;
+    this.previewPanX = 0;
+    this.previewPanY = 0;
 
     // Show loading state
     placeholder.hide();
@@ -2273,11 +2288,58 @@ class ToastStudioApp extends FormApplication {
     filename.text(imagePath.split("/").pop());
     dimensions.html('<i class="fas fa-spinner fa-spin"></i> Loading...');
     size.text("");
+    zoomDisplay.text("Zoom: 100%");
 
-    // Load image to get dimensions
+    // Remove existing event listeners by cloning
+    const newContainer = container.clone(false);
+    container.replaceWith(newContainer);
+    const finalContainer = display.find(".preview-image-container");
+    const finalImg = finalContainer.find("#image-preview-img");
+
+    // Load image to get dimensions and set up zoom/pan
     const img = new Image();
     img.onload = () => {
       dimensions.html(`<i class="fas fa-ruler-combined"></i> ${img.naturalWidth} × ${img.naturalHeight}px`);
+
+      // Set initial image size and position
+      this._updatePreviewTransform();
+
+      // Set up mousewheel zoom
+      finalContainer[0].addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        this.previewZoom = Math.max(0.1, Math.min(5.0, this.previewZoom + delta));
+        this._updatePreviewTransform();
+      }, { passive: false });
+
+      // Set up right-click pan
+      finalContainer[0].addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        this.isPanning = true;
+        this.panStartX = e.clientX - this.previewPanX;
+        this.panStartY = e.clientY - this.previewPanY;
+        finalContainer.addClass('panning');
+      });
+
+      finalContainer[0].addEventListener('mousemove', (e) => {
+        if (this.isPanning) {
+          this.previewPanX = e.clientX - this.panStartX;
+          this.previewPanY = e.clientY - this.panStartY;
+          this._updatePreviewTransform();
+        }
+      });
+
+      finalContainer[0].addEventListener('mouseup', (e) => {
+        if (e.button === 2 || this.isPanning) {
+          this.isPanning = false;
+          finalContainer.removeClass('panning');
+        }
+      });
+
+      finalContainer[0].addEventListener('mouseleave', () => {
+        this.isPanning = false;
+        finalContainer.removeClass('panning');
+      });
 
       // Try to get file size if available
       fetch(imagePath, { method: 'HEAD' })
@@ -2296,6 +2358,35 @@ class ToastStudioApp extends FormApplication {
       dimensions.html('<i class="fas fa-exclamation-triangle"></i> Error loading image');
     };
     img.src = imagePath;
+  }
+
+  /**
+   * Update the preview image transform (zoom and pan)
+   */
+  _updatePreviewTransform() {
+    const display = this.element.find(".preview-display");
+    const previewImg = display.find("#image-preview-img");
+    const zoomDisplay = display.find(".preview-zoom");
+
+    if (previewImg.length === 0) return;
+
+    // Get actual image dimensions
+    const img = previewImg[0];
+    const naturalWidth = img.naturalWidth;
+    const naturalHeight = img.naturalHeight;
+
+    if (!naturalWidth || !naturalHeight) return;
+
+    // Apply transform: scale from center, then translate for pan
+    const transform = `translate(-50%, -50%) translate(${this.previewPanX}px, ${this.previewPanY}px) scale(${this.previewZoom})`;
+    previewImg.css({
+      'transform': transform,
+      'width': `${naturalWidth}px`,
+      'height': `${naturalHeight}px`
+    });
+
+    // Update zoom display
+    zoomDisplay.text(`Zoom: ${Math.round(this.previewZoom * 100)}%`);
   }
 
   /**

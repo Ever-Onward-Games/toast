@@ -151,12 +151,36 @@
   // Images Split Layout (List + Preview Pane)
   .images-split-layout {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr 450px;
     gap: 1rem;
-    align-items: start;
+    height: calc(100vh - 300px); // Full height minus header/tabs
+    min-height: 500px;
+    max-height: 800px;
 
-    .image-list-section {
-      min-width: 0; // Prevent grid blowout
+    // Left side: Scrollable list container
+    .image-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-width: 0;
+      overflow: hidden; // Container doesn't scroll, only the list inside
+
+      .image-list-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0; // Allow flexbox shrinking
+
+        h3 {
+          flex-shrink: 0; // Keep header visible
+        }
+
+        .asset-list {
+          flex: 1;
+          min-height: 0; // Enable scrolling
+          overflow-y: auto; // List scrolls independently
+        }
+      }
     }
   }
 
@@ -531,16 +555,18 @@
     background: var(--color-bg);
     border: 1px solid var(--color-border-dark);
     border-radius: 4px;
-    height: fit-content;
-    max-height: 600px;
-    position: sticky;
-    top: 1rem;
+    height: 100%; // Full height of grid container
+    overflow: hidden; // Prevent overflow
 
     .preview-header {
       padding: 0.75rem;
       border-bottom: 1px solid var(--color-border-dark);
       background: var(--color-bg-option);
       border-radius: 4px 4px 0 0;
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
 
       h3 {
         margin: 0;
@@ -552,17 +578,35 @@
           color: var(--color-border-highlight);
         }
       }
+
+      .preview-controls-hint {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.75rem;
+        color: var(--color-text-dark-secondary);
+
+        span {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+
+          i {
+            color: var(--color-border-highlight);
+          }
+        }
+      }
     }
 
     .preview-content {
-      padding: 1rem;
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      min-height: 300px;
+      overflow: hidden;
+      min-height: 0;
     }
 
     .preview-placeholder {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -584,21 +628,42 @@
     }
 
     .preview-display {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      min-height: 0;
+      overflow: hidden;
 
-      #image-preview-img {
-        width: 100%;
-        height: auto;
-        max-height: 400px;
-        object-fit: contain;
+      .preview-image-container {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+        background: var(--color-bg-option);
         border: 1px solid var(--color-border-dark);
         border-radius: 4px;
-        background: var(--color-bg-option);
+        cursor: grab;
+        min-height: 0;
+
+        &.panning {
+          cursor: grabbing;
+        }
+
+        #image-preview-img {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform-origin: center center;
+          max-width: none;
+          max-height: none;
+          transition: none;
+          user-select: none;
+          -webkit-user-drag: none;
+        }
       }
 
       .preview-info {
+        flex-shrink: 0;
+        padding: 1rem;
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
@@ -627,6 +692,11 @@
             color: var(--color-border-highlight);
             width: 16px;
           }
+        }
+
+        .preview-zoom {
+          font-weight: 600;
+          color: var(--color-border-highlight);
         }
       }
     }
