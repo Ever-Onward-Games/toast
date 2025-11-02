@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.5.0-beta.6 - Toolbar Layout Fixes (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Packages Toolbar Layout:**
+- Fixed packages toolbar where components were being crushed and hidden
+- Added explicit flex-basis and min-width values to all toolbar items
+- Search input: `flex: 1 1 200px` with `min-width: 150px`
+- Filter dropdowns: `flex: 0 0 auto` with `min-width: 120px`
+- Buttons: `flex: 0 0 auto` to prevent shrinking
+
+**Files Changed:**
+- `styles/components/_packages-tab.scss` - Added flex sizing constraints
+
+---
+
 ## Version 2.5.0-beta.5 - UI Improvements (2025-11-02)
 
 ### 🎨 UI Improvements
