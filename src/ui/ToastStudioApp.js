@@ -575,7 +575,7 @@ class ToastStudioApp extends FormApplication {
     super.activateListeners(html);
 
     // Tab switching
-    html.find(".tabs .tab").on("click", this._onTabChange.bind(this));
+    html.find(".tabs .item").on("click", this._onTabChange.bind(this));
 
     // Sub-tab switching
     html.find(".assets-subtabs .subtab").on("click", this._onSubTabChange.bind(this));

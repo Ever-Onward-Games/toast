@@ -1,17 +1,22 @@
 # Changelog
 
-## Version 2.5.0-beta.2 - Tab Rendering Bug Fix (2025-11-02)
+## Version 2.5.0-beta.4 - Tab Rendering Bug Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
 
-**Fixed Packages Tab Not Visible:**
-- Fixed critical bug where Packages tab was not rendering in Toast Studio UI
-- Root cause: `getData()` method was passing `tabs` as an object, but template expected an array for `{{#each tabs}}` iteration
-- Solution: Provide both `data.tabs` (array for iteration) and `data.tabsByName` (object for property access)
+**Fixed Packages Tab Not Visible (CSS Class Collision):**
+- Fixed critical bug where Packages and Studio tabs were hidden by Foundry's default CSS
+- Root cause #1: `getData()` method was passing `tabs` as an object, but template expected an array for `{{#each tabs}}` iteration
+- Root cause #2: Tab navigation items used `class="tab"` which collided with Foundry's `.tab[data-tab]:not(.active) { display: none }` rule meant for content panels
+- Solution:
+  - Provide both `data.tabs` (array for iteration) and `data.tabsByName` (object for property access)
+  - Changed navigation items from `class="tab"` to `class="item"` (Foundry's standard for tab navigation)
 - Updated partial templates (assets-tab.hbs, packages-tab.hbs, studio-tab.hbs) to use `tabsByName` for active state checks
 
 **Files Changed:**
+- `templates/toast-studio.hbs:5` - Changed navigation items from `class="tab"` to `class="item"`
 - `src/ui/ToastStudioApp.js:56-86` - Added dual tabs representation
+- `src/ui/ToastStudioApp.js:578` - Updated event handler from `.tabs .tab` to `.tabs .item`
 - `templates/partials/assets-tab.hbs:2` - Updated to use `tabsByName.assets.active`
 - `templates/partials/packages-tab.hbs:2` - Updated to use `tabsByName.packages.active`
 - `templates/partials/studio-tab.hbs:2` - Updated to use `tabsByName.studio.active`

@@ -2,7 +2,7 @@
   {{!-- Tab Navigation --}}
   <nav class="tabs" data-group="toast-studio-tabs">
     {{#each tabs}}
-      <a class="tab {{#if active}}active{{/if}} {{#if disabled}}disabled{{/if}}" data-tab="{{id}}">
+      <a class="item {{#if active}}active{{/if}} {{#if disabled}}disabled{{/if}}" data-tab="{{id}}">
         <i class="{{icon}}"></i> {{label}}
       </a>
     {{/each}}
