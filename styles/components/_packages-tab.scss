@@ -15,14 +15,15 @@
   // Packages Toolbar
   .packages-toolbar {
     display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
     padding: 0.75rem;
     background: var(--color-bg-option);
     border-radius: 4px;
 
     .new-package-btn {
-      flex: 0 0 auto;
+      flex: 1 1 0;
+      min-width: 150px;
       padding: 0.5rem 1rem;
       background: var(--color-border-highlight);
       color: white;
@@ -46,12 +47,12 @@
     .toolbar-group {
       display: flex;
       gap: 0.5rem;
-      flex: 1;
       align-items: center;
+      width: 100%;
 
       .package-search {
-        flex: 1 1 200px;
-        min-width: 150px;
+        flex: 1 1 0;
+        min-width: 0;
         padding: 0.5rem 0.75rem;
         border: 1px solid var(--color-border-dark);
         border-radius: 4px;
@@ -66,8 +67,8 @@
 
       .package-filter-category,
       .package-filter-scope {
-        flex: 0 0 auto;
-        min-width: 120px;
+        flex: 1 1 0;
+        min-width: 150px;
         padding: 0.5rem 0.75rem;
         border: 1px solid var(--color-border-dark);
         border-radius: 4px;
@@ -79,7 +80,8 @@
 
       .import-package-btn,
       .refresh-packages-btn {
-        flex: 0 0 auto;
+        flex: 1 1 0;
+        min-width: 120px;
         padding: 0.5rem 0.75rem;
         background: var(--color-bg-btn);
         border: 1px solid var(--color-border-dark);
