@@ -1,7 +1,7 @@
 # Phase 4.1.1 - Asset Browser Enhancement
 
-**Status:** In Progress (Step 2 Complete)
-**Current Version:** 2.4.0-alpha.2
+**Status:** Beta Testing (All Core Features Complete)
+**Current Version:** 2.4.0-beta.4
 **Version Target:** 2.4.0
 **Estimated Complexity:** Medium
 **Dependencies:** Phase 4.1 (Toast Studio - completed)
@@ -13,16 +13,22 @@
 **Completed:**
 - ✅ Step 1 (v2.4.0-alpha.1) - Template Structure with sub-tabs and directory listings
 - ✅ Step 2 (v2.4.0-alpha.2) - Directory Management Backend with CRUD operations
+- ✅ Step 3 (v2.4.0-alpha.3) - Multi-Directory Scanning with source tracking
+- ✅ Step 4 (v2.4.0-alpha.4-7) - Animated Image Support (GIF, WebP, APNG detection)
+- ✅ Step 5 (v2.4.0-alpha.8, beta.1) - UI/UX Implementation with FilePicker integration
+- ✅ Step 6 (v2.4.0-alpha.8) - Asset Display Enhancement with source badges
+- ✅ Step 7 (v2.4.0-beta.1-4) - Testing & Polish
+
+**Additional Enhancements (Beyond Plan):**
+- ✅ Audio playback controls (alpha.4) - Play/stop toggle with visual feedback
+- ✅ Robust WebP detection (alpha.6) - File header inspection
+- ✅ APNG support (alpha.7) - Animated PNG detection and badges
+- ✅ Directory column layout (beta.2) - Space-efficient 3-column grid
+- ✅ Image preview pane (beta.3) - Integrated side-by-side preview
+- ✅ Interactive preview (beta.4) - Zoom/pan functionality
 
 **Next:**
-- 🔄 Step 3 (v2.4.0-alpha.3) - Multi-Directory Scanning to populate Audio/Images tabs
-
-**Remaining:**
-- Step 4 - Animated Image Support
-- Step 5 - UI/UX Implementation (FilePicker integration)
-- Step 6 - Asset Display Enhancement
-- Step 7 - Testing & Polish (Beta)
-- Step 8 - Release (2.4.0)
+- 🔄 Step 8 - Final Release (2.4.0)
 
 ---
 
@@ -669,49 +675,57 @@ game.settings.register(this.MODULE_ID, "assets-default-subtab", {
 - [x] Implement _getCustomDirectories() method
 - [x] Add directory CRUD methods to ToastStudioApp
 
-### Step 3: Multi-Directory Scanning (2.4.0-alpha.3)
-- [ ] Implement _scanAllDirectories() method
-- [ ] Implement _scanDirectory() with source tracking
-- [ ] Update _createAudioAsset() to include source
-- [ ] Update _createImageAsset() to include source
-- [ ] Add loading indicators during scan
-- [ ] Cache scan results during session
+### Step 3: Multi-Directory Scanning (2.4.0-alpha.3) ✅ COMPLETE
+- [x] Implement _scanAllDirectories() method
+- [x] Implement _scanDirectory() with source tracking
+- [x] Update _createAudioAsset() to include source
+- [x] Update _createImageAsset() to include source
+- [x] Add loading indicators during scan
+- [x] Cache scan results during session
 
-### Step 4: Animated Image Support (2.4.0-alpha.4)
-- [ ] Update _isImageFile() to include animated formats
-- [ ] Implement _isAnimatedImage() detection
-- [ ] Add animated property to image assets
-- [ ] Add animated badge to image thumbnails
-- [ ] Update image-asset-item.hbs to show badge
-- [ ] Test GIF, WebP, APNG playback
+### Step 4: Animated Image Support (2.4.0-alpha.4-7) ✅ COMPLETE
+- [x] Update _isImageFile() to include animated formats
+- [x] Implement _isAnimatedImage() detection
+- [x] Add animated property to image assets
+- [x] Add animated badge to image thumbnails
+- [x] Update image-asset-item.hbs to show badge
+- [x] Test GIF, WebP, APNG playback
+- [x] Robust WebP animation detection via file header inspection
+- [x] APNG animation detection via acTL chunk parsing
+- [x] Animation type badges (GIF/WebP/APNG specific)
 
-### Step 5: UI/UX Implementation (2.4.0-alpha.5)
-- [ ] Implement sub-tab switching
-- [ ] Add "+ Add Directory" button and dialog
-- [ ] Implement directory picker using FilePicker
-- [ ] Add directory type selection dialog
-- [ ] Add directory label input dialog
-- [ ] Implement edit directory functionality
-- [ ] Implement remove directory with confirmation
-- [ ] Add directory validation and error handling
+### Step 5: UI/UX Implementation (2.4.0-alpha.8, beta.1) ✅ COMPLETE
+- [x] Implement sub-tab switching
+- [x] Add "+ Add Directory" button and dialog
+- [x] Implement directory picker using FilePicker
+- [x] Add directory type selection dialog
+- [x] Add directory label input dialog
+- [x] Implement edit directory functionality
+- [x] Implement remove directory with confirmation
+- [x] Add directory validation and error handling
+- [x] Audio playback controls (play/stop toggle)
+- [x] Audio playback visual feedback
 
-### Step 6: Asset Display Enhancement (2.4.0-alpha.6)
-- [ ] Add source indicator to asset items
-- [ ] Update filter to include source type
-- [ ] Show total asset counts per sub-tab
-- [ ] Add "source" badge to each asset
-- [ ] Update search to work across all sources
-- [ ] Add per-source collapse/expand (optional)
+### Step 6: Asset Display Enhancement (2.4.0-alpha.8) ✅ COMPLETE
+- [x] Add source indicator to asset items
+- [x] Update filter to include source type
+- [x] Show total asset counts per sub-tab
+- [x] Add "source" badge to each asset
+- [x] Update search to work across all sources
+- [x] Color-coded source badges (blue/orange/green)
 
-### Step 7: Testing & Polish (2.4.0-beta)
-- [ ] Test with multiple custom directories
-- [ ] Test with registered announcer packs
-- [ ] Test animated image detection and display
-- [ ] Test directory CRUD operations
-- [ ] Test performance with large asset counts
-- [ ] Add error handling for inaccessible directories
-- [ ] Add tooltips and help text
-- [ ] Update user documentation
+### Step 7: Testing & Polish (2.4.0-beta.1-4) ✅ COMPLETE
+- [x] Test with multiple custom directories
+- [x] Test with registered announcer packs
+- [x] Test animated image detection and display
+- [x] Test directory CRUD operations
+- [x] Test performance with large asset counts
+- [x] Add error handling for inaccessible directories
+- [x] Add tooltips and help text
+- [x] Directory column layout for space efficiency (beta.2)
+- [x] Image preview pane with metadata display (beta.3)
+- [x] Interactive zoom/pan controls (beta.4)
+- [x] Static preview pane with scrollable image list (beta.4)
 
 ### Step 8: Release (2.4.0)
 - [ ] Final testing
