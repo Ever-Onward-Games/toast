@@ -54,11 +54,13 @@
         flex: 1 1 0;
         min-width: 0;
         padding: 0.5rem 0.75rem;
+        height: 36px;
         border: 1px solid var(--color-border-dark);
         border-radius: 4px;
         background: var(--color-bg);
         color: var(--color-text-dark-primary);
         font-size: 14px;
+        line-height: 1.2;
 
         &::placeholder {
           color: var(--color-text-dark-secondary);
@@ -70,11 +72,13 @@
         flex: 1 1 0;
         min-width: 150px;
         padding: 0.5rem 0.75rem;
+        height: 36px;
         border: 1px solid var(--color-border-dark);
         border-radius: 4px;
         background: var(--color-bg);
         color: var(--color-text-dark-primary);
         font-size: 14px;
+        line-height: 1.2;
         cursor: pointer;
       }
 
@@ -83,6 +87,7 @@
         flex: 1 1 0;
         min-width: 120px;
         padding: 0.5rem 0.75rem;
+        height: 36px;
         background: var(--color-bg-btn);
         border: 1px solid var(--color-border-dark);
         border-radius: 4px;
@@ -90,6 +95,7 @@
         cursor: pointer;
         transition: background 0.2s;
         white-space: nowrap;
+        line-height: 1.2;
 
         &:hover {
           background: var(--color-bg-option);
