@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 2.5.0-beta.9 - Packages Toolbar Reorganization (2025-11-02)
+
+### 🎨 UI Improvements
+
+**Packages Toolbar Layout:**
+- Reorganized toolbar for better visual grouping
+- Line 1: Search input (~50%) + Category filter (200px) + Scope filter (200px)
+- Line 2: New Package button + Import button + Refresh button (equally distributed)
+- Groups search and filters together on first line
+- Groups all action buttons together on second line
+- Search input flexibly takes remaining space after filters
+
+**Files Changed:**
+- `templates/partials/packages-tab.hbs` - Restructured toolbar with two .toolbar-row divs
+- `styles/components/_packages-tab.scss` - Updated flex properties for new layout
+
+---
+
 ## Version 2.5.0-beta.8 - Toolbar Controls Height Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
