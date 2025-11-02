@@ -1,13 +1,71 @@
-{{!-- Packages Tab - Manage saved toast packages --}}
+{{!-- Packages Tab - Browse and manage toast packages --}}
 <div class="tab-panel {{#if tabs.packages.active}}active{{/if}}" data-tab="packages">
   <div class="packages-container">
-    <div class="packages-header">
-      <h2>Toast Packages</h2>
-      <p class="coming-soon">Package manager coming in Phase 4.2!</p>
+
+    {{!-- Toolbar --}}
+    <div class="packages-toolbar">
+      <button type="button" class="new-package-btn primary-btn" title="Create a new toast package (API only for now)">
+        <i class="fas fa-plus"></i> New Package
+      </button>
+
+      <div class="toolbar-group">
+        <input type="text" class="package-search" placeholder="Search by name, description, or tags..." title="Search packages by name, description, or tags" />
+
+        <select class="package-filter-category" title="Filter packages by category">
+          <option value="all">All Categories</option>
+          <option value="combat">Combat</option>
+          <option value="social">Social</option>
+          <option value="exploration">Exploration</option>
+          <option value="custom">Custom</option>
+        </select>
+
+        <select class="package-filter-scope" title="Filter packages by scope">
+          <option value="all">All Scopes</option>
+          <option value="world">World Only</option>
+          <option value="global">Global Only</option>
+        </select>
+
+        <button type="button" class="import-package-btn" title="Import a package from JSON file">
+          <i class="fas fa-file-import"></i> Import
+        </button>
+
+        <button type="button" class="refresh-packages-btn" title="Reload packages from disk">
+          <i class="fas fa-sync"></i>
+        </button>
+      </div>
     </div>
-    {{> "modules/toast/templates/partials/empty-state.hbs"
-      icon="fas fa-box-open"
-      message="Save and manage your toast presentations"
-      submessage="Coming soon in v2.1.0"}}
+
+    {{!-- Package Statistics --}}
+    <div class="packages-stats">
+      <span class="stat">
+        <i class="fas fa-box"></i>
+        <strong>{{packages.length}}</strong> Packages
+      </span>
+      {{#if packageStats}}
+        <span class="stat">
+          <i class="fas fa-globe"></i>
+          <strong>{{packageStats.byScope.world}}</strong> World
+        </span>
+        <span class="stat">
+          <i class="fas fa-cubes"></i>
+          <strong>{{packageStats.byScope.global}}</strong> Global
+        </span>
+      {{/if}}
+    </div>
+
+    {{!-- Package Grid --}}
+    <div class="packages-grid">
+      {{#if packages.length}}
+        {{#each packages}}
+          {{> "modules/toast/templates/partials/package-card.hbs"}}
+        {{/each}}
+      {{else}}
+        {{> "modules/toast/templates/partials/empty-state.hbs"
+          icon="fas fa-box-open"
+          message="No packages found"
+          submessage="Create packages using game.toast.packages.create() or import existing packages"}}
+      {{/if}}
+    </div>
+
   </div>
 </div>

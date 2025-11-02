@@ -2350,6 +2350,218 @@ if (typeof module !== 'undefined' && module.exports) {
 
 
 /**
+ * Token Mapping Dialog Helper
+ * Creates a dialog for mapping token values before launching a package
+ */
+class TokenMappingDialog {
+  /**
+   * Show token mapping dialog and launch package with mapped values
+   * @param {Package} pkg - Package to launch
+   * @param {PackageManager} packageManager - Package manager instance
+   * @returns {Promise<void>}
+   */
+  static async show(pkg, packageManager) {
+    if (!pkg || !packageManager) {
+      throw new Error("Package and PackageManager are required");
+    }
+
+    const tokens = pkg.tokens || {};
+    const tokenKeys = Object.keys(tokens);
+
+    if (tokenKeys.length === 0) {
+      // No tokens, launch directly
+      await packageManager.launch(pkg.id);
+      return;
+    }
+
+    // Build form HTML
+    const formHtml = this._buildFormHtml(tokens);
+
+    // Show dialog
+    return new Promise((resolve, reject) => {
+      new Dialog({
+        title: `Launch: ${pkg.name}`,
+        content: formHtml,
+        buttons: {
+          launch: {
+            icon: '<i class="fas fa-rocket"></i>',
+            label: "Launch",
+            callback: async (html) => {
+              try {
+                // Collect token values from form
+                const tokenMap = {};
+                for (const key of tokenKeys) {
+                  const input = html.find(`[name="token-${key}"]`);
+                  tokenMap[key] = input.val() || tokens[key].default || "";
+                }
+
+                // Launch with token mapping
+                await packageManager.launch(pkg.id, tokenMap);
+                ui.notifications.info(`Package "${pkg.name}" launched`);
+                resolve();
+              } catch (err) {
+                console.error("Token Mapping Dialog | Launch failed:", err);
+                ui.notifications.error("Failed to launch package: " + err.message);
+                reject(err);
+              }
+            }
+          },
+          cancel: {
+            icon: '<i class="fas fa-times"></i>',
+            label: "Cancel",
+            callback: () => resolve()
+          }
+        },
+        default: "launch",
+        render: (html) => {
+          // Auto-focus first input
+          html.find("input[type='text']").first().focus();
+        }
+      }, {
+        width: 500,
+        classes: ["toast-token-mapping-dialog"]
+      }).render(true);
+    });
+  }
+
+  /**
+   * Build form HTML for token inputs
+   * @param {Object} tokens - Token definitions
+   * @returns {string} HTML string
+   * @private
+   */
+  static _buildFormHtml(tokens) {
+    const tokenKeys = Object.keys(tokens);
+
+    let html = `
+      <form class="token-mapping-form">
+        <p class="dialog-hint">
+          <i class="fas fa-info-circle"></i>
+          This package uses dynamic tokens. Fill in the values below to customize the toast.
+        </p>
+    `;
+
+    for (const key of tokenKeys) {
+      const token = tokens[key];
+      const label = token.label || key;
+      const description = token.description || "";
+      const defaultValue = token.default || "";
+      const type = token.type || "string";
+
+      html += `
+        <div class="form-group">
+          <label for="token-${key}">
+            ${label}
+            ${description ? `<i class="fas fa-question-circle" title="${description}"></i>` : ""}
+          </label>
+      `;
+
+      // Render input based on token type
+      switch (type) {
+        case "number":
+          html += `
+            <input
+              type="number"
+              name="token-${key}"
+              id="token-${key}"
+              value="${defaultValue}"
+              placeholder="${label}"
+            />
+          `;
+          break;
+
+        case "boolean":
+          html += `
+            <select name="token-${key}" id="token-${key}">
+              <option value="true" ${defaultValue === "true" ? "selected" : ""}>True</option>
+              <option value="false" ${defaultValue === "false" ? "selected" : ""}>False</option>
+            </select>
+          `;
+          break;
+
+        case "string":
+        default:
+          html += `
+            <input
+              type="text"
+              name="token-${key}"
+              id="token-${key}"
+              value="${defaultValue}"
+              placeholder="${label}"
+            />
+          `;
+          break;
+      }
+
+      if (description) {
+        html += `<small class="form-hint">${description}</small>`;
+      }
+
+      html += `</div>`;
+    }
+
+    html += `
+        <div class="token-preview">
+          <strong>Token Placeholders:</strong>
+          <div class="token-list">
+    `;
+
+    for (const key of tokenKeys) {
+      html += `<code>{{${key}}}</code>`;
+    }
+
+    html += `
+          </div>
+        </div>
+      </form>
+    `;
+
+    return html;
+  }
+
+  /**
+   * Get token values from selected tokens (if any)
+   * Helper for future token picker integration
+   * @param {Token[]} selectedTokens - Selected canvas tokens
+   * @returns {Object} Token value suggestions
+   */
+  static getTokenSuggestions(selectedTokens = []) {
+    if (!selectedTokens || selectedTokens.length === 0) {
+      return {};
+    }
+
+    const suggestions = {};
+    const token = selectedTokens[0];
+
+    // Common token attributes that might be useful
+    if (token.actor) {
+      suggestions.actorName = token.actor.name;
+      suggestions.characterName = token.actor.name;
+      suggestions.playerName = token.actor.name;
+    }
+
+    if (token.name) {
+      suggestions.tokenName = token.name;
+    }
+
+    // HP values
+    if (token.actor?.system?.attributes?.hp) {
+      const hp = token.actor.system.attributes.hp;
+      suggestions.currentHP = hp.value;
+      suggestions.maxHP = hp.max;
+    }
+
+    return suggestions;
+  }
+}
+
+// Export for module use
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = TokenMappingDialog;
+}
+
+
+/**
  * Toast Studio Application
  * Main GUI window for Toast content creation
  *
@@ -2474,10 +2686,42 @@ class ToastStudioApp extends FormApplication {
    * Get package browser data
    */
   async _getPackageData() {
-    // TODO: Implement in Phase 4.2
+    // Get all packages from PackageManager
+    const packageManager = ToastManager.packageManager;
+
+    if (!packageManager || !packageManager.loaded) {
+      console.warn("Toast Studio | PackageManager not initialized");
+      return {
+        packages: [],
+        packageStats: null
+      };
+    }
+
+    // Get all packages
+    const packages = packageManager.list();
+
+    // Transform packages for template
+    const packageData = packages.map(pkg => ({
+      id: pkg.id,
+      name: pkg.name,
+      description: pkg.description,
+      version: pkg.version,
+      author: pkg.author,
+      category: pkg.category,
+      tags: pkg.tags || [],
+      thumbnail: pkg.thumbnail || null,
+      scope: pkg.scope,
+      tokenCount: Object.keys(pkg.tokens || {}).length,
+      createdAt: pkg.createdAt,
+      updatedAt: pkg.updatedAt
+    }));
+
+    // Get statistics
+    const stats = packageManager.getStats();
+
     return {
-      packages: [],
-      categories: ["combat", "exploration", "social", "other"]
+      packages: packageData,
+      packageStats: stats
     };
   }
 
@@ -2912,6 +3156,23 @@ class ToastStudioApp extends FormApplication {
 
     // Filter dropdowns
     html.find(".asset-filter").on("change", this._onFilterAssets.bind(this));
+
+    // Package management buttons
+    html.find(".new-package-btn").on("click", this._onNewPackage.bind(this));
+    html.find(".import-package-btn").on("click", this._onImportPackage.bind(this));
+    html.find(".refresh-packages-btn").on("click", this._onRefreshPackages.bind(this));
+
+    // Package search and filters
+    html.find(".package-search").on("input", this._onSearchPackages.bind(this));
+    html.find(".package-filter-category").on("change", this._onFilterPackages.bind(this));
+    html.find(".package-filter-scope").on("change", this._onFilterPackages.bind(this));
+
+    // Package card actions
+    html.find(".launch-package-btn").on("click", this._onLaunchPackage.bind(this));
+    html.find(".edit-package-btn").on("click", this._onEditPackage.bind(this));
+    html.find(".duplicate-package-btn").on("click", this._onDuplicatePackage.bind(this));
+    html.find(".export-package-btn").on("click", this._onExportPackage.bind(this));
+    html.find(".delete-package-btn").on("click", this._onDeletePackage.bind(this));
   }
 
   /**
@@ -3436,6 +3697,337 @@ class ToastStudioApp extends FormApplication {
     });
   }
 
+  // ==========================================
+  // Package Management Event Handlers
+  // ==========================================
+
+  /**
+   * Handle refresh packages button
+   */
+  async _onRefreshPackages(event) {
+    event.preventDefault();
+
+    try {
+      const packageManager = ToastManager.packageManager;
+      if (!packageManager) {
+        ui.notifications.error("Package manager not initialized");
+        return;
+      }
+
+      await packageManager.refresh();
+      await this.render(true);
+      ui.notifications.info("Packages refreshed");
+    } catch (err) {
+      console.error("Toast Studio | Failed to refresh packages:", err);
+      ui.notifications.error("Failed to refresh packages");
+    }
+  }
+
+  /**
+   * Handle package search input
+   */
+  async _onSearchPackages(event) {
+    event.preventDefault();
+    const searchTerm = event.currentTarget.value.toLowerCase();
+
+    // Get all package cards
+    const packageCards = this.element.find(".package-card");
+
+    packageCards.each((i, card) => {
+      const $card = $(card);
+      const name = $card.find(".package-name").text().toLowerCase();
+      const description = $card.find(".package-description").text().toLowerCase();
+      const tags = $card.find(".package-tag").map((j, tag) => $(tag).text().toLowerCase()).get().join(" ");
+
+      // Show/hide based on search
+      if (name.includes(searchTerm) || description.includes(searchTerm) || tags.includes(searchTerm)) {
+        $card.show();
+      } else {
+        $card.hide();
+      }
+    });
+
+    // Update visible count
+    const visibleCount = packageCards.filter(":visible").length;
+    this.element.find(".packages-stats strong").first().text(visibleCount);
+  }
+
+  /**
+   * Handle package filter change
+   */
+  async _onFilterPackages(event) {
+    event.preventDefault();
+
+    const categoryFilter = this.element.find(".package-filter-category").val();
+    const scopeFilter = this.element.find(".package-filter-scope").val();
+
+    // Get all package cards
+    const packageCards = this.element.find(".package-card");
+
+    packageCards.each((i, card) => {
+      const $card = $(card);
+      const category = $card.data("category");
+      const scope = $card.data("scope");
+
+      let show = true;
+
+      // Apply category filter
+      if (categoryFilter !== "all" && category !== categoryFilter) {
+        show = false;
+      }
+
+      // Apply scope filter
+      if (scopeFilter === "world" && scope !== "world") {
+        show = false;
+      } else if (scopeFilter === "global" && scope !== "global") {
+        show = false;
+      }
+
+      // Show/hide card
+      if (show) {
+        $card.show();
+      } else {
+        $card.hide();
+      }
+    });
+
+    // Update visible count
+    const visibleCount = packageCards.filter(":visible").length;
+    this.element.find(".packages-stats strong").first().text(visibleCount);
+  }
+
+  /**
+   * Handle export package button
+   */
+  async _onExportPackage(event) {
+    event.preventDefault();
+    const packageId = event.currentTarget.dataset.packageId;
+
+    try {
+      const packageManager = ToastManager.packageManager;
+      if (!packageManager) {
+        ui.notifications.error("Package manager not initialized");
+        return;
+      }
+
+      const pkg = packageManager.get(packageId);
+      if (!pkg) {
+        ui.notifications.error("Package not found");
+        return;
+      }
+
+      // Export as JSON
+      const json = packageManager.export(packageId);
+
+      // Create download
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${pkg.id}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      ui.notifications.info(`Package "${pkg.name}" exported`);
+    } catch (err) {
+      console.error("Toast Studio | Failed to export package:", err);
+      ui.notifications.error("Failed to export package");
+    }
+  }
+
+  /**
+   * Handle duplicate package button
+   */
+  async _onDuplicatePackage(event) {
+    event.preventDefault();
+    const packageId = event.currentTarget.dataset.packageId;
+
+    try {
+      const packageManager = ToastManager.packageManager;
+      if (!packageManager) {
+        ui.notifications.error("Package manager not initialized");
+        return;
+      }
+
+      const original = packageManager.get(packageId);
+      if (!original) {
+        ui.notifications.error("Package not found");
+        return;
+      }
+
+      // Prompt for new name
+      const newName = await new Promise((resolve) => {
+        new Dialog({
+          title: "Duplicate Package",
+          content: `
+            <form>
+              <div class="form-group">
+                <label>New Package Name:</label>
+                <input type="text" name="name" value="${original.name} (Copy)" />
+              </div>
+            </form>
+          `,
+          buttons: {
+            duplicate: {
+              icon: '<i class="fas fa-copy"></i>',
+              label: "Duplicate",
+              callback: (html) => resolve(html.find("[name='name']").val())
+            },
+            cancel: {
+              icon: '<i class="fas fa-times"></i>',
+              label: "Cancel",
+              callback: () => resolve(null)
+            }
+          },
+          default: "duplicate"
+        }).render(true);
+      });
+
+      if (!newName) return;
+
+      // Duplicate the package
+      const duplicate = await packageManager.duplicate(packageId, newName);
+      await this.render(true);
+      ui.notifications.info(`Package duplicated as "${duplicate.name}"`);
+    } catch (err) {
+      console.error("Toast Studio | Failed to duplicate package:", err);
+      ui.notifications.error("Failed to duplicate package");
+    }
+  }
+
+  /**
+   * Handle delete package button
+   */
+  async _onDeletePackage(event) {
+    event.preventDefault();
+    const packageId = event.currentTarget.dataset.packageId;
+
+    try {
+      const packageManager = ToastManager.packageManager;
+      if (!packageManager) {
+        ui.notifications.error("Package manager not initialized");
+        return;
+      }
+
+      const pkg = packageManager.get(packageId);
+      if (!pkg) {
+        ui.notifications.error("Package not found");
+        return;
+      }
+
+      // Confirm deletion
+      const confirmed = await Dialog.confirm({
+        title: "Delete Package",
+        content: `<p>Are you sure you want to delete the package <strong>"${pkg.name}"</strong>?</p><p>This action cannot be undone.</p>`,
+        yes: () => true,
+        no: () => false
+      });
+
+      if (!confirmed) return;
+
+      // Delete the package
+      await packageManager.delete(packageId);
+      await this.render(true);
+      ui.notifications.info(`Package "${pkg.name}" deleted`);
+    } catch (err) {
+      console.error("Toast Studio | Failed to delete package:", err);
+      ui.notifications.error("Failed to delete package");
+    }
+  }
+
+  /**
+   * Handle import package button
+   */
+  async _onImportPackage(event) {
+    event.preventDefault();
+
+    try {
+      // Create file input
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".json";
+
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+          const text = await file.text();
+          const json = JSON.parse(text);
+
+          const packageManager = ToastManager.packageManager;
+          if (!packageManager) {
+            ui.notifications.error("Package manager not initialized");
+            return;
+          }
+
+          // Import the package
+          const pkg = await packageManager.import(json);
+          await this.render(true);
+          ui.notifications.info(`Package "${pkg.name}" imported`);
+        } catch (err) {
+          console.error("Toast Studio | Failed to import package:", err);
+          ui.notifications.error("Failed to import package: " + err.message);
+        }
+      };
+
+      input.click();
+    } catch (err) {
+      console.error("Toast Studio | Failed to open import dialog:", err);
+      ui.notifications.error("Failed to open import dialog");
+    }
+  }
+
+  /**
+   * Handle new package button
+   */
+  async _onNewPackage(event) {
+    event.preventDefault();
+    ui.notifications.warn("Package editor coming in next update! Use the API for now: game.toast.packages.create()");
+    // TODO: Open PackageEditorDialog
+  }
+
+  /**
+   * Handle edit package button
+   */
+  async _onEditPackage(event) {
+    event.preventDefault();
+    const packageId = event.currentTarget.dataset.packageId;
+    ui.notifications.warn("Package editor coming in next update! Use the API for now: game.toast.packages.update()");
+    // TODO: Open PackageEditorDialog with package data
+  }
+
+  /**
+   * Handle launch package button
+   */
+  async _onLaunchPackage(event) {
+    event.preventDefault();
+    const packageId = event.currentTarget.dataset.packageId;
+
+    try {
+      const packageManager = ToastManager.packageManager;
+      if (!packageManager) {
+        ui.notifications.error("Package manager not initialized");
+        return;
+      }
+
+      const pkg = packageManager.get(packageId);
+      if (!pkg) {
+        ui.notifications.error("Package not found");
+        return;
+      }
+
+      // Use TokenMappingDialog for all launches
+      // It handles both token and no-token packages
+      await TokenMappingDialog.show(pkg, packageManager);
+    } catch (err) {
+      console.error("Toast Studio | Failed to launch package:", err);
+      ui.notifications.error("Failed to launch package: " + err.message);
+    }
+  }
+
   /**
    * Handle form submission (not used, but required by FormApplication)
    */
@@ -3474,6 +4066,7 @@ class ToastManager {
   static SOCKET_TTS_BROADCAST = "module.toast.tts-broadcast";
   static registeredAnnouncers = {}; // Store for module-registered announcers
   static templates = {}; // Store for dynamic TTS templates
+  static packageManager = null; // Package manager instance
 
   /**
    * Initialize the Toast module
@@ -3501,6 +4094,15 @@ class ToastManager {
       console.warn("Toast | Failed to initialize TTS cache:", err);
     }
 
+    // Initialize Package Manager
+    try {
+      this.packageManager = new PackageManager();
+      await this.packageManager.initialize();
+      console.log("Toast | Package manager initialized");
+    } catch (err) {
+      console.warn("Toast | Failed to initialize package manager:", err);
+    }
+
     // Preload template partials
     await this.preloadTemplatePartials();
   }
@@ -3519,6 +4121,7 @@ class ToastManager {
       "modules/toast/templates/partials/audio-asset-item.hbs",
       "modules/toast/templates/partials/image-asset-item.hbs",
       "modules/toast/templates/partials/packages-tab.hbs",
+      "modules/toast/templates/partials/package-card.hbs",
       "modules/toast/templates/partials/studio-tab.hbs",
       "modules/toast/templates/partials/empty-state.hbs"
     ];
@@ -3896,6 +4499,56 @@ class ToastManager {
       default: []
     });
 
+    // Package Directories (World)
+    game.settings.register(this.MODULE_ID, "packages-directory-world", {
+      name: "World Packages Directory",
+      hint: "Directory for world-specific packages.",
+      scope: "world",
+      config: false, // Hidden - managed internally
+      type: String,
+      default: "toast-packages"
+    });
+
+    // Package Directories (Global)
+    game.settings.register(this.MODULE_ID, "packages-directory-global", {
+      name: "Global Packages Directory",
+      hint: "Directory for global packages.",
+      scope: "world",
+      config: false, // Hidden - managed internally
+      type: String,
+      default: "modules/toast/packages"
+    });
+
+    // Default Package Category
+    game.settings.register(this.MODULE_ID, "packages-default-category", {
+      name: "Default Package Category",
+      hint: "Default category when creating new packages.",
+      scope: "client",
+      config: true,
+      type: String,
+      choices: {
+        "combat": "Combat",
+        "social": "Social",
+        "exploration": "Exploration",
+        "custom": "Custom"
+      },
+      default: "custom"
+    });
+
+    // Default Package Scope
+    game.settings.register(this.MODULE_ID, "packages-default-scope", {
+      name: "Default Package Scope",
+      hint: "Default scope when creating new packages.",
+      scope: "client",
+      config: true,
+      type: String,
+      choices: {
+        "global": "Global (all worlds)",
+        "world": "World-specific"
+      },
+      default: "world"
+    });
+
     // Asset Preview Volume
     game.settings.register(this.MODULE_ID, "asset-preview-volume", {
       name: "Asset Preview Volume",
@@ -4203,6 +4856,23 @@ class ToastManager {
       studio: {
         open: (options = {}) => this.openStudio(options),
         close: () => this.closeStudio()
+      },
+      // Package Manager
+      packages: {
+        create: (config) => this.packageManager?.create(config),
+        get: (id) => this.packageManager?.get(id),
+        list: (filters) => this.packageManager?.list(filters),
+        update: (id, updates) => this.packageManager?.update(id, updates),
+        delete: (id) => this.packageManager?.delete(id),
+        launch: (id, tokenMap, options) => this.packageManager?.launch(id, tokenMap, options),
+        export: (id) => this.packageManager?.export(id),
+        import: (json, options) => this.packageManager?.import(json, options),
+        duplicate: (id, newName) => this.packageManager?.duplicate(id, newName),
+        refresh: () => this.packageManager?.refresh(),
+        getCategories: () => this.packageManager?.getCategories(),
+        getTags: () => this.packageManager?.getTags(),
+        getAuthors: () => this.packageManager?.getAuthors(),
+        getStats: () => this.packageManager?.getStats()
       }
     };
     console.log("Toast | API registered at game.toast");

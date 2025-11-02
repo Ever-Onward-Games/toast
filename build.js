@@ -77,6 +77,7 @@ const SOURCE_MODULES = [
   // Packages Layer
   'packages/Package.js',
   'packages/PackageManager.js',
+  'packages/TokenMappingDialog.js',
 
   // UI Layer
   'ui/ToastStudioApp.js',

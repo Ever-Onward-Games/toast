@@ -10,6 +10,7 @@ class ToastManager {
   static SOCKET_TTS_BROADCAST = "module.toast.tts-broadcast";
   static registeredAnnouncers = {}; // Store for module-registered announcers
   static templates = {}; // Store for dynamic TTS templates
+  static packageManager = null; // Package manager instance
 
   /**
    * Initialize the Toast module
@@ -37,6 +38,15 @@ class ToastManager {
       console.warn("Toast | Failed to initialize TTS cache:", err);
     }
 
+    // Initialize Package Manager
+    try {
+      this.packageManager = new PackageManager();
+      await this.packageManager.initialize();
+      console.log("Toast | Package manager initialized");
+    } catch (err) {
+      console.warn("Toast | Failed to initialize package manager:", err);
+    }
+
     // Preload template partials
     await this.preloadTemplatePartials();
   }
@@ -55,6 +65,7 @@ class ToastManager {
       "modules/toast/templates/partials/audio-asset-item.hbs",
       "modules/toast/templates/partials/image-asset-item.hbs",
       "modules/toast/templates/partials/packages-tab.hbs",
+      "modules/toast/templates/partials/package-card.hbs",
       "modules/toast/templates/partials/studio-tab.hbs",
       "modules/toast/templates/partials/empty-state.hbs"
     ];
@@ -432,6 +443,56 @@ class ToastManager {
       default: []
     });
 
+    // Package Directories (World)
+    game.settings.register(this.MODULE_ID, "packages-directory-world", {
+      name: "World Packages Directory",
+      hint: "Directory for world-specific packages.",
+      scope: "world",
+      config: false, // Hidden - managed internally
+      type: String,
+      default: "toast-packages"
+    });
+
+    // Package Directories (Global)
+    game.settings.register(this.MODULE_ID, "packages-directory-global", {
+      name: "Global Packages Directory",
+      hint: "Directory for global packages.",
+      scope: "world",
+      config: false, // Hidden - managed internally
+      type: String,
+      default: "modules/toast/packages"
+    });
+
+    // Default Package Category
+    game.settings.register(this.MODULE_ID, "packages-default-category", {
+      name: "Default Package Category",
+      hint: "Default category when creating new packages.",
+      scope: "client",
+      config: true,
+      type: String,
+      choices: {
+        "combat": "Combat",
+        "social": "Social",
+        "exploration": "Exploration",
+        "custom": "Custom"
+      },
+      default: "custom"
+    });
+
+    // Default Package Scope
+    game.settings.register(this.MODULE_ID, "packages-default-scope", {
+      name: "Default Package Scope",
+      hint: "Default scope when creating new packages.",
+      scope: "client",
+      config: true,
+      type: String,
+      choices: {
+        "global": "Global (all worlds)",
+        "world": "World-specific"
+      },
+      default: "world"
+    });
+
     // Asset Preview Volume
     game.settings.register(this.MODULE_ID, "asset-preview-volume", {
       name: "Asset Preview Volume",
@@ -739,6 +800,23 @@ class ToastManager {
       studio: {
         open: (options = {}) => this.openStudio(options),
         close: () => this.closeStudio()
+      },
+      // Package Manager
+      packages: {
+        create: (config) => this.packageManager?.create(config),
+        get: (id) => this.packageManager?.get(id),
+        list: (filters) => this.packageManager?.list(filters),
+        update: (id, updates) => this.packageManager?.update(id, updates),
+        delete: (id) => this.packageManager?.delete(id),
+        launch: (id, tokenMap, options) => this.packageManager?.launch(id, tokenMap, options),
+        export: (id) => this.packageManager?.export(id),
+        import: (json, options) => this.packageManager?.import(json, options),
+        duplicate: (id, newName) => this.packageManager?.duplicate(id, newName),
+        refresh: () => this.packageManager?.refresh(),
+        getCategories: () => this.packageManager?.getCategories(),
+        getTags: () => this.packageManager?.getTags(),
+        getAuthors: () => this.packageManager?.getAuthors(),
+        getStats: () => this.packageManager?.getStats()
       }
     };
     console.log("Toast | API registered at game.toast");

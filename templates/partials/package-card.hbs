@@ -1,0 +1,103 @@
+{{!-- Package Card Component - Display individual package information --}}
+<div class="package-card" data-package-id="{{id}}" data-category="{{category}}" data-scope="{{scope}}">
+
+  {{!-- Thumbnail/Icon --}}
+  <div class="package-thumbnail">
+    {{#if thumbnail}}
+      <img src="{{thumbnail}}" alt="{{name}}" />
+    {{else}}
+      <div class="package-icon">
+        {{#eq category "combat"}}
+          <i class="fas fa-sword"></i>
+        {{/eq}}
+        {{#eq category "social"}}
+          <i class="fas fa-users"></i>
+        {{/eq}}
+        {{#eq category "exploration"}}
+          <i class="fas fa-compass"></i>
+        {{/eq}}
+        {{#eq category "custom"}}
+          <i class="fas fa-star"></i>
+        {{/eq}}
+      </div>
+    {{/if}}
+  </div>
+
+  {{!-- Package Info --}}
+  <div class="package-info">
+    <h4 class="package-name" title="{{name}}">{{name}}</h4>
+    {{#if description}}
+      <p class="package-description" title="{{description}}">{{description}}</p>
+    {{/if}}
+
+    {{!-- Metadata badges --}}
+    <div class="package-meta">
+      <span class="package-category category-{{category}}" title="Category">
+        {{#eq category "combat"}}
+          <i class="fas fa-sword"></i> Combat
+        {{/eq}}
+        {{#eq category "social"}}
+          <i class="fas fa-users"></i> Social
+        {{/eq}}
+        {{#eq category "exploration"}}
+          <i class="fas fa-compass"></i> Exploration
+        {{/eq}}
+        {{#eq category "custom"}}
+          <i class="fas fa-star"></i> Custom
+        {{/eq}}
+      </span>
+
+      <span class="package-scope scope-{{scope}}" title="Scope: {{scope}}">
+        {{#eq scope "world"}}
+          <i class="fas fa-globe"></i> World
+        {{/eq}}
+        {{#eq scope "global"}}
+          <i class="fas fa-cubes"></i> Global
+        {{/eq}}
+      </span>
+
+      {{#if tokenCount}}
+        <span class="package-tokens" title="{{tokenCount}} dynamic tokens">
+          <i class="fas fa-brackets-curly"></i> {{tokenCount}}
+        </span>
+      {{/if}}
+    </div>
+
+    {{!-- Tags --}}
+    {{#if tags.length}}
+      <div class="package-tags">
+        {{#each tags}}
+          <span class="package-tag">{{this}}</span>
+        {{/each}}
+      </div>
+    {{/if}}
+  </div>
+
+  {{!-- Action Buttons --}}
+  <div class="package-actions">
+    <button type="button" class="package-btn launch-package-btn" data-package-id="{{id}}" title="Launch this toast package{{#if tokenCount}} (requires token mapping){{/if}}">
+      <i class="fas fa-play"></i>
+    </button>
+    <button type="button" class="package-btn edit-package-btn" data-package-id="{{id}}" title="Edit package properties (use API: game.toast.packages.update())">
+      <i class="fas fa-edit"></i>
+    </button>
+    <button type="button" class="package-btn duplicate-package-btn" data-package-id="{{id}}" title="Create a copy of this package">
+      <i class="fas fa-copy"></i>
+    </button>
+    <button type="button" class="package-btn export-package-btn" data-package-id="{{id}}" title="Export package as JSON file">
+      <i class="fas fa-download"></i>
+    </button>
+    <button type="button" class="package-btn delete-package-btn" data-package-id="{{id}}" title="Delete this package permanently">
+      <i class="fas fa-trash"></i>
+    </button>
+  </div>
+
+  {{!-- Footer --}}
+  <div class="package-footer">
+    <small class="package-author" title="Author: {{author}}">
+      <i class="fas fa-user"></i> {{author}}
+    </small>
+    <small class="package-version" title="Version {{version}}">v{{version}}</small>
+  </div>
+
+</div>
