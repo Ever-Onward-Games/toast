@@ -1,5 +1,54 @@
 # Changelog
 
+## Version 2.5.0-alpha.1 - Package Class Foundation (2025-11-02)
+
+### ✨ New Feature - Package System (Step 1/9)
+
+**Package Class Implementation:**
+- Created `Package` class for reusable toast configurations
+- Full schema with metadata, authorship, and organization
+- Category system: combat, social, exploration, custom
+- Scope support: world-specific or global packages
+- Semantic versioning with validation
+
+**Token Replacement System:**
+- Dynamic placeholder support with `{{tokenName}}` syntax
+- Token metadata: label, description, type, default value
+- Runtime token mapping for personalized toasts
+- Example: `{{killerName}} DEFEATS {{bossName}}!`
+
+**Dependency Tracking:**
+- Auto-extract image and sound dependencies from config
+- Validate asset existence before launch
+- Return missing dependencies for error handling
+- Prevent broken packages from launching
+
+**Validation Methods:**
+- Comprehensive schema validation
+- Element structure validation (type, id, required fields)
+- Category and scope validation with auto-correction
+- Semver version format validation
+
+**Utility Methods:**
+- `toJSON()` - Serialize for storage
+- `fromJSON()` - Deserialize from storage
+- `clone()` - Duplicate package with new name
+- `extractTokenPlaceholders()` - Find all tokens in text
+- `getFilePath()` - Generate storage path by scope
+
+**Technical Details:**
+- ID generation from name (sanitized, lowercase, hyphens)
+- Immutable fields protection (id, createdAt, author)
+- Automatic timestamp management (createdAt, updatedAt)
+- Deep cloning for token application (no mutation)
+- HEAD request asset validation
+
+### Files Changed
+- `src/packages/Package.js` - Complete Package class (~390 lines)
+- `build.js` - Added packages layer to build system
+
+---
+
 ## Version 2.4.0-beta.4 - Interactive Image Preview (2025-10-31)
 
 ### ✨ Enhancement - Advanced Preview Controls

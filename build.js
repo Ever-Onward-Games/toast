@@ -74,6 +74,9 @@ const SOURCE_MODULES = [
   'utils/webp-anim-utils.js',
   'utils/apng-anim-utils.js',
 
+  // Packages Layer
+  'packages/Package.js',
+
   // UI Layer
   'ui/ToastStudioApp.js',
 
