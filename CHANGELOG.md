@@ -1,5 +1,66 @@
 # Changelog
 
+## Version 2.4.0-beta.4 - Interactive Image Preview (2025-10-31)
+
+### ✨ Enhancement - Advanced Preview Controls
+
+**Restructured images tab layout:**
+- Toolbar now only spans the left side (image list area)
+- Preview pane is now static on the right side (always visible)
+- Image list scrolls independently while preview remains in place
+- Fixed-height layout with proper flex/grid constraints
+- Better space utilization with 450px preview pane width
+
+**Mousewheel zoom functionality:**
+- Scroll to zoom in/out on preview images
+- Zoom range: 10% to 500% (0.1x to 5.0x)
+- 10% increment per scroll tick
+- Real-time zoom percentage display
+- Smooth scaling with CSS transforms
+
+**Right-click pan functionality:**
+- Right-click and drag to pan around zoomed images
+- Visual feedback: cursor changes to grabbing during pan
+- Pan offset persists during zoom operations
+- Prevents context menu during image manipulation
+- Panning ends on mouseup or mouseleave
+
+**Preview Controls:**
+- Hint text in header: "Scroll" and "Right-drag" icons
+- Live zoom percentage indicator in metadata section
+- Transform system centers image before applying zoom/pan
+- Image sized to natural dimensions for accurate scaling
+- Reset zoom/pan when selecting new image
+
+**Technical Implementation:**
+- Added zoom/pan state variables to constructor
+- New `_updatePreviewTransform()` method for CSS transforms
+- Event listeners: wheel (zoom), contextmenu/mousemove/mouseup (pan)
+- Container cloning to remove old event listeners on image change
+- Absolute positioning with transform-origin center
+- Flexbox layout for static preview pane
+
+**Layout Changes:**
+- `.image-list-container` wraps toolbar + image list (left side)
+- `.images-split-layout` grid: `1fr 450px` columns
+- Layout height: `calc(100vh - 300px)` with min/max constraints
+- Left side scrolls independently, right side is static
+- Preview image container uses `position: relative` + `overflow: hidden`
+
+**CSS Enhancements:**
+- `.preview-image-container` - Grab cursor, panning state
+- `#image-preview-img` - Absolute positioning, transform origin center
+- `.preview-controls-hint` - Icon-based control hints
+- `.preview-zoom` - Highlighted zoom percentage display
+- Full-height preview pane with flexbox content management
+
+### Files Changed
+- `templates/partials/images-subtab.hbs` - Restructured layout, controls hints
+- `src/ui/ToastStudioApp.js` - Zoom/pan state, event listeners, transform logic (~130 lines)
+- `styles/components/_assets-tab.scss` - Static preview, scrollable list, zoom/pan styling (~155 lines)
+
+---
+
 ## Version 2.4.0-beta.3 - Image Preview Pane (2025-10-31)
 
 ### ✨ Enhancement - Integrated Image Preview
