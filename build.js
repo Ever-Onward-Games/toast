@@ -76,6 +76,7 @@ const SOURCE_MODULES = [
 
   // Packages Layer
   'packages/Package.js',
+  'packages/PackageManager.js',
 
   // UI Layer
   'ui/ToastStudioApp.js',

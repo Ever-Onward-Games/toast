@@ -1,5 +1,70 @@
 # Changelog
 
+## Version 2.5.0-alpha.2 - PackageManager Implementation (2025-11-02)
+
+### ✨ New Feature - Package Management System (Step 2/9)
+
+**PackageManager Class Implementation:**
+- Complete CRUD operations for package management
+- In-memory storage with Map collection (id → Package)
+- Automatic loading from disk on initialization
+- Support for both world-specific and global packages
+- Comprehensive error handling and validation
+
+**CRUD Operations:**
+- `create(config)` - Create and save new package
+- `get(id)` - Retrieve package by ID
+- `list(filters)` - List packages with filtering
+- `update(id, updates)` - Update existing package
+- `delete(id)` - Remove package from disk and memory
+
+**Search & Filtering:**
+- Filter by category (combat, social, exploration, custom)
+- Filter by tags (all tags must match)
+- Filter by scope (world/global)
+- Filter by author
+- Text search across name, description, and tags
+- Automatic alphabetical sorting
+
+**Package Launch:**
+- Launch packages with token mapping
+- Dependency validation before launch
+- Clear error messages for missing assets
+- Integration with ToastManager for display
+
+**Import/Export:**
+- Export packages as formatted JSON
+- Import packages from JSON with collision handling
+- Duplicate packages with new names
+- Overwrite option for imports
+
+**File Operations:**
+- Load packages from `modules/toast/packages/` (global)
+- Load packages from `worlds/{worldId}/toast-packages/` (world)
+- Save packages using Foundry's upload API
+- Automatic directory handling
+
+**Utility Methods:**
+- `refresh()` - Reload all packages from disk
+- `getCategories()` - List all unique categories
+- `getTags()` - List all unique tags
+- `getAuthors()` - List all unique authors
+- `getStats()` - Package statistics and counts
+
+**Technical Details:**
+- FilePicker integration for directory browsing
+- Async initialization pattern
+- Loading state management
+- Scope validation and enforcement
+- FormData creation for file uploads
+- Error logging and user notifications
+
+### Files Changed
+- `src/packages/PackageManager.js` - Complete PackageManager class (~550 lines)
+- `build.js` - Added PackageManager to build order
+
+---
+
 ## Version 2.5.0-alpha.1 - Package Class Foundation (2025-11-02)
 
 ### ✨ New Feature - Package System (Step 1/9)
