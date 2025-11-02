@@ -116,6 +116,30 @@
         background: var(--color-bg-option);
       }
     }
+
+    // Multi-line toolbar variant (for images)
+    &.images-toolbar-multiline {
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .toolbar-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        width: 100%;
+
+        .asset-search {
+          flex: 1 1 0;
+          min-width: 0;
+        }
+
+        .asset-filter,
+        .refresh-assets-btn {
+          flex: 1 1 0;
+          min-width: 150px;
+        }
+      }
+    }
   }
 
   // Asset Sections

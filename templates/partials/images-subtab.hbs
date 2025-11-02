@@ -6,19 +6,23 @@
 
     {{!-- Left Side: Toolbar + Image List --}}
     <div class="image-list-container">
-      {{!-- Toolbar --}}
-      <div class="assets-toolbar">
-        <input type="text" class="asset-search" placeholder="Search image files..." data-search-type="images">
-        <select class="asset-filter" data-filter-type="images">
-          <option value="all">All Sources</option>
-          <option value="default">Default</option>
-          <option value="custom">Custom</option>
-          <option value="animated">Animated Only</option>
-          <option value="static">Static Only</option>
-        </select>
-        <button type="button" class="refresh-assets-btn" data-refresh-type="images">
-          <i class="fas fa-sync"></i> Refresh
-        </button>
+      {{!-- Toolbar (2-line layout for images) --}}
+      <div class="assets-toolbar images-toolbar-multiline">
+        <div class="toolbar-row">
+          <input type="text" class="asset-search" placeholder="Search image files..." data-search-type="images">
+        </div>
+        <div class="toolbar-row">
+          <select class="asset-filter" data-filter-type="images">
+            <option value="all">All Sources</option>
+            <option value="default">Default</option>
+            <option value="custom">Custom</option>
+            <option value="animated">Animated Only</option>
+            <option value="static">Static Only</option>
+          </select>
+          <button type="button" class="refresh-assets-btn" data-refresh-type="images">
+            <i class="fas fa-sync"></i> Refresh
+          </button>
+        </div>
       </div>
 
       {{!-- Image Files Section --}}
