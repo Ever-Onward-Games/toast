@@ -4,11 +4,7 @@
 
     {{!-- Toolbar --}}
     <div class="packages-toolbar">
-      <button type="button" class="new-package-btn primary-btn" title="Create a new toast package (API only for now)">
-        <i class="fas fa-plus"></i> New Package
-      </button>
-
-      <div class="toolbar-group">
+      <div class="toolbar-row">
         <input type="text" class="package-search" placeholder="Search by name, description, or tags..." title="Search packages by name, description, or tags" />
 
         <select class="package-filter-category" title="Filter packages by category">
@@ -24,6 +20,12 @@
           <option value="world">World Only</option>
           <option value="global">Global Only</option>
         </select>
+      </div>
+
+      <div class="toolbar-row">
+        <button type="button" class="new-package-btn primary-btn" title="Create a new toast package (API only for now)">
+          <i class="fas fa-plus"></i> New Package
+        </button>
 
         <button type="button" class="import-package-btn" title="Import a package from JSON file">
           <i class="fas fa-file-import"></i> Import

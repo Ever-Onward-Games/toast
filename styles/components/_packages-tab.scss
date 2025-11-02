@@ -21,10 +21,51 @@
     background: var(--color-bg-option);
     border-radius: 4px;
 
+    .toolbar-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      width: 100%;
+    }
+
+    // Line 1: Search + Filters
+    .package-search {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 0.5rem 0.75rem;
+      height: 36px;
+      border: 1px solid var(--color-border-dark);
+      border-radius: 4px;
+      background: var(--color-bg);
+      color: var(--color-text-dark-primary);
+      font-size: 14px;
+      line-height: 1.2;
+
+      &::placeholder {
+        color: var(--color-text-dark-secondary);
+      }
+    }
+
+    .package-filter-category,
+    .package-filter-scope {
+      flex: 0 0 200px;
+      padding: 0.5rem 0.75rem;
+      height: 36px;
+      border: 1px solid var(--color-border-dark);
+      border-radius: 4px;
+      background: var(--color-bg);
+      color: var(--color-text-dark-primary);
+      font-size: 14px;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
+    // Line 2: Buttons
     .new-package-btn {
       flex: 1 1 0;
-      min-width: 150px;
+      min-width: 120px;
       padding: 0.5rem 1rem;
+      height: 36px;
       background: var(--color-border-highlight);
       color: white;
       border: none;
@@ -32,6 +73,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      line-height: 1.2;
 
       &:hover {
         background: var(--color-border-highlight-bright, #ff6600);
@@ -44,66 +86,27 @@
       }
     }
 
-    .toolbar-group {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      width: 100%;
+    .import-package-btn,
+    .refresh-packages-btn {
+      flex: 1 1 0;
+      min-width: 120px;
+      padding: 0.5rem 0.75rem;
+      height: 36px;
+      background: var(--color-bg-btn);
+      border: 1px solid var(--color-border-dark);
+      border-radius: 4px;
+      color: var(--color-text-dark-primary);
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+      line-height: 1.2;
 
-      .package-search {
-        flex: 1 1 0;
-        min-width: 0;
-        padding: 0.5rem 0.75rem;
-        height: 36px;
-        border: 1px solid var(--color-border-dark);
-        border-radius: 4px;
-        background: var(--color-bg);
-        color: var(--color-text-dark-primary);
-        font-size: 14px;
-        line-height: 1.2;
-
-        &::placeholder {
-          color: var(--color-text-dark-secondary);
-        }
+      &:hover {
+        background: var(--color-bg-option);
       }
 
-      .package-filter-category,
-      .package-filter-scope {
-        flex: 1 1 0;
-        min-width: 150px;
-        padding: 0.5rem 0.75rem;
-        height: 36px;
-        border: 1px solid var(--color-border-dark);
-        border-radius: 4px;
-        background: var(--color-bg);
-        color: var(--color-text-dark-primary);
-        font-size: 14px;
-        line-height: 1.2;
-        cursor: pointer;
-      }
-
-      .import-package-btn,
-      .refresh-packages-btn {
-        flex: 1 1 0;
-        min-width: 120px;
-        padding: 0.5rem 0.75rem;
-        height: 36px;
-        background: var(--color-bg-btn);
-        border: 1px solid var(--color-border-dark);
-        border-radius: 4px;
-        color: var(--color-text-dark-primary);
-        cursor: pointer;
-        transition: background 0.2s;
-        white-space: nowrap;
-        line-height: 1.2;
-
-        &:hover {
-          background: var(--color-bg-option);
-        }
-
-        i {
-          margin-right: 0.25rem;
-        }
+      i {
+        margin-right: 0.25rem;
       }
     }
   }
