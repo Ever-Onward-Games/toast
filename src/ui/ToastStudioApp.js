@@ -54,26 +54,35 @@ class ToastStudioApp extends FormApplication {
     const data = await super.getData();
 
     data.activeTab = this.activeTab;
-    data.tabs = {
-      assets: {
+
+    // Provide tabs as both array (for iteration) and object (for property access)
+    const tabsArray = [
+      {
         id: "assets",
         label: "Assets",
         icon: "fas fa-images",
         active: this.activeTab === "assets"
       },
-      packages: {
+      {
         id: "packages",
         label: "Packages",
         icon: "fas fa-box",
         active: this.activeTab === "packages"
       },
-      studio: {
+      {
         id: "studio",
         label: "Studio",
         icon: "fas fa-palette",
         active: this.activeTab === "studio",
         disabled: true // Disabled until Phase 4.4
       }
+    ];
+
+    data.tabs = tabsArray; // Array for {{#each tabs}}
+    data.tabsByName = {    // Object for {{#if tabsByName.packages.active}}
+      assets: tabsArray[0],
+      packages: tabsArray[1],
+      studio: tabsArray[2]
     };
 
     // Get asset data

@@ -1,5 +1,28 @@
 # Changelog
 
+## Version 2.5.0-beta.2 - Tab Rendering Bug Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Fixed Packages Tab Not Visible:**
+- Fixed critical bug where Packages tab was not rendering in Toast Studio UI
+- Root cause: `getData()` method was passing `tabs` as an object, but template expected an array for `{{#each tabs}}` iteration
+- Solution: Provide both `data.tabs` (array for iteration) and `data.tabsByName` (object for property access)
+- Updated partial templates (assets-tab.hbs, packages-tab.hbs, studio-tab.hbs) to use `tabsByName` for active state checks
+
+**Files Changed:**
+- `src/ui/ToastStudioApp.js:56-86` - Added dual tabs representation
+- `templates/partials/assets-tab.hbs:2` - Updated to use `tabsByName.assets.active`
+- `templates/partials/packages-tab.hbs:2` - Updated to use `tabsByName.packages.active`
+- `templates/partials/studio-tab.hbs:2` - Updated to use `tabsByName.studio.active`
+
+**Impact:**
+- All three tabs (Assets, Packages, Studio) now render correctly
+- Tab navigation fully functional
+- Package Manager UI now accessible to users
+
+---
+
 ## Version 2.5.0-beta.1 - Polish & Testing Phase (2025-11-02)
 
 ### 🎨 Polish & User Experience Improvements (Step 8/9)
