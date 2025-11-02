@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.5.0-beta.8 - Toolbar Controls Height Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Packages Toolbar Control Height:**
+- Fixed text cutoff in toolbar dropdowns and inputs
+- Added explicit `height: 36px` to all toolbar controls
+- Added `line-height: 1.2` for proper text rendering
+- Ensures consistent control height across search input, filter selects, and buttons
+- Matches the pattern used in assets toolbar
+
+**Files Changed:**
+- `styles/components/_packages-tab.scss` - Added height and line-height to toolbar controls
+
+---
+
 ## Version 2.5.0-beta.7 - Packages Toolbar 2-Line Layout (2025-11-02)
 
 ### 🎨 UI Improvements
