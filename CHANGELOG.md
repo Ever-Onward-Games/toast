@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.5.0-beta.10 - Package Save Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package File Save:**
+- Fixed critical bug where packages were created in memory but not saved to disk
+- Foundry's upload API requires directory path only, not full file path including filename
+- The filename is provided by the File object itself
+- Added better error reporting that includes response text when uploads fail
+- Packages will now properly persist to disk at `worlds/{worldId}/toast-packages/{packageId}.json`
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Fixed _savePackage to pass directory only to upload API
+
+---
+
 ## Version 2.5.0-beta.9 - Packages Toolbar Reorganization (2025-11-02)
 
 ### 🎨 UI Improvements
