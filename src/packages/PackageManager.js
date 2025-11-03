@@ -462,13 +462,17 @@ class PackageManager {
       // Use Foundry's file upload API to save
       const file = new File([json], `${pkg.id}.json`, { type: "application/json" });
 
+      // Extract directory from file path (Foundry's upload expects directory only)
+      const directory = filePath.substring(0, filePath.lastIndexOf('/'));
+
       const response = await fetch(foundry.utils.getRoute("upload"), {
         method: "POST",
-        body: await this._createFormData(file, filePath)
+        body: await this._createFormData(file, directory)
       });
 
       if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(`Upload failed: ${response.statusText} - ${errorText}`);
       }
 
       console.log(`Toast PackageManager | Saved package to: ${filePath}`);
@@ -481,14 +485,14 @@ class PackageManager {
   /**
    * Create FormData for file upload
    * @param {File} file - File to upload
-   * @param {string} path - Target path
+   * @param {string} directory - Target directory (without filename)
    * @returns {Promise<FormData>} FormData object
    * @private
    */
-  async _createFormData(file, path) {
+  async _createFormData(file, directory) {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("path", path);
+    formData.append("path", directory);
     formData.append("source", "data");
     return formData;
   }
