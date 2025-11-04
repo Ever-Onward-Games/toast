@@ -1,5 +1,22 @@
 # Changelog
 
+## Version 2.5.0-beta.11 - Package Upload Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package File Upload:**
+- Fixed package upload using correct FormData field name "upload" instead of "file"
+- Foundry's upload endpoint returns 200 OK even on errors with error details in response body
+- Now properly checks response body for errors even when HTTP status is 200
+- Uses Blob instead of File object for better browser compatibility
+- Properly throws errors when upload fails so users see what went wrong
+- Previous version would silently fail with "No file was uploaded" error
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Fixed _savePackage to use correct field name and error checking
+
+---
+
 ## Version 2.5.0-beta.10 - Package Save Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
