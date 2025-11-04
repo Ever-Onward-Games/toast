@@ -459,42 +459,39 @@ class PackageManager {
     const json = JSON.stringify(pkg.toJSON(), null, 2);
 
     try {
-      // Use Foundry's file upload API to save
-      const file = new File([json], `${pkg.id}.json`, { type: "application/json" });
-
       // Extract directory from file path (Foundry's upload expects directory only)
       const directory = filePath.substring(0, filePath.lastIndexOf('/'));
 
+      // Create a Blob instead of File (better browser compatibility)
+      const blob = new Blob([json], { type: "application/json" });
+
+      // Create FormData
+      const formData = new FormData();
+      formData.append("upload", blob, `${pkg.id}.json`);
+      formData.append("path", directory);
+      formData.append("source", "data");
+
       const response = await fetch(foundry.utils.getRoute("upload"), {
         method: "POST",
-        body: await this._createFormData(file, directory)
+        body: formData
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Upload failed: ${response.statusText} - ${errorText}`);
+      // Foundry returns 200 even on errors, so check response body
+      const result = await response.json();
+
+      if (result.error) {
+        throw new Error(`Upload failed: ${result.error}`);
       }
 
-      console.log(`Toast PackageManager | Saved package to: ${filePath}`);
+      if (!result.path) {
+        throw new Error(`Upload succeeded but no path returned: ${JSON.stringify(result)}`);
+      }
+
+      console.log(`Toast PackageManager | Saved package to: ${result.path}`);
     } catch (err) {
       console.error(`Toast PackageManager | Failed to save package ${pkg.id}:`, err);
       throw new Error(`Could not save package: ${err.message}`);
     }
-  }
-
-  /**
-   * Create FormData for file upload
-   * @param {File} file - File to upload
-   * @param {string} directory - Target directory (without filename)
-   * @returns {Promise<FormData>} FormData object
-   * @private
-   */
-  async _createFormData(file, directory) {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("path", directory);
-    formData.append("source", "data");
-    return formData;
   }
 
   /**
