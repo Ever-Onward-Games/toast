@@ -474,29 +474,14 @@ class PackageManager {
 
       console.log(`Toast PackageManager | Saving package ${pkg.id} to directory: ${directory}`);
 
-      // Create a Blob instead of File (better browser compatibility)
-      const blob = new Blob([json], { type: "application/json" });
+      // Create a File object with the JSON content
+      const file = new File([json], `${pkg.id}.json`, { type: "application/json" });
 
-      // Create FormData
-      const formData = new FormData();
-      formData.append("upload", blob, `${pkg.id}.json`);
-      formData.append("path", directory);
-      formData.append("source", "data");
+      // Use FilePicker.upload instead of raw fetch
+      const result = await FilePicker.upload("data", directory, file, {}, { notify: false });
 
-      const response = await fetch(foundry.utils.getRoute("upload"), {
-        method: "POST",
-        body: formData
-      });
-
-      // Foundry returns 200 even on errors, so check response body
-      const result = await response.json();
-
-      if (result.error) {
-        throw new Error(`Upload failed: ${result.error}`);
-      }
-
-      if (!result.path) {
-        throw new Error(`Upload succeeded but no path returned: ${JSON.stringify(result)}`);
+      if (!result || !result.path) {
+        throw new Error(`Upload failed: No path returned`);
       }
 
       console.log(`Toast PackageManager | Saved package to: ${result.path}`);
