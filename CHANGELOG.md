@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.5.0-beta.12 - Package Save Error Handling (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package Save Error Handling:**
+- Added validation to check if file path is null/undefined before attempting save
+- Added validation to ensure file path contains directory separator
+- Log directory path before upload attempt for debugging
+- Better error messages when path validation fails
+- Helps diagnose issues where worldId might be null or path construction fails
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Added path validation and debug logging to _savePackage
+
+---
+
 ## Version 2.5.0-beta.11 - Package Upload Fix (2025-11-02)
 
 ### 🐛 Bug Fixes

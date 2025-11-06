@@ -459,8 +459,20 @@ class PackageManager {
     const json = JSON.stringify(pkg.toJSON(), null, 2);
 
     try {
+      // Validate file path
+      if (!filePath) {
+        throw new Error("Package getFilePath() returned null/undefined");
+      }
+
       // Extract directory from file path (Foundry's upload expects directory only)
-      const directory = filePath.substring(0, filePath.lastIndexOf('/'));
+      const lastSlashIndex = filePath.lastIndexOf('/');
+      if (lastSlashIndex === -1) {
+        throw new Error(`Invalid file path (no directory separator): ${filePath}`);
+      }
+
+      const directory = filePath.substring(0, lastSlashIndex);
+
+      console.log(`Toast PackageManager | Saving package ${pkg.id} to directory: ${directory}`);
 
       // Create a Blob instead of File (better browser compatibility)
       const blob = new Blob([json], { type: "application/json" });
