@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.5.0-beta.13 - FilePicker Upload API (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package File Upload:**
+- Switched to using FilePicker.upload() API instead of manually constructing FormData
+- Foundry's FilePicker API handles all parameter formatting and validation correctly
+- Fixes "path argument must be of type string. Received undefined" error
+- Simpler, more reliable code that uses Foundry's official upload mechanism
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Use FilePicker.upload() instead of raw fetch
+
+---
+
 ## Version 2.5.0-beta.12 - Package Save Error Handling (2025-11-02)
 
 ### 🐛 Bug Fixes
