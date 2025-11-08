@@ -104,12 +104,7 @@ class PackageManager {
    */
   async _listPackageFiles(directory) {
     try {
-      const response = await fetch(`/${directory}`);
-      if (!response.ok) {
-        throw new Error(`Directory not accessible: ${directory}`);
-      }
-
-      // Try to browse the directory using FilePicker
+      // Browse the directory using FilePicker
       const FilePicker = foundry.applications.apps.FilePicker.implementation;
       const result = await FilePicker.browse("data", directory);
 
@@ -119,7 +114,8 @@ class PackageManager {
 
       return [];
     } catch (err) {
-      console.warn(`Toast PackageManager | Could not list packages in ${directory}:`, err);
+      // Directory might not exist - that's okay, just return empty array
+      console.log(`Toast PackageManager | Directory does not exist or is empty: ${directory}`);
       return [];
     }
   }
