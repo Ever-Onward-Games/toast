@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.5.0-beta.15 - Package File Listing Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package File Listing:**
+- Fixed packages not appearing in Toast Studio after being created
+- Removed unnecessary fetch check that was preventing FilePicker.browse() from listing files
+- The fetch was returning 404 and throwing errors before FilePicker could list directory contents
+- Now goes directly to FilePicker.browse() which properly lists files in existing directories
+- Changed error logging from warn to log since missing directories are expected on first run
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Removed fetch check from _listPackageFiles
+
+---
+
 ## Version 2.5.0-beta.14 - Package Directory Creation (2025-11-02)
 
 ### 🐛 Bug Fixes
