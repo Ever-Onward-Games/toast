@@ -474,11 +474,22 @@ class PackageManager {
 
       console.log(`Toast PackageManager | Saving package ${pkg.id} to directory: ${directory}`);
 
+      // Create directory if it doesn't exist
+      try {
+        await foundry.applications.apps.FilePicker.implementation.createDirectory("data", directory, {});
+        console.log(`Toast PackageManager | Created directory: ${directory}`);
+      } catch (err) {
+        // Directory might already exist - that's fine
+        if (!err.message?.includes("EEXIST")) {
+          console.warn(`Toast PackageManager | Could not create directory:`, err);
+        }
+      }
+
       // Create a File object with the JSON content
       const file = new File([json], `${pkg.id}.json`, { type: "application/json" });
 
       // Use FilePicker.upload instead of raw fetch
-      const result = await FilePicker.upload("data", directory, file, {}, { notify: false });
+      const result = await foundry.applications.apps.FilePicker.implementation.upload("data", directory, file, {}, { notify: false });
 
       if (!result || !result.path) {
         throw new Error(`Upload failed: No path returned`);
