@@ -1,5 +1,22 @@
 # Changelog
 
+## Version 2.5.0-beta.14 - Package Directory Creation (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package Directory Creation:**
+- Create package directory before attempting upload if it doesn't exist
+- Fixed "Target directory does not exist" error when saving first package
+- Use properly namespaced FilePicker: `foundry.applications.apps.FilePicker.implementation`
+- Fixes deprecation warning about using global FilePicker
+- Gracefully handle EEXIST error if directory already exists
+- This was the root cause of packages not being saved to disk
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Added directory creation before upload
+
+---
+
 ## Version 2.5.0-beta.13 - FilePicker Upload API (2025-11-02)
 
 ### 🐛 Bug Fixes
