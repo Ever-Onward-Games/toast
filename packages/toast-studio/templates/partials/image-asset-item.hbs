@@ -1,0 +1,50 @@
+{{!-- Image Asset Item --}}
+<div class="asset-item image-item" data-category="image">
+  <div class="asset-thumbnail">
+    <img src="{{thumbnail}}" alt="{{name}}" loading="lazy">
+    {{#if animated}}
+      <span class="animated-badge" title="Animated {{animationType}}">
+        <i class="fas fa-film"></i>
+        {{#if animationType}}
+          {{#eq animationType "gif"}}GIF{{/eq}}
+          {{#eq animationType "webp"}}WebP{{/eq}}
+          {{#eq animationType "apng"}}APNG{{/eq}}
+        {{else}}
+          ANIM
+        {{/if}}
+      </span>
+    {{/if}}
+  </div>
+  <div class="asset-info">
+    <div class="asset-name">{{name}}</div>
+    <div class="asset-meta">
+      {{#if animated}}
+        <span class="animated-indicator">
+          <i class="fas fa-film"></i> Animated
+        </span>
+      {{/if}}
+      {{#if sourceLabel}}
+        <span class="source-badge source-{{sourceType}}" title="Source: {{source}}">
+          {{#eq sourceType "default"}}
+            <i class="fas fa-cube"></i>
+          {{/eq}}
+          {{#eq sourceType "announcer"}}
+            <i class="fas fa-bullhorn"></i>
+          {{/eq}}
+          {{#eq sourceType "custom"}}
+            <i class="fas fa-folder-plus"></i>
+          {{/eq}}
+          {{sourceLabel}}
+        </span>
+      {{/if}}
+      {{#if size}}
+        <span class="asset-size">{{size}}</span>
+      {{/if}}
+    </div>
+  </div>
+  <div class="asset-actions">
+    <button type="button" class="use-asset-btn" data-path="{{path}}" data-type="image" title="Copy code">
+      <i class="fas fa-code"></i>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+{{!-- Audio Asset Item --}}
+<div class="asset-item audio-item" data-category="{{category}}">
+  <div class="asset-icon">
+    <i class="fas fa-music"></i>
+  </div>
+  <div class="asset-info">
+    <div class="asset-name">{{name}}</div>
+    <div class="asset-meta">
+      <span class="asset-category">{{category}}</span>
+      {{#if sourceLabel}}
+        <span class="source-badge source-{{sourceType}}" title="Source: {{source}}">
+          {{#eq sourceType "default"}}
+            <i class="fas fa-cube"></i>
+          {{/eq}}
+          {{#eq sourceType "announcer"}}
+            <i class="fas fa-bullhorn"></i>
+          {{/eq}}
+          {{#eq sourceType "custom"}}
+            <i class="fas fa-folder-plus"></i>
+          {{/eq}}
+          {{sourceLabel}}
+        </span>
+      {{/if}}
+      {{#if size}}
+        <span class="asset-size">{{size}}</span>
+      {{/if}}
+    </div>
+  </div>
+  <div class="asset-actions">
+    <button type="button" class="audio-preview-btn" data-path="{{path}}" data-playing="false" title="Play audio">
+      <i class="fas fa-play play-icon"></i>
+      <i class="fas fa-stop stop-icon" style="display: none;"></i>
+    </button>
+    <button type="button" class="use-asset-btn" data-path="{{path}}" data-type="audio" title="Copy code">
+      <i class="fas fa-code"></i>
+    </button>
+  </div>
+</div>

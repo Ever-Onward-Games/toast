@@ -1,0 +1,32 @@
+{
+  "name": "toast-studio",
+  "version": "3.0.0-beta.1",
+  "description": "Professional animation studio for creating toast packages for Foundry VTT",
+  "main": "scripts/toast-studio.js",
+  "scripts": {
+    "build": "node ../../build-monorepo.js --package=toast-studio",
+    "build:production": "node ../../build-monorepo.js --package=toast-studio --production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ever-Onward-Games/toast.git"
+  },
+  "keywords": [
+    "foundry-vtt",
+    "foundryvtt",
+    "module",
+    "toast",
+    "animation",
+    "studio",
+    "editor",
+    "keyframe"
+  ],
+  "author": "Dynvar",
+  "license": "MIT",
+  "devDependencies": {
+    "sass": "^1.93.2"
+  },
+  "peerDependencies": {
+    "toast-player": "^3.0.0-beta.1"
+  }
+}

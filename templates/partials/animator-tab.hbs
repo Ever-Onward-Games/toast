@@ -1,0 +1,230 @@
+{{!-- Animator Tab: Keyframe Animation Studio --}}
+<div class="tab {{#if (eq activeTab 'animator')}}active{{/if}}" data-tab="animator">
+  <div class="animator-container">
+
+    {{!-- Three-Panel Layout: Elements | Canvas | Properties --}}
+    <div class="animator-workspace">
+
+      {{!-- Left Panel: Elements List --}}
+      <div class="animator-elements-panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-layer-group"></i> Elements</h3>
+        </div>
+
+        <div class="elements-list">
+          {{#if animator.hasElements}}
+            {{#each animator.elements}}
+              <div class="element-item {{#if selected}}selected{{/if}}" data-element-id="{{id}}">
+                <div class="element-icon">
+                  {{#if (eq type 'text')}}
+                    <i class="fas fa-font"></i>
+                  {{else if (eq type 'image')}}
+                    <i class="fas fa-image"></i>
+                  {{else if (eq type 'sound')}}
+                    <i class="fas fa-volume-up"></i>
+                  {{/if}}
+                </div>
+                <div class="element-label">
+                  <span class="element-name">{{name}}</span>
+                  <span class="element-type">{{type}}</span>
+                </div>
+              </div>
+            {{/each}}
+          {{else}}
+            <div class="empty-state">
+              <i class="fas fa-inbox"></i>
+              <p>No elements yet</p>
+              <p class="hint">Add elements below</p>
+            </div>
+          {{/if}}
+        </div>
+
+        <div class="element-actions">
+          <button class="add-element-btn" data-type="text" title="Add Text Element">
+            <i class="fas fa-font"></i> <span>Text</span>
+          </button>
+          <button class="add-element-btn" data-type="image" title="Add Image Element">
+            <i class="fas fa-image"></i> <span>Image</span>
+          </button>
+          <button class="add-element-btn" data-type="sound" title="Add Sound Element">
+            <i class="fas fa-volume-up"></i> <span>Sound</span>
+          </button>
+        </div>
+
+        <div class="element-controls">
+          <button class="delete-element-btn" {{#unless animator.selectedElement}}disabled{{/unless}} title="Delete Selected Element">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      {{!-- Center Panel: Canvas Preview --}}
+      <div class="animator-canvas-panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-tv"></i> Canvas</h3>
+          <div class="canvas-controls">
+            <span class="frame-display">Frame: {{animator.currentFrame}} / {{animator.duration}}</span>
+          </div>
+        </div>
+
+        <div class="canvas-container">
+          <canvas id="animator-canvas" width="1920" height="1080"></canvas>
+          {{#unless animator.hasElements}}
+            <div class="canvas-empty-state">
+              <i class="fas fa-film"></i>
+              <p>Add elements to start animating</p>
+            </div>
+          {{/unless}}
+        </div>
+      </div>
+
+      {{!-- Right Panel: Properties --}}
+      <div class="animator-properties-panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-sliders-h"></i> Properties</h3>
+        </div>
+
+        <div class="properties-content">
+          {{#if animator.selectedElement}}
+            <div class="property-editor">
+              <h4>{{animator.selectedElement.name}}</h4>
+
+              {{!-- Common properties for all visual elements --}}
+              {{#if (or (eq animator.selectedElement.type 'text') (eq animator.selectedElement.type 'image'))}}
+                <div class="property-section">
+                  <h5>Transform</h5>
+
+                  <div class="property-group">
+                    <label>Position X (px)</label>
+                    <input type="number" class="element-prop" data-prop="x" value="960" step="1">
+                  </div>
+
+                  <div class="property-group">
+                    <label>Position Y (px)</label>
+                    <input type="number" class="element-prop" data-prop="y" value="540" step="1">
+                  </div>
+
+                  <div class="property-group">
+                    <label>Rotation (deg)</label>
+                    <input type="number" class="element-prop" data-prop="rotation" value="0" step="1">
+                  </div>
+
+                  <div class="property-group">
+                    <label>Scale (%)</label>
+                    <input type="number" class="element-prop" data-prop="scale" value="100" step="1" min="1">
+                  </div>
+
+                  <div class="property-group">
+                    <label>Opacity (%)</label>
+                    <input type="number" class="element-prop" data-prop="opacity" value="100" step="1" min="0" max="100">
+                  </div>
+                </div>
+              {{/if}}
+
+              {{!-- Text-specific properties --}}
+              {{#if (eq animator.selectedElement.type 'text')}}
+                <div class="property-section">
+                  <h5>Text</h5>
+
+                  <div class="property-group">
+                    <label>Content</label>
+                    <input type="text" class="element-prop" data-prop="text" value="{{animator.selectedElement.text}}" placeholder="Enter text...">
+                  </div>
+
+                  <div class="property-group">
+                    <label>Font Size (px)</label>
+                    <input type="number" class="element-prop" data-prop="fontSize" value="72" step="1" min="1">
+                  </div>
+
+                  <div class="property-group">
+                    <label>Color</label>
+                    <input type="color" class="element-prop" data-prop="color" value="#ffffff">
+                  </div>
+
+                  <div class="property-group">
+                    <label>Font Weight</label>
+                    <select class="element-prop" data-prop="fontWeight">
+                      <option value="normal">Normal</option>
+                      <option value="bold">Bold</option>
+                    </select>
+                  </div>
+                </div>
+              {{/if}}
+
+              {{!-- Image-specific properties --}}
+              {{#if (eq animator.selectedElement.type 'image')}}
+                <div class="property-section">
+                  <h5>Image</h5>
+
+                  <div class="property-group">
+                    <label>Source</label>
+                    <input type="text" class="element-prop" data-prop="src" value="{{animator.selectedElement.src}}" placeholder="path/to/image.png">
+                    <button class="browse-asset-btn" data-asset-type="image">
+                      <i class="fas fa-folder-open"></i> Browse
+                    </button>
+                  </div>
+
+                  <div class="property-group">
+                    <label>Width (px)</label>
+                    <input type="number" class="element-prop" data-prop="width" value="200" step="1" min="1">
+                  </div>
+
+                  <div class="property-group">
+                    <label>Height (px)</label>
+                    <input type="number" class="element-prop" data-prop="height" value="200" step="1" min="1">
+                  </div>
+                </div>
+              {{/if}}
+
+              {{!-- Sound-specific properties --}}
+              {{#if (eq animator.selectedElement.type 'sound')}}
+                <div class="property-section">
+                  <h5>Sound</h5>
+
+                  <div class="property-group">
+                    <label>Source</label>
+                    <input type="text" class="element-prop" data-prop="src" value="{{animator.selectedElement.src}}" placeholder="path/to/sound.wav">
+                    <button class="browse-asset-btn" data-asset-type="audio">
+                      <i class="fas fa-folder-open"></i> Browse
+                    </button>
+                  </div>
+
+                  <div class="property-group">
+                    <label>Volume (0-1)</label>
+                    <input type="number" class="element-prop" data-prop="volume" value="0.8" step="0.1" min="0" max="1">
+                  </div>
+                </div>
+              {{/if}}
+
+              <div class="property-info">
+                <p class="hint"><i class="fas fa-info-circle"></i> Properties will be animated with keyframes in future phases</p>
+              </div>
+            </div>
+          {{else}}
+            <div class="properties-empty">
+              <i class="fas fa-mouse-pointer"></i>
+              <p>Select an element to edit properties</p>
+            </div>
+          {{/if}}
+        </div>
+      </div>
+
+    </div>
+
+    {{!-- Bottom: Timeline Placeholder --}}
+    <div class="animator-timeline-panel">
+      <div class="panel-header">
+        <h3><i class="fas fa-film"></i> Timeline</h3>
+        <div class="timeline-info">
+          <span><i class="fas fa-tachometer-alt"></i> {{animator.fps}} FPS</span>
+          <span><i class="fas fa-clock"></i> {{animator.duration}} frames</span>
+        </div>
+      </div>
+      <div class="timeline-placeholder">
+        <p><i class="fas fa-construction"></i> Timeline coming in Phase 3</p>
+        <p class="hint">For now, focus on adding and positioning elements</p>
+      </div>
+    </div>
+
+  </div>
+</div>

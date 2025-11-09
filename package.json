@@ -1,18 +1,22 @@
 {
-  "name": "toast",
-  "version": "2.5.0",
-  "description": "Full-screen celebration visuals for Foundry VTT",
-  "main": "scripts/toast.js",
+  "name": "toast-monorepo",
+  "version": "3.0.0-beta.1",
+  "description": "Toast monorepo - Player and Studio modules for Foundry VTT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "node build.js",
-    "build:production": "node build.js --production",
-    "build:verbose": "node build.js --verbose",
-    "build:zip": "node build.js && node build-zip.js",
-    "build:zip:version": "node build.js && node build-zip.js --version",
-    "build:zip:verbose": "node build.js && node build-zip.js --verbose",
-    "build:release": "node build.js --production && node build-zip.js --version",
+    "build": "node build-monorepo.js",
+    "build:production": "node build-monorepo.js --production",
+    "build:player": "node build-monorepo.js --package=toast-player",
+    "build:studio": "node build-monorepo.js --package=toast-studio",
+    "build:zip": "node build-monorepo.js && node build-zip-monorepo.js",
+    "build:zip:version": "node build-monorepo.js && node build-zip-monorepo.js --version",
+    "build:release": "node build-monorepo.js --production && node build-zip-monorepo.js --version",
     "clean": "node -e \"const fs=require('fs'); const path=require('path'); const dir=path.join(__dirname,'dist'); if(fs.existsSync(dir)){fs.rmSync(dir,{recursive:true}); console.log('✅ Cleaned dist/');}\"",
-    "test": "echo \"No tests configured\" && exit 0"
+    "test": "echo \"No tests configured\" && exit 0",
+    "version:sync": "node scripts/sync-versions.js"
   },
   "repository": {
     "type": "git",

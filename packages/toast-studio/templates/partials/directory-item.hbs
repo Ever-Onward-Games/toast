@@ -1,0 +1,58 @@
+{{!-- Directory Item Component - Display a single directory entry --}}
+<div class="directory-item" data-directory-id="{{id}}">
+
+  {{!-- Directory Icon --}}
+  <div class="directory-icon">
+    {{#if announcer}}
+      <i class="fas fa-bullhorn"></i>
+    {{else if custom}}
+      <i class="fas fa-folder-plus"></i>
+    {{else}}
+      <i class="fas fa-folder"></i>
+    {{/if}}
+  </div>
+
+  {{!-- Directory Info --}}
+  <div class="directory-info">
+    <div class="directory-label">
+      {{#if label}}
+        {{label}}
+      {{else if name}}
+        {{name}}
+      {{else}}
+        {{type}} Directory
+      {{/if}}
+    </div>
+    <div class="directory-path" title="{{path}}">
+      {{path}}
+    </div>
+    <div class="directory-meta">
+      <span class="directory-type">
+        {{#if type}}
+          <i class="fas fa-tag"></i>
+          {{#eq type "audio"}}Audio{{/eq}}
+          {{#eq type "images"}}Images{{/eq}}
+          {{#eq type "both"}}Audio & Images{{/eq}}
+        {{/if}}
+      </span>
+      {{#if source}}
+        <span class="directory-source">
+          <i class="fas fa-info-circle"></i> Source: {{source}}
+        </span>
+      {{/if}}
+    </div>
+  </div>
+
+  {{!-- Directory Actions --}}
+  {{#unless readonly}}
+    <div class="directory-actions">
+      <button type="button" class="edit-directory-btn" title="Edit directory" data-directory-id="{{id}}">
+        <i class="fas fa-edit"></i>
+      </button>
+      <button type="button" class="remove-directory-btn" title="Remove directory" data-directory-id="{{id}}">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  {{/unless}}
+
+</div>

@@ -1,0 +1,116 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Modules
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate version sync
+        run: node scripts/validate-versions.js
+
+      - name: Build toast-player
+        run: npm run build:player -- --production
+
+      - name: Build toast-studio
+        run: npm run build:studio -- --production
+
+      - name: Create release artifacts
+        run: |
+          cd dist
+          zip -r toast-player.zip toast-player/
+          zip -r toast-studio.zip toast-studio/
+
+      - name: Upload toast-player artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: toast-player
+          path: dist/toast-player.zip
+
+      - name: Upload toast-studio artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: toast-studio
+          path: dist/toast-studio.zip
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download toast-player artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: toast-player
+          path: ./artifacts
+
+      - name: Download toast-studio artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: toast-studio
+          path: ./artifacts
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog
+        id: changelog
+        run: |
+          # Extract changelog for this version
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          sed -n "/## Version $VERSION/,/## Version/p" CHANGELOG.md | sed '$ d' > RELEASE_NOTES.md
+          cat RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Toast v${{ steps.get_version.outputs.VERSION }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            ./artifacts/toast-player.zip
+            ./artifacts/toast-studio.zip
+          draft: false
+          prerelease: ${{ contains(steps.get_version.outputs.VERSION, 'beta') || contains(steps.get_version.outputs.VERSION, 'alpha') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update latest manifests
+        if: "!contains(steps.get_version.outputs.VERSION, 'beta') && !contains(steps.get_version.outputs.VERSION, 'alpha')"
+        run: |
+          # Extract module.json files from ZIPs and upload them as latest
+          unzip -j ./artifacts/toast-player.zip toast-player/module.json -d ./latest-player
+          unzip -j ./artifacts/toast-studio.zip toast-studio/module.json -d ./latest-studio
+
+          gh release upload latest ./latest-player/module.json --clobber || true
+          gh release upload latest ./latest-studio/module.json --clobber || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

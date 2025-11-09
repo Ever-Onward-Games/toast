@@ -1,0 +1,32 @@
+{{!-- Audio Sub-Tab - Browse and manage audio assets --}}
+<div class="subtab-panel {{#if assetsSubTab.audio.active}}active{{/if}}" data-subtab="audio">
+
+  {{!-- Toolbar --}}
+  <div class="assets-toolbar">
+    <input type="text" class="asset-search" placeholder="Search audio files..." data-search-type="audio">
+    <select class="asset-filter" data-filter-type="audio">
+      <option value="all">All Sources</option>
+      <option value="default">Default</option>
+      <option value="announcer">Announcers</option>
+      <option value="custom">Custom</option>
+    </select>
+    <button type="button" class="refresh-assets-btn" data-refresh-type="audio">
+      <i class="fas fa-sync"></i> Refresh
+    </button>
+  </div>
+
+  {{!-- Audio Files Section --}}
+  <section class="asset-section">
+    <h3><i class="fas fa-volume-up"></i> Audio Files ({{assets.audioFiles.length}})</h3>
+    <div class="asset-list audio-list">
+      {{#if assets.audioFiles.length}}
+        {{#each assets.audioFiles}}
+          {{> "modules/toast/templates/partials/audio-asset-item.hbs"}}
+        {{/each}}
+      {{else}}
+        {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-music" message="No audio files found" submessage="Add custom directories in the Directories tab"}}
+      {{/if}}
+    </div>
+  </section>
+
+</div>
