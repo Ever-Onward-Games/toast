@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 2.5.0-beta.16 - Package Card Rendering Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package Card Rendering:**
+- Fixed packages not rendering in Toast Studio UI even though they were loaded
+- Corrected Handlebars partial references from full paths to short names
+- Changed `{{> "modules/toast/templates/partials/package-card.hbs"}}` to `{{> package-card}}`
+- Registered `eq` Handlebars helper for equality comparisons in templates
+- Package cards use `{{#eq category "combat"}}` syntax which requires custom helper
+- Packages now properly display in the packages tab with all metadata and action buttons
+
+**Files Changed:**
+- `templates/partials/packages-tab.hbs` - Fixed partial references
+- `src/core/ToastManager.js` - Added registerHandlebarsHelpers() method
+
+---
+
 ## Version 2.5.0-beta.15 - Package File Listing Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
