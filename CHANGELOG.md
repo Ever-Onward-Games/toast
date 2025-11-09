@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 2.5.0-beta.28 - Package Archival System (2025-11-02)
+
+### ✨ Features
+
+**Package Archival Instead of Deletion:**
+- Implemented package archival system as alternative to deletion
+- Deleted packages renamed to `.archived.#.json` (incrementing number for collisions)
+- Archived files filtered out when loading packages
+- Two-step approach: tries rename endpoint, falls back to copy-and-upload
+- Packages remain removed from UI even if rename fails
+- Archived files don't interfere with normal operation
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Added _archivePackageFile() method
+- `src/packages/PackageManager.js` - Updated _listPackageFiles() to filter archived files
+
+---
+
 ## Version 2.5.0-beta.27 - Package Deletion Graceful Handling (2025-11-02)
 
 ### 🐛 Bug Fixes

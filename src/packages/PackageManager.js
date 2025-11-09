@@ -109,7 +109,8 @@ class PackageManager {
       const result = await FilePicker.browse("data", directory);
 
       if (result.files) {
-        return result.files.filter(f => f.endsWith('.json'));
+        // Filter: must end with .json AND must not be archived
+        return result.files.filter(f => f.endsWith('.json') && !f.includes('.archived.'));
       }
 
       return [];
@@ -510,24 +511,87 @@ class PackageManager {
     try {
       console.log(`Toast PackageManager | Deleting package file: ${filePath}`);
 
-      // Try using FilePicker's deleteFile method if available
-      if (typeof FilePicker?.deleteFile === 'function') {
-        const result = await FilePicker.deleteFile("data", filePath);
-        console.log(`Toast PackageManager | Successfully deleted: ${filePath}`);
+      // Since deletion might not be available, try renaming to .archived
+      // This allows us to filter out archived files when loading
+      const archivedPath = await this._archivePackageFile(filePath);
+
+      if (archivedPath) {
+        console.log(`Toast PackageManager | Archived package: ${filePath} -> ${archivedPath}`);
         ui.notifications?.info(`Package "${pkg.name}" deleted successfully`);
-        return;
+      } else {
+        ui.notifications?.warn(`Package "${pkg.name}" removed from library. File may still exist at: ${filePath}`);
+      }
+    } catch (err) {
+      console.error(`Toast PackageManager | Failed to archive package file ${filePath}:`, err);
+      ui.notifications?.warn(`Package removed from library, but file archival failed. File may still exist at: ${filePath}`);
+    }
+  }
+
+  /**
+   * Archive a package file by renaming it with .archived.#.json extension
+   * @param {string} filePath - Original file path
+   * @returns {Promise<string|null>} New archived path, or null if failed
+   * @private
+   */
+  async _archivePackageFile(filePath) {
+    try {
+      // Generate archived filename
+      const basePath = filePath.replace(/\.json$/, '');
+      let archivedPath = `${basePath}.archived.1.json`;
+      let counter = 1;
+
+      // Find next available archived filename
+      const directory = filePath.substring(0, filePath.lastIndexOf('/'));
+      const FilePicker = foundry.applications.apps.FilePicker.implementation;
+      const result = await FilePicker.browse("data", directory);
+
+      if (result.files) {
+        const existingArchived = result.files.filter(f => f.startsWith(basePath + '.archived.'));
+        while (existingArchived.includes(archivedPath)) {
+          counter++;
+          archivedPath = `${basePath}.archived.${counter}.json`;
+        }
       }
 
-      // Fallback: File deletion might not be available in Foundry's client API
-      // This is a security restriction - files can only be deleted server-side
-      console.warn(`Toast PackageManager | File deletion not available through API`);
-      ui.notifications?.warn(`Package "${pkg.name}" removed from library. Note: File still exists at: ${filePath}`);
-    } catch (err) {
-      console.error(`Toast PackageManager | Failed to delete package file ${filePath}:`, err);
+      // Try to rename the file using fetch to a rename endpoint
+      const renameResponse = await fetch('/rename', {
+        method: 'POST',
+        body: new URLSearchParams({
+          source: 'data',
+          target: filePath,
+          newName: archivedPath.substring(archivedPath.lastIndexOf('/') + 1)
+        })
+      });
 
-      // Don't throw - package is already removed from memory
-      // Just warn the user
-      ui.notifications?.warn(`Package removed from library, but file deletion failed. File may still exist at: ${filePath}`);
+      if (renameResponse.ok) {
+        return archivedPath;
+      }
+
+      // If rename endpoint doesn't work, try reading and re-uploading with new name
+      console.log(`Toast PackageManager | Rename endpoint not available, trying copy-and-upload method`);
+
+      // Read the original file
+      const fileResponse = await fetch(filePath);
+      if (!fileResponse.ok) {
+        throw new Error(`Could not read file: ${filePath}`);
+      }
+
+      const content = await fileResponse.text();
+
+      // Upload with new archived name
+      const file = new File([content], archivedPath.substring(archivedPath.lastIndexOf('/') + 1), { type: "application/json" });
+      const uploadResult = await FilePicker.upload("data", directory, file, {}, { notify: false });
+
+      if (uploadResult && uploadResult.path) {
+        console.log(`Toast PackageManager | Created archived copy: ${uploadResult.path}`);
+        // Original file still exists, but we'll filter it out when loading
+        return uploadResult.path;
+      }
+
+      return null;
+    } catch (err) {
+      console.error(`Toast PackageManager | Failed to archive file:`, err);
+      return null;
     }
   }
 
