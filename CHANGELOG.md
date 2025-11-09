@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.5.0-beta.17 - Template Preload Configuration (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Template Preload Configuration:**
+- Added `templates` field to module.json to preload Handlebars partials
+- Foundry needs explicit list of partials to preload for short-name references
+- Fixed "The partial empty-state could not be found" error
+- Added package-card.hbs and empty-state.hbs to preload list
+- Partials can now be referenced as `{{> package-card}}` instead of full paths
+
+**Files Changed:**
+- `module.json` - Added templates field with partial paths
+
+---
+
 ## Version 2.5.0-beta.16 - Package Card Rendering Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
