@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.5.0-beta.22 - Package Launch Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package Launch:**
+- Fixed package launch to pass elements array instead of entire config object
+- `game.toast.show()` expects an array of elements, not the whole config
+- `PackageManager.launch()` was passing `config` instead of `config.elements`
+- This caused "elements.forEach is not a function" error when launching packages
+- Packages can now be launched successfully from Toast Studio
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Pass config.elements to game.toast.show()
+
+---
+
 ## Version 2.5.0-beta.21 - Block Helper Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
