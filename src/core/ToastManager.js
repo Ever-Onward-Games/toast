@@ -18,6 +18,19 @@ class ToastManager {
   static init() {
     console.log("Toast | Initializing module");
     this.registerSettings();
+    this.registerHandlebarsHelpers();
+  }
+
+  /**
+   * Register Handlebars helpers for templates
+   */
+  static registerHandlebarsHelpers() {
+    // Equality helper for comparisons in templates
+    Handlebars.registerHelper('eq', function(a, b) {
+      return a === b;
+    });
+
+    console.log("Toast | Handlebars helpers registered");
   }
 
   /**
