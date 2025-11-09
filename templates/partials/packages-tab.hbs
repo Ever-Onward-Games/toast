@@ -59,10 +59,10 @@
     <div class="packages-grid">
       {{#if packages.length}}
         {{#each packages}}
-          {{> modules/toast/templates/partials/package-card}}
+          {{> modules/toast/templates/partials/package-card.hbs}}
         {{/each}}
       {{else}}
-        {{> modules/toast/templates/partials/empty-state
+        {{> modules/toast/templates/partials/empty-state.hbs
           icon="fas fa-box-open"
           message="No packages found"
           submessage="Create packages using game.toast.packages.create() or import existing packages"}}
