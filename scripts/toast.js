@@ -2306,15 +2306,25 @@ class PackageManager {
     try {
       console.log(`Toast PackageManager | Deleting package file: ${filePath}`);
 
-      // Delete the file using FilePicker API
-      const result = await foundry.applications.apps.FilePicker.implementation.delete("data", filePath, {});
+      // Delete the file using fetch with DELETE method
+      const response = await fetch('/api/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          target: filePath,
+          source: 'data'
+        })
+      });
 
-      if (result) {
-        console.log(`Toast PackageManager | Successfully deleted: ${filePath}`);
-        ui.notifications?.info(`Package "${pkg.name}" deleted successfully`);
-      } else {
-        console.warn(`Toast PackageManager | Delete returned false for: ${filePath}`);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || `HTTP ${response.status}`);
       }
+
+      console.log(`Toast PackageManager | Successfully deleted: ${filePath}`);
+      ui.notifications?.info(`Package "${pkg.name}" deleted successfully`);
     } catch (err) {
       console.error(`Toast PackageManager | Failed to delete package file ${filePath}:`, err);
       throw new Error(`Could not delete package file: ${err.message}`);

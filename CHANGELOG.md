@@ -1,17 +1,30 @@
 # Changelog
 
-## Version 2.5.0-beta.24 - Package Deletion Fix (2025-11-02)
+## Version 2.5.0-beta.25 - Package Deletion API Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package Deletion API:**
+- Fixed package deletion to use correct Foundry API endpoint
+- Changed from FilePicker.delete() (doesn't exist) to fetch /api/delete
+- Packages now properly delete from disk using POST to /api/delete with target and source
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Use /api/delete endpoint instead of FilePicker.delete()
+
+---
+
+## Version 2.5.0-beta.24 - Package Deletion Implementation (2025-11-02)
 
 ### 🐛 Bug Fixes
 
 **Package Deletion:**
-- Implemented actual file deletion using FilePicker.delete() API
+- Implemented file deletion functionality (initial attempt with FilePicker.delete)
 - Previously only removed package from memory, file persisted on disk
-- Packages now properly deleted from disk and don't reappear on refresh
 - Added success notification when package is deleted
 
 **Files Changed:**
-- `src/packages/PackageManager.js` - Implemented _deletePackageFile() with FilePicker.delete()
+- `src/packages/PackageManager.js` - Implemented _deletePackageFile()
 
 ---
 
