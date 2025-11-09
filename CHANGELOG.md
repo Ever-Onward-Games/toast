@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 2.5.0-beta.21 - Block Helper Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Handlebars eq Helper:**
+- Fixed eq helper to properly work as a block helper
+- Was returning boolean values which Handlebars rendered as "true"/"false" text
+- Now properly implements block helper pattern:
+  - `options.fn(this)` to render block content when condition is true
+  - `options.inverse(this)` to render else block when condition is false
+- Fixes "truefalsefalsefalse" text appearing instead of icons and labels
+- Package cards now display correct icons for categories and scopes
+
+**Files Changed:**
+- `src/core/ToastManager.js` - Fixed registerHandlebarsHelpers eq implementation
+
+---
+
 ## Version 2.5.0-beta.20 - Package Data Structure Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
