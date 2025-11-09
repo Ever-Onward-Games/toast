@@ -317,7 +317,7 @@ class PackageManager {
     }
 
     console.log(`Toast PackageManager | Launching package: ${pkg.name}`);
-    return await game.toast.show(config);
+    return await game.toast.show(config.elements);
   }
 
   /**
