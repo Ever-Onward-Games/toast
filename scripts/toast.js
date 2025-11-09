@@ -2304,13 +2304,17 @@ class PackageManager {
     const filePath = pkg.getFilePath();
 
     try {
-      // Use Foundry's file delete API (if available)
-      // Note: This might require GM permissions
       console.log(`Toast PackageManager | Deleting package file: ${filePath}`);
 
-      // For now, we'll just log this - actual file deletion might need to be
-      // handled server-side or via a different API
-      ui.notifications?.warn(`Package "${pkg.name}" removed from memory. File may still exist at: ${filePath}`);
+      // Delete the file using FilePicker API
+      const result = await foundry.applications.apps.FilePicker.implementation.delete("data", filePath, {});
+
+      if (result) {
+        console.log(`Toast PackageManager | Successfully deleted: ${filePath}`);
+        ui.notifications?.info(`Package "${pkg.name}" deleted successfully`);
+      } else {
+        console.warn(`Toast PackageManager | Delete returned false for: ${filePath}`);
+      }
     } catch (err) {
       console.error(`Toast PackageManager | Failed to delete package file ${filePath}:`, err);
       throw new Error(`Could not delete package file: ${err.message}`);

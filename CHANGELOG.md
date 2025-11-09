@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.5.0-beta.24 - Package Deletion Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package Deletion:**
+- Implemented actual file deletion using FilePicker.delete() API
+- Previously only removed package from memory, file persisted on disk
+- Packages now properly deleted from disk and don't reappear on refresh
+- Added success notification when package is deleted
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Implemented _deletePackageFile() with FilePicker.delete()
+
+---
+
 ## Version 2.5.0-beta.23 - Package Style Application Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
