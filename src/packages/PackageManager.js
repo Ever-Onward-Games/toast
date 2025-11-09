@@ -14,8 +14,8 @@ class PackageManager {
     this.loaded = false;
     this.loading = false;
 
-    // Cache directory paths
-    this._globalDir = "modules/toast/packages";
+    // Cache directory paths (using persistentStorage feature)
+    this._globalDir = "modules/toast/storage/packages";
     this._worldDir = null;
   }
 
@@ -33,9 +33,9 @@ class PackageManager {
     console.log("Toast PackageManager | Initializing...");
 
     try {
-      // Set world directory
+      // Set world directory (using persistentStorage feature)
       if (game?.world?.id) {
-        this._worldDir = `worlds/${game.world.id}/toast-packages`;
+        this._worldDir = `modules/toast/storage/worlds/${game.world.id}/packages`;
       }
 
       // Load packages from both locations
@@ -452,41 +452,36 @@ class PackageManager {
    * @private
    */
   async _savePackage(pkg) {
-    const filePath = pkg.getFilePath();
     const json = JSON.stringify(pkg.toJSON(), null, 2);
 
     try {
-      // Validate file path
-      if (!filePath) {
-        throw new Error("Package getFilePath() returned null/undefined");
-      }
-
-      // Extract directory from file path (Foundry's upload expects directory only)
-      const lastSlashIndex = filePath.lastIndexOf('/');
-      if (lastSlashIndex === -1) {
-        throw new Error(`Invalid file path (no directory separator): ${filePath}`);
-      }
-
-      const directory = filePath.substring(0, lastSlashIndex);
-
-      console.log(`Toast PackageManager | Saving package ${pkg.id} to directory: ${directory}`);
-
-      // Create directory if it doesn't exist
-      try {
-        await foundry.applications.apps.FilePicker.implementation.createDirectory("data", directory, {});
-        console.log(`Toast PackageManager | Created directory: ${directory}`);
-      } catch (err) {
-        // Directory might already exist - that's fine
-        if (!err.message?.includes("EEXIST")) {
-          console.warn(`Toast PackageManager | Could not create directory:`, err);
+      // Determine storage path based on package scope
+      // Path is relative to the storage folder (persistentStorage feature)
+      let storagePath;
+      if (pkg.scope === "global") {
+        storagePath = `packages/${pkg.id}.json`;
+      } else if (pkg.scope === "world") {
+        if (!game?.world?.id) {
+          throw new Error("Cannot save world-scoped package: no world loaded");
         }
+        storagePath = `worlds/${game.world.id}/packages/${pkg.id}.json`;
+      } else {
+        throw new Error(`Invalid package scope: ${pkg.scope}`);
       }
+
+      console.log(`Toast PackageManager | Saving package ${pkg.id} to storage: ${storagePath}`);
 
       // Create a File object with the JSON content
       const file = new File([json], `${pkg.id}.json`, { type: "application/json" });
 
-      // Use FilePicker.upload instead of raw fetch
-      const result = await foundry.applications.apps.FilePicker.implementation.upload("data", directory, file, {}, { notify: false });
+      // Use FilePicker.uploadPersistent to save to module's storage folder
+      const result = await FilePicker.uploadPersistent(
+        "toast",
+        storagePath,
+        file,
+        {},
+        { notify: false }
+      );
 
       if (!result || !result.path) {
         throw new Error(`Upload failed: No path returned`);

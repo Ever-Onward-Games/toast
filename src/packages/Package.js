@@ -327,13 +327,13 @@ class Package {
 
   /**
    * Get the file path for this package
-   * @returns {string} File path relative to data directory
+   * @returns {string} File path relative to data directory (using persistentStorage)
    */
   getFilePath() {
     if (this.scope === "global") {
-      return `modules/toast/packages/${this.id}.json`;
+      return `modules/toast/storage/packages/${this.id}.json`;
     } else {
-      return `worlds/${this.worldId}/toast-packages/${this.id}.json`;
+      return `modules/toast/storage/worlds/${this.worldId}/packages/${this.id}.json`;
     }
   }
 

@@ -1,5 +1,30 @@
 # Changelog
 
+## Version 2.5.0-beta.30 - Persistent Storage Implementation (2025-11-02)
+
+### ✨ Features
+
+**Persistent Storage for Packages:**
+- Implemented Foundry's persistentStorage feature for package data
+- Added `persistentStorage: true` to module manifest
+- Global packages now stored in `modules/toast/storage/packages/`
+- World packages now stored in `modules/toast/storage/worlds/{world-id}/packages/`
+- Package data persists across module updates
+- Uses FilePicker.uploadPersistent() API for proper storage handling
+
+**Benefits:**
+- Packages no longer deleted when module updates
+- Cleaner separation of module code and user data
+- Works with both local and cloud-hosted Foundry instances
+- Proper integration with Foundry's package management system
+
+**Files Changed:**
+- `module.json` - Added persistentStorage: true
+- `src/packages/PackageManager.js` - Updated directory paths and save method
+- `src/packages/Package.js` - Updated getFilePath() to return storage paths
+
+---
+
 ## Version 2.5.0-beta.29 - Package Archival Logic Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
