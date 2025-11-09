@@ -26,8 +26,12 @@ class ToastManager {
    */
   static registerHandlebarsHelpers() {
     // Equality helper for comparisons in templates
-    Handlebars.registerHelper('eq', function(a, b) {
-      return a === b;
+    Handlebars.registerHelper('eq', function(a, b, options) {
+      if (a === b) {
+        return options.fn(this);
+      } else {
+        return options.inverse(this);
+      }
     });
 
     console.log("Toast | Handlebars helpers registered");
