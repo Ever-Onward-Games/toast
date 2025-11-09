@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 2.5.0-beta.18 - Partial Path Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Partial Path References:**
+- Fixed partial references to use full paths as registered by loadTemplates()
+- `loadTemplates()` registers partials with full path (minus .hbs), not short names
+- Changed `{{> package-card}}` to `{{> modules/toast/templates/partials/package-card}}`
+- Changed `{{> empty-state}}` to `{{> modules/toast/templates/partials/empty-state}}`
+- Removed redundant `templates` field from module.json (already loading with loadTemplates)
+- Fixes "The partial empty-state could not be found" error
+
+**Files Changed:**
+- `templates/partials/packages-tab.hbs` - Updated partial references to full paths
+- `module.json` - Removed redundant templates field
+
+---
+
 ## Version 2.5.0-beta.17 - Template Preload Configuration (2025-11-02)
 
 ### 🐛 Bug Fixes
