@@ -2306,21 +2306,25 @@ class PackageManager {
     try {
       console.log(`Toast PackageManager | Deleting package file: ${filePath}`);
 
-      // Delete the file using fetch with DELETE method
-      const response = await fetch('/api/delete', {
+      // Delete the file using FormData (similar to upload)
+      const formData = new FormData();
+      formData.append('target', filePath);
+      formData.append('source', 'data');
+
+      const response = await fetch('/delete', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          target: filePath,
-          source: 'data'
-        })
+        body: formData
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || `HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      // Check for error in response body (Foundry sometimes returns 200 with error)
+      if (result.error) {
+        throw new Error(result.error);
       }
 
       console.log(`Toast PackageManager | Successfully deleted: ${filePath}`);

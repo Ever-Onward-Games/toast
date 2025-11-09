@@ -1,16 +1,30 @@
 # Changelog
 
+## Version 2.5.0-beta.26 - Package Deletion Endpoint Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package Deletion Endpoint:**
+- Fixed deletion endpoint from /api/delete (404) to /delete
+- Changed from JSON body to FormData (matching upload pattern)
+- Packages now properly delete from disk using POST to /delete with FormData
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Use /delete endpoint with FormData
+
+---
+
 ## Version 2.5.0-beta.25 - Package Deletion API Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
 
 **Package Deletion API:**
 - Fixed package deletion to use correct Foundry API endpoint
-- Changed from FilePicker.delete() (doesn't exist) to fetch /api/delete
-- Packages now properly delete from disk using POST to /api/delete with target and source
+- Changed from FilePicker.delete() (doesn't exist) to fetch endpoint
+- Initial attempt with /api/delete (incorrect endpoint)
 
 **Files Changed:**
-- `src/packages/PackageManager.js` - Use /api/delete endpoint instead of FilePicker.delete()
+- `src/packages/PackageManager.js` - Use fetch endpoint instead of FilePicker.delete()
 
 ---
 
