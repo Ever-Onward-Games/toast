@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.5.0-beta.29 - Package Archival Logic Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package Archival:**
+- Removed unnecessary copy-and-upload fallback that created duplicate files
+- Now only tries to rename file via /rename endpoint
+- If rename fails, package removed from memory with warning (no duplicate files created)
+- User informed that file may still exist if archival fails
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Simplified _archivePackageFile() to only attempt rename
+
+---
+
 ## Version 2.5.0-beta.28 - Package Archival System (2025-11-02)
 
 ### ✨ Features
@@ -8,7 +23,6 @@
 - Implemented package archival system as alternative to deletion
 - Deleted packages renamed to `.archived.#.json` (incrementing number for collisions)
 - Archived files filtered out when loading packages
-- Two-step approach: tries rename endpoint, falls back to copy-and-upload
 - Packages remain removed from UI even if rename fails
 - Archived files don't interfere with normal operation
 

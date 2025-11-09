@@ -567,27 +567,8 @@ class PackageManager {
         return archivedPath;
       }
 
-      // If rename endpoint doesn't work, try reading and re-uploading with new name
-      console.log(`Toast PackageManager | Rename endpoint not available, trying copy-and-upload method`);
-
-      // Read the original file
-      const fileResponse = await fetch(filePath);
-      if (!fileResponse.ok) {
-        throw new Error(`Could not read file: ${filePath}`);
-      }
-
-      const content = await fileResponse.text();
-
-      // Upload with new archived name
-      const file = new File([content], archivedPath.substring(archivedPath.lastIndexOf('/') + 1), { type: "application/json" });
-      const uploadResult = await FilePicker.upload("data", directory, file, {}, { notify: false });
-
-      if (uploadResult && uploadResult.path) {
-        console.log(`Toast PackageManager | Created archived copy: ${uploadResult.path}`);
-        // Original file still exists, but we'll filter it out when loading
-        return uploadResult.path;
-      }
-
+      // Rename endpoint doesn't exist - can't archive the file
+      console.log(`Toast PackageManager | Rename endpoint not available, cannot archive file`);
       return null;
     } catch (err) {
       console.error(`Toast PackageManager | Failed to archive file:`, err);
