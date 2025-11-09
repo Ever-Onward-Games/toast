@@ -2306,32 +2306,24 @@ class PackageManager {
     try {
       console.log(`Toast PackageManager | Deleting package file: ${filePath}`);
 
-      // Delete the file using FormData (similar to upload)
-      const formData = new FormData();
-      formData.append('target', filePath);
-      formData.append('source', 'data');
-
-      const response = await fetch('/delete', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      // Try using FilePicker's deleteFile method if available
+      if (typeof FilePicker?.deleteFile === 'function') {
+        const result = await FilePicker.deleteFile("data", filePath);
+        console.log(`Toast PackageManager | Successfully deleted: ${filePath}`);
+        ui.notifications?.info(`Package "${pkg.name}" deleted successfully`);
+        return;
       }
 
-      const result = await response.json();
-
-      // Check for error in response body (Foundry sometimes returns 200 with error)
-      if (result.error) {
-        throw new Error(result.error);
-      }
-
-      console.log(`Toast PackageManager | Successfully deleted: ${filePath}`);
-      ui.notifications?.info(`Package "${pkg.name}" deleted successfully`);
+      // Fallback: File deletion might not be available in Foundry's client API
+      // This is a security restriction - files can only be deleted server-side
+      console.warn(`Toast PackageManager | File deletion not available through API`);
+      ui.notifications?.warn(`Package "${pkg.name}" removed from library. Note: File still exists at: ${filePath}`);
     } catch (err) {
       console.error(`Toast PackageManager | Failed to delete package file ${filePath}:`, err);
-      throw new Error(`Could not delete package file: ${err.message}`);
+
+      // Don't throw - package is already removed from memory
+      // Just warn the user
+      ui.notifications?.warn(`Package removed from library, but file deletion failed. File may still exist at: ${filePath}`);
     }
   }
 

@@ -1,16 +1,31 @@
 # Changelog
 
+## Version 2.5.0-beta.27 - Package Deletion Graceful Handling (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package Deletion:**
+- Added graceful handling for file deletion (FilePicker.deleteFile not available)
+- Packages removed from library/memory successfully
+- User warned if file deletion fails (file may need manual removal)
+- No longer throws errors that prevent package removal from UI
+- Falls back gracefully when file deletion API is unavailable
+
+**Files Changed:**
+- `src/packages/PackageManager.js` - Try FilePicker.deleteFile, warn on failure instead of throwing
+
+---
+
 ## Version 2.5.0-beta.26 - Package Deletion Endpoint Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
 
 **Package Deletion Endpoint:**
-- Fixed deletion endpoint from /api/delete (404) to /delete
-- Changed from JSON body to FormData (matching upload pattern)
-- Packages now properly delete from disk using POST to /delete with FormData
+- Attempted deletion using /delete endpoint
+- Endpoint not available in Foundry VTT
 
 **Files Changed:**
-- `src/packages/PackageManager.js` - Use /delete endpoint with FormData
+- `src/packages/PackageManager.js` - Attempted /delete endpoint
 
 ---
 
