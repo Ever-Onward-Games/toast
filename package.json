@@ -16,7 +16,8 @@
     "build:release": "node build-monorepo.js --production && node build-zip-monorepo.js --version",
     "clean": "node -e \"const fs=require('fs'); const path=require('path'); const dir=path.join(__dirname,'dist'); if(fs.existsSync(dir)){fs.rmSync(dir,{recursive:true}); console.log('✅ Cleaned dist/');}\"",
     "test": "echo \"No tests configured\" && exit 0",
-    "version:sync": "node scripts/sync-versions.js"
+    "version:sync": "node scripts/sync-versions.js",
+    "version:bump-beta": "node scripts/bump-beta.js"
   },
   "repository": {
     "type": "git",
