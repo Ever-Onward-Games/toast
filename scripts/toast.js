@@ -2678,7 +2678,9 @@ class ToastStudioApp extends FormApplication {
 
     // Get package data
     if (this.activeTab === "packages") {
-      data.packages = await this._getPackageData();
+      const packageData = await this._getPackageData();
+      data.packages = packageData.packages;
+      data.packageStats = packageData.packageStats;
     }
 
     return data;
