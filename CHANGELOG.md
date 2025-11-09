@@ -1,5 +1,22 @@
 # Changelog
 
+## Version 2.5.0-beta.19 - Partial Extension Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Partial References with .hbs Extension:**
+- Added `.hbs` extension to partial references in templates
+- `loadTemplates()` registers partials WITH the .hbs extension, not without it
+- Changed `{{> modules/toast/templates/partials/package-card}}` to include `.hbs`
+- Changed `{{> modules/toast/templates/partials/empty-state}}` to include `.hbs`
+- Matches how partials are actually registered in `Handlebars.partials`
+- Fixes "The partial modules/toast/templates/partials/empty-state could not be found" error
+
+**Files Changed:**
+- `templates/partials/packages-tab.hbs` - Added .hbs extension to partial references
+
+---
+
 ## Version 2.5.0-beta.18 - Partial Path Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
