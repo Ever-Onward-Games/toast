@@ -460,24 +460,14 @@ class ToastManager {
       default: []
     });
 
-    // Package Directories (World)
-    game.settings.register(this.MODULE_ID, "packages-directory-world", {
-      name: "World Packages Directory",
-      hint: "Directory for world-specific packages.",
-      scope: "world",
-      config: false, // Hidden - managed internally
-      type: String,
-      default: "toast-packages"
-    });
-
-    // Package Directories (Global)
+    // Global Packages Directory
     game.settings.register(this.MODULE_ID, "packages-directory-global", {
       name: "Global Packages Directory",
-      hint: "Directory for global packages.",
+      hint: "Directory path where packages.json will be stored (relative to Foundry Data folder). All global packages are stored in a single file.",
       scope: "world",
-      config: false, // Hidden - managed internally
+      config: true,
       type: String,
-      default: "modules/toast/packages"
+      default: "toasts"
     });
 
     // Default Package Category

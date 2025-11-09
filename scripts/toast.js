@@ -1735,14 +1735,16 @@ class Package {
   }
 
   /**
-   * Get the file path for this package
-   * @returns {string} File path relative to data directory (using persistentStorage)
+   * Get the collection file path for this package's scope
+   * Note: All packages are now stored in collection files, not individual files
+   * @returns {string} File path to the collection file
    */
   getFilePath() {
     if (this.scope === "global") {
-      return `modules/toast/storage/packages/${this.id}.json`;
+      const globalDir = game?.settings?.get("toast", "packages-directory-global") || "toasts";
+      return `${globalDir}/packages.json`;
     } else {
-      return `modules/toast/storage/worlds/${this.worldId}/packages/${this.id}.json`;
+      return `worlds/${this.worldId}/toast-packages.json`;
     }
   }
 
@@ -1810,9 +1812,9 @@ class PackageManager {
     this.loaded = false;
     this.loading = false;
 
-    // Cache directory paths (using persistentStorage feature)
-    this._globalDir = "modules/toast/storage/packages";
-    this._worldDir = null;
+    // File paths for package collections
+    this._globalFilePath = null;
+    this._worldFilePath = null;
   }
 
   /**
@@ -1829,14 +1831,20 @@ class PackageManager {
     console.log("Toast PackageManager | Initializing...");
 
     try {
-      // Set world directory (using persistentStorage feature)
+      // Get global packages directory from settings
+      const globalDir = game.settings.get("toast", "packages-directory-global") || "toasts";
+      this._globalFilePath = `${globalDir}/packages.json`;
+
+      // Set world file path
       if (game?.world?.id) {
-        this._worldDir = `modules/toast/storage/worlds/${game.world.id}/packages`;
+        this._worldFilePath = `worlds/${game.world.id}/toast-packages.json`;
       }
 
-      // Load packages from both locations
-      await this._loadGlobalPackages();
-      await this._loadWorldPackages();
+      // Load packages from both files
+      await this._loadPackagesFromFile(this._globalFilePath, "global");
+      if (this._worldFilePath) {
+        await this._loadPackagesFromFile(this._worldFilePath, "world");
+      }
 
       this.loaded = true;
       this.loading = false;
@@ -1850,99 +1858,51 @@ class PackageManager {
   }
 
   /**
-   * Load packages from global directory
-   * @returns {Promise<void>}
-   * @private
-   */
-  async _loadGlobalPackages() {
-    try {
-      const files = await this._listPackageFiles(this._globalDir);
-      console.log(`Toast PackageManager | Found ${files.length} global packages`);
-
-      for (const filePath of files) {
-        await this._loadPackageFile(filePath, "global");
-      }
-    } catch (err) {
-      // Directory might not exist yet - that's okay
-      console.log("Toast PackageManager | No global packages directory:", err.message);
-    }
-  }
-
-  /**
-   * Load packages from world directory
-   * @returns {Promise<void>}
-   * @private
-   */
-  async _loadWorldPackages() {
-    if (!this._worldDir) {
-      console.log("Toast PackageManager | No world directory configured");
-      return;
-    }
-
-    try {
-      const files = await this._listPackageFiles(this._worldDir);
-      console.log(`Toast PackageManager | Found ${files.length} world packages`);
-
-      for (const filePath of files) {
-        await this._loadPackageFile(filePath, "world");
-      }
-    } catch (err) {
-      // Directory might not exist yet - that's okay
-      console.log("Toast PackageManager | No world packages directory:", err.message);
-    }
-  }
-
-  /**
-   * List all .json files in a directory
-   * @param {string} directory - Directory path
-   * @returns {Promise<string[]>} Array of file paths
-   * @private
-   */
-  async _listPackageFiles(directory) {
-    try {
-      // Browse the directory using FilePicker
-      const FilePicker = foundry.applications.apps.FilePicker.implementation;
-      const result = await FilePicker.browse("data", directory);
-
-      if (result.files) {
-        // Filter: must end with .json AND must not be archived
-        return result.files.filter(f => f.endsWith('.json') && !f.includes('.archived.'));
-      }
-
-      return [];
-    } catch (err) {
-      // Directory might not exist - that's okay, just return empty array
-      console.log(`Toast PackageManager | Directory does not exist or is empty: ${directory}`);
-      return [];
-    }
-  }
-
-  /**
-   * Load a single package file
-   * @param {string} filePath - File path
+   * Load all packages from a single JSON file
+   * @param {string} filePath - Path to packages.json file
    * @param {string} expectedScope - Expected scope for validation
    * @returns {Promise<void>}
    * @private
    */
-  async _loadPackageFile(filePath, expectedScope) {
+  async _loadPackagesFromFile(filePath, expectedScope) {
     try {
+      console.log(`Toast PackageManager | Loading ${expectedScope} packages from: ${filePath}`);
+
       const response = await fetch(filePath);
       if (!response.ok) {
-        throw new Error(`Could not fetch ${filePath}`);
+        // File doesn't exist yet - that's okay for first time
+        console.log(`Toast PackageManager | No ${expectedScope} packages file found (will be created on first save)`);
+        return;
       }
 
       const json = await response.json();
-      const pkg = Package.fromJSON(json);
 
-      // Validate scope matches location
-      if (pkg.scope !== expectedScope) {
-        console.warn(`Toast PackageManager | Package scope mismatch: ${pkg.id} (expected ${expectedScope}, got ${pkg.scope})`);
+      // Expect an array of package objects
+      if (!Array.isArray(json)) {
+        console.warn(`Toast PackageManager | Invalid format in ${filePath}: expected array`);
+        return;
       }
 
-      this.packages.set(pkg.id, pkg);
-      console.log(`Toast PackageManager | Loaded package: ${pkg.id}`);
+      let loaded = 0;
+      for (const pkgData of json) {
+        try {
+          const pkg = Package.fromJSON(pkgData);
+
+          // Validate scope matches location
+          if (pkg.scope !== expectedScope) {
+            console.warn(`Toast PackageManager | Package scope mismatch: ${pkg.id} (expected ${expectedScope}, got ${pkg.scope})`);
+          }
+
+          this.packages.set(pkg.id, pkg);
+          loaded++;
+        } catch (err) {
+          console.error(`Toast PackageManager | Failed to load package from ${filePath}:`, err);
+        }
+      }
+
+      console.log(`Toast PackageManager | Loaded ${loaded} ${expectedScope} packages`);
     } catch (err) {
-      console.error(`Toast PackageManager | Failed to load package ${filePath}:`, err);
+      console.error(`Toast PackageManager | Failed to load packages from ${filePath}:`, err);
     }
   }
 
@@ -1968,11 +1928,11 @@ class PackageManager {
       throw new Error(`Package with ID "${pkg.id}" already exists. Use update() to modify existing packages.`);
     }
 
-    // Save to disk
-    await this._savePackage(pkg);
-
     // Add to memory
     this.packages.set(pkg.id, pkg);
+
+    // Save entire collection to disk
+    await this._savePackageCollection(pkg.scope);
 
     console.log(`Toast PackageManager | Created package: ${pkg.id}`);
     return pkg;
@@ -2056,8 +2016,8 @@ class PackageManager {
     // Validate updated package
     await pkg.validate();
 
-    // Save to disk
-    await this._savePackage(pkg);
+    // Save entire collection to disk
+    await this._savePackageCollection(pkg.scope);
 
     console.log(`Toast PackageManager | Updated package: ${id}`);
     return pkg;
@@ -2074,13 +2034,16 @@ class PackageManager {
       throw new Error(`Package not found: ${id}`);
     }
 
-    // Delete file from disk
-    await this._deletePackageFile(pkg);
+    const scope = pkg.scope;
 
     // Remove from memory
     this.packages.delete(id);
 
+    // Save entire collection to disk (without this package)
+    await this._savePackageCollection(scope);
+
     console.log(`Toast PackageManager | Deleted package: ${id}`);
+    ui.notifications?.info(`Package "${pkg.name}" deleted successfully`);
   }
 
   /**
@@ -2242,38 +2205,61 @@ class PackageManager {
   }
 
   /**
-   * Save a package to disk
-   * @param {Package} pkg - Package to save
+   * Save all packages of a given scope to their collection file
+   * @param {string} scope - Package scope ("global" or "world")
    * @returns {Promise<void>}
    * @private
    */
-  async _savePackage(pkg) {
-    const json = JSON.stringify(pkg.toJSON(), null, 2);
-
+  async _savePackageCollection(scope) {
     try {
-      // Determine storage path based on package scope
-      // Path is relative to the storage folder (persistentStorage feature)
-      let storagePath;
-      if (pkg.scope === "global") {
-        storagePath = `packages/${pkg.id}.json`;
-      } else if (pkg.scope === "world") {
-        if (!game?.world?.id) {
-          throw new Error("Cannot save world-scoped package: no world loaded");
+      // Get all packages of this scope
+      const packagesArray = Array.from(this.packages.values())
+        .filter(pkg => pkg.scope === scope)
+        .map(pkg => pkg.toJSON());
+
+      // Determine file path based on scope
+      let filePath;
+      if (scope === "global") {
+        filePath = this._globalFilePath;
+      } else if (scope === "world") {
+        if (!this._worldFilePath) {
+          throw new Error("Cannot save world-scoped packages: no world loaded");
         }
-        storagePath = `worlds/${game.world.id}/packages/${pkg.id}.json`;
+        filePath = this._worldFilePath;
       } else {
-        throw new Error(`Invalid package scope: ${pkg.scope}`);
+        throw new Error(`Invalid package scope: ${scope}`);
       }
 
-      console.log(`Toast PackageManager | Saving package ${pkg.id} to storage: ${storagePath}`);
+      console.log(`Toast PackageManager | Saving ${packagesArray.length} ${scope} packages to: ${filePath}`);
 
-      // Create a File object with the JSON content
-      const file = new File([json], `${pkg.id}.json`, { type: "application/json" });
+      // Extract directory from file path
+      const lastSlashIndex = filePath.lastIndexOf('/');
+      const directory = lastSlashIndex > 0 ? filePath.substring(0, lastSlashIndex) : "";
+      const filename = filePath.substring(lastSlashIndex + 1);
 
-      // Use FilePicker.uploadPersistent to save to module's storage folder
-      const result = await FilePicker.uploadPersistent(
-        "toast",
-        storagePath,
+      // Create directory if it doesn't exist
+      if (directory) {
+        try {
+          await foundry.applications.apps.FilePicker.implementation.createDirectory("data", directory, {});
+          console.log(`Toast PackageManager | Created directory: ${directory}`);
+        } catch (err) {
+          // Directory might already exist - that's fine
+          if (!err.message?.includes("EEXIST")) {
+            console.warn(`Toast PackageManager | Could not create directory:`, err);
+          }
+        }
+      }
+
+      // Create JSON content
+      const json = JSON.stringify(packagesArray, null, 2);
+
+      // Create a File object
+      const file = new File([json], filename, { type: "application/json" });
+
+      // Upload the file
+      const result = await foundry.applications.apps.FilePicker.implementation.upload(
+        "data",
+        directory || ".",
         file,
         {},
         { notify: false }
@@ -2283,87 +2269,10 @@ class PackageManager {
         throw new Error(`Upload failed: No path returned`);
       }
 
-      console.log(`Toast PackageManager | Saved package to: ${result.path}`);
+      console.log(`Toast PackageManager | Saved ${scope} packages to: ${result.path}`);
     } catch (err) {
-      console.error(`Toast PackageManager | Failed to save package ${pkg.id}:`, err);
-      throw new Error(`Could not save package: ${err.message}`);
-    }
-  }
-
-  /**
-   * Delete a package file from disk
-   * @param {Package} pkg - Package to delete
-   * @returns {Promise<void>}
-   * @private
-   */
-  async _deletePackageFile(pkg) {
-    const filePath = pkg.getFilePath();
-
-    try {
-      console.log(`Toast PackageManager | Deleting package file: ${filePath}`);
-
-      // Since deletion might not be available, try renaming to .archived
-      // This allows us to filter out archived files when loading
-      const archivedPath = await this._archivePackageFile(filePath);
-
-      if (archivedPath) {
-        console.log(`Toast PackageManager | Archived package: ${filePath} -> ${archivedPath}`);
-        ui.notifications?.info(`Package "${pkg.name}" deleted successfully`);
-      } else {
-        ui.notifications?.warn(`Package "${pkg.name}" removed from library. File may still exist at: ${filePath}`);
-      }
-    } catch (err) {
-      console.error(`Toast PackageManager | Failed to archive package file ${filePath}:`, err);
-      ui.notifications?.warn(`Package removed from library, but file archival failed. File may still exist at: ${filePath}`);
-    }
-  }
-
-  /**
-   * Archive a package file by renaming it with .archived.#.json extension
-   * @param {string} filePath - Original file path
-   * @returns {Promise<string|null>} New archived path, or null if failed
-   * @private
-   */
-  async _archivePackageFile(filePath) {
-    try {
-      // Generate archived filename
-      const basePath = filePath.replace(/\.json$/, '');
-      let archivedPath = `${basePath}.archived.1.json`;
-      let counter = 1;
-
-      // Find next available archived filename
-      const directory = filePath.substring(0, filePath.lastIndexOf('/'));
-      const FilePicker = foundry.applications.apps.FilePicker.implementation;
-      const result = await FilePicker.browse("data", directory);
-
-      if (result.files) {
-        const existingArchived = result.files.filter(f => f.startsWith(basePath + '.archived.'));
-        while (existingArchived.includes(archivedPath)) {
-          counter++;
-          archivedPath = `${basePath}.archived.${counter}.json`;
-        }
-      }
-
-      // Try to rename the file using fetch to a rename endpoint
-      const renameResponse = await fetch('/rename', {
-        method: 'POST',
-        body: new URLSearchParams({
-          source: 'data',
-          target: filePath,
-          newName: archivedPath.substring(archivedPath.lastIndexOf('/') + 1)
-        })
-      });
-
-      if (renameResponse.ok) {
-        return archivedPath;
-      }
-
-      // Rename endpoint doesn't exist - can't archive the file
-      console.log(`Toast PackageManager | Rename endpoint not available, cannot archive file`);
-      return null;
-    } catch (err) {
-      console.error(`Toast PackageManager | Failed to archive file:`, err);
-      return null;
+      console.error(`Toast PackageManager | Failed to save ${scope} packages:`, err);
+      throw new Error(`Could not save ${scope} packages: ${err.message}`);
     }
   }
 
@@ -4582,24 +4491,14 @@ class ToastManager {
       default: []
     });
 
-    // Package Directories (World)
-    game.settings.register(this.MODULE_ID, "packages-directory-world", {
-      name: "World Packages Directory",
-      hint: "Directory for world-specific packages.",
-      scope: "world",
-      config: false, // Hidden - managed internally
-      type: String,
-      default: "toast-packages"
-    });
-
-    // Package Directories (Global)
+    // Global Packages Directory
     game.settings.register(this.MODULE_ID, "packages-directory-global", {
       name: "Global Packages Directory",
-      hint: "Directory for global packages.",
+      hint: "Directory path where packages.json will be stored (relative to Foundry Data folder). All global packages are stored in a single file.",
       scope: "world",
-      config: false, // Hidden - managed internally
+      config: true,
       type: String,
-      default: "modules/toast/packages"
+      default: "toasts"
     });
 
     // Default Package Category

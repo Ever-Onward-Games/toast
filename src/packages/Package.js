@@ -326,14 +326,16 @@ class Package {
   }
 
   /**
-   * Get the file path for this package
-   * @returns {string} File path relative to data directory (using persistentStorage)
+   * Get the collection file path for this package's scope
+   * Note: All packages are now stored in collection files, not individual files
+   * @returns {string} File path to the collection file
    */
   getFilePath() {
     if (this.scope === "global") {
-      return `modules/toast/storage/packages/${this.id}.json`;
+      const globalDir = game?.settings?.get("toast", "packages-directory-global") || "toasts";
+      return `${globalDir}/packages.json`;
     } else {
-      return `modules/toast/storage/worlds/${this.worldId}/packages/${this.id}.json`;
+      return `worlds/${this.worldId}/toast-packages.json`;
     }
   }
 

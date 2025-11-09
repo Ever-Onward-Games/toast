@@ -1,6 +1,40 @@
 # Changelog
 
-## Version 2.5.0-beta.30 - Persistent Storage Implementation (2025-11-02)
+## Version 2.5.0-beta.31 - Single-File Package Storage Refactor (2025-11-02)
+
+### 🔄 Breaking Changes
+
+**Package Storage Architecture:**
+- Completely refactored package storage to use single JSON files instead of individual package files
+- Global packages: Stored in `{configurable-dir}/packages.json` (default: `toasts/packages.json`)
+- World packages: Stored in `worlds/{world-id}/toast-packages.json`
+- All packages of same scope stored together in one file
+
+**Benefits:**
+- Simpler file management (1-2 files instead of potentially hundreds)
+- Easier backup and portability
+- More efficient loading and saving
+- No individual file deletion issues
+- Cleaner directory structure
+
+**Settings:**
+- Added configurable "Global Packages Directory" setting (default: "toasts")
+- Removed persistentStorage approach (not needed with user data in Data folder)
+
+**Migration:**
+- Existing individual package files will NOT be automatically migrated
+- Users will need to re-create or import packages
+- This is a breaking change for beta users
+
+**Files Changed:**
+- `module.json` - Removed persistentStorage
+- `src/core/ToastManager.js` - Updated packages directory settings
+- `src/packages/PackageManager.js` - Complete refactor to single-file storage
+- `src/packages/Package.js` - Updated getFilePath() for new structure
+
+---
+
+## Version 2.5.0-beta.30 - Persistent Storage Implementation (2025-11-02) [REVERTED]
 
 ### ✨ Features
 
