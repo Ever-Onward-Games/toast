@@ -1,0 +1,26 @@
+{{!-- Assets Tab - Browse and manage audio/image assets --}}
+<div class="tab-panel {{#if tabsByName.assets.active}}active{{/if}}" data-tab="assets">
+  <div class="assets-container">
+
+    {{!-- Sub-Tab Navigation --}}
+    <nav class="assets-subtabs" data-group="assets-subtabs">
+      <a class="subtab {{#if assetsSubTab.directories.active}}active{{/if}}" data-subtab="directories">
+        <i class="fas fa-folder"></i> Directories
+      </a>
+      <a class="subtab {{#if assetsSubTab.audio.active}}active{{/if}}" data-subtab="audio">
+        <i class="fas fa-music"></i> Audio
+      </a>
+      <a class="subtab {{#if assetsSubTab.images.active}}active{{/if}}" data-subtab="images">
+        <i class="fas fa-image"></i> Images
+      </a>
+    </nav>
+
+    {{!-- Sub-Tab Content --}}
+    <div class="assets-subtab-content">
+      {{> "modules/toast/templates/partials/directories-subtab.hbs"}}
+      {{> "modules/toast/templates/partials/audio-subtab.hbs"}}
+      {{> "modules/toast/templates/partials/images-subtab.hbs"}}
+    </div>
+
+  </div>
+</div>

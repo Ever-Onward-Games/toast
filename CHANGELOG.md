@@ -1,5 +1,202 @@
 # Changelog
 
+## Version 3.0.0-beta.1 - Monorepo Split & Animation Studio Foundation (2025-11-09)
+
+### 🏗️ Major Architecture Change: Monorepo Split
+
+**Toast is now two separate modules:**
+
+**Toast Player** (Lightweight - Required)
+- Standalone playback engine for displaying toasts
+- Core rendering and socket handling
+- Package data model for playback
+- No UI overhead - just pure playback
+- **Size:** 73.9 KB JS, 1.7 KB CSS
+- **For:** All players at the table
+
+**Toast Studio** (Full Editor - Optional, requires Player)
+- Complete animation studio with keyframe editor
+- Package management (create, edit, delete, import/export)
+- Asset browser for sounds and images
+- Visual animation workspace
+- **Size:** 84.3 KB JS, 43.9 KB CSS
+- **For:** GMs and content creators only
+
+### 🎉 Major Features
+
+**Keyframe Animation Studio - Phase 1 Foundation:**
+- **New Animator Tab** in Toast Studio with professional three-panel layout
+- Visual animation workspace with Elements list, Canvas preview, and Properties panel
+- Add text, image, and sound elements to animations
+- Static canvas rendering at 1920x1080 resolution
+- Element selection and management (add, select, delete)
+- Foundation for keyframe-based animation system
+
+**Animation Architecture:**
+- New `StudioCanvas` renderer class for real-time preview
+- Element-based animation structure with keyframe support
+- 30 FPS animation framework (ready for timeline in Phase 3)
+- Property system for transform, appearance, and type-specific attributes
+
+**Element System:**
+- **Text Elements:** Position, rotation, scale, opacity, font size, color, weight
+- **Image Elements:** Position, rotation, scale, opacity, width, height, source path
+- **Sound Elements:** Volume, trigger timing, source path
+
+### 🛠️ Build System & CI/CD
+
+**Monorepo Build System:**
+- Single repository with two packages (`packages/toast-player`, `packages/toast-studio`)
+- Unified build script builds both modules
+- Individual build commands: `npm run build:player`, `npm run build:studio`
+- Automated version synchronization across all modules
+- SCSS compilation with production minification
+
+**GitHub Actions CI/CD:**
+- Automated builds on push to master
+- Version validation ensures all modules stay in sync
+- Automated ZIP creation for releases
+- Automatic GitHub Release creation on version tags
+- Separate artifacts for Player and Studio
+
+**Version Management:**
+- `npm run version:sync` - Sync all package versions
+- `scripts/validate-versions.js` - Validate version consistency
+- `scripts/sync-versions.js` - Update all versions to match root
+
+### 📋 Phase 1 Deliverables
+
+- ✅ Three-panel animator UI (Elements | Canvas | Properties)
+- ✅ Element creation and management
+- ✅ Static canvas rendering
+- ✅ Element property display
+- ✅ Professional UI styling
+- ✅ Timeline placeholder (Phase 3)
+- ✅ Module split architecture
+- ✅ Monorepo build system
+- ✅ CI/CD pipeline
+
+### 🚀 Coming in Future Phases
+
+**Phase 2** (Week 2): Transform controls - Drag, resize, rotate elements on canvas
+**Phase 3** (Week 3): Timeline UI - Frame ruler, playhead, keyframe markers
+**Phase 4** (Week 4): Keyframe editing - Move, delete, change interpolation
+**Phase 5** (Week 5): Interpolation engine - Smooth animation between keyframes
+**Phase 6** (Week 6): Playback system - 30fps preview and full-screen playback
+**Phase 7** (Week 7): Polish & UX - Keyboard shortcuts, error handling, documentation
+
+### 📝 Technical Details
+
+**Monorepo Structure:**
+```
+toast/ (monorepo root)
+├── packages/
+│   ├── toast-player/      (Lightweight playback)
+│   └── toast-studio/      (Full animation editor)
+├── .github/workflows/     (CI/CD automation)
+├── scripts/               (Build utilities)
+└── build-monorepo.js      (Monorepo build script)
+```
+
+**New Files (Player):**
+- `packages/toast-player/src/core/ToastManager.js` - Core playback engine
+- `packages/toast-player/src/packages/Package.js` - Package data model
+- `packages/toast-player/src/player-index.js` - Entry point
+- `packages/toast-player/styles/toast-player.scss` - Minimal overlay styles
+
+**New Files (Studio):**
+- `packages/toast-studio/src/animator/StudioCanvas.js` - Canvas renderer
+- `packages/toast-studio/src/ui/ToastStudioApp.js` - Main UI application
+- `packages/toast-studio/src/packages/PackageManager.js` - Package CRUD
+- `packages/toast-studio/templates/partials/animator-tab.hbs` - Animator UI
+- `packages/toast-studio/styles/components/_animator-tab.scss` - Animator styles
+
+**Build System:**
+- `build-monorepo.js` - Builds both packages
+- `.github/workflows/build-and-release.yml` - CI/CD pipeline
+- `scripts/validate-versions.js` - Version validation
+- `scripts/sync-versions.js` - Version synchronization
+
+### 🔧 Breaking Changes
+
+- **Module split:** Users must now install both `toast-player` and `toast-studio`
+  - Toast Player is required for all users
+  - Toast Studio is optional (GMs/creators only)
+- **Version bump to 3.0.0-beta.1** - Beta testing for major architecture change
+- All existing functionality preserved, just reorganized into two modules
+
+### ⬆️ Migration from v2.5.0
+
+1. Disable the old `toast` module
+2. Install `toast-player` module (required for everyone)
+3. Install `toast-studio` module (optional, for GMs/creators)
+4. Enable both modules in world settings
+5. All existing packages will continue to work
+
+---
+
+## Version 3.0.0 - Animation Studio Foundation (2025-11-09) [SUPERSEDED by 3.0.0-beta.1]
+
+### 🎉 Major Features
+
+**Keyframe Animation Studio - Phase 1 Foundation:**
+- **New Animator Tab** in Toast Studio with professional three-panel layout
+- Visual animation workspace with Elements list, Canvas preview, and Properties panel
+- Add text, image, and sound elements to animations
+- Static canvas rendering at 1920x1080 resolution
+- Element selection and management (add, select, delete)
+- Foundation for keyframe-based animation system
+
+**Animation Architecture:**
+- New `StudioCanvas` renderer class for real-time preview
+- Element-based animation structure with keyframe support
+- 30 FPS animation framework (ready for timeline in Phase 3)
+- Property system for transform, appearance, and type-specific attributes
+
+**Element System:**
+- **Text Elements:** Position, rotation, scale, opacity, font size, color, weight
+- **Image Elements:** Position, rotation, scale, opacity, width, height, source path
+- **Sound Elements:** Volume, trigger timing, source path
+
+### 📋 Phase 1 Deliverables
+
+- ✅ Three-panel animator UI (Elements | Canvas | Properties)
+- ✅ Element creation and management
+- ✅ Static canvas rendering
+- ✅ Element property display
+- ✅ Professional UI styling
+- ✅ Timeline placeholder (Phase 3)
+
+### 🚀 Coming in Future Phases
+
+**Phase 2** (Week 2): Transform controls - Drag, resize, rotate elements on canvas
+**Phase 3** (Week 3): Timeline UI - Frame ruler, playhead, keyframe markers
+**Phase 4** (Week 4): Keyframe editing - Move, delete, change interpolation
+**Phase 5** (Week 5): Interpolation engine - Smooth animation between keyframes
+**Phase 6** (Week 6): Playback system - 30fps preview and full-screen playback
+**Phase 7** (Week 7): Polish & UX - Keyboard shortcuts, error handling, documentation
+**Phase 8** (Optional): Module split - Separate Player and Studio modules
+
+### 📝 Technical Details
+
+**New Files:**
+- `src/animator/StudioCanvas.js` - Canvas rendering engine
+- `templates/partials/animator-tab.hbs` - Animator UI template
+- `styles/components/_animator-tab.scss` - Animator styling
+
+**State Management:**
+- Animator state integrated into ToastStudioApp
+- Element tracking with unique IDs
+- Frame-based animation structure
+- Selection management
+
+### 🔧 Breaking Changes
+
+- **Version bump to 3.0.0** - Major feature addition warrants major version
+- No breaking API changes - all existing functionality preserved
+
+---
+
 ## Version 2.5.0 - Package Manager Release (2025-11-09)
 
 ### 🎉 Major Features

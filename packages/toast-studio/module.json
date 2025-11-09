@@ -1,0 +1,44 @@
+{
+  "id": "toast-studio",
+  "title": "Toast Studio",
+  "description": "Professional animation studio for creating toast packages. Includes visual editor, timeline, keyframe animation, package manager, and asset browser. Requires Toast Player.",
+  "version": "3.0.0-beta.1",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "authors": [
+    {
+      "name": "Dynvar"
+    }
+  ],
+  "esmodules": [
+    "scripts/toast-studio.js"
+  ],
+  "styles": [
+    "styles/toast-studio.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "relationships": {
+    "requires": [
+      {
+        "id": "toast-player",
+        "type": "module",
+        "compatibility": {
+          "minimum": "3.0.0-beta.1"
+        }
+      }
+    ]
+  },
+  "url": "https://github.com/Ever-Onward-Games/toast",
+  "manifest": "https://github.com/Ever-Onward-Games/toast/releases/download/latest/toast-studio/module.json",
+  "download": "https://github.com/Ever-Onward-Games/toast/releases/download/latest/toast-studio.zip",
+  "bugs": "https://github.com/Ever-Onward-Games/toast/issues",
+  "changelog": "https://github.com/Ever-Onward-Games/toast/blob/master/CHANGELOG.md"
+}

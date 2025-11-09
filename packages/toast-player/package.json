@@ -1,0 +1,25 @@
+{
+  "name": "toast-player",
+  "version": "3.0.0-beta.1",
+  "description": "Lightweight toast playback engine for Foundry VTT",
+  "main": "scripts/toast-player.js",
+  "scripts": {
+    "build": "node ../../build-monorepo.js --package=toast-player",
+    "build:production": "node ../../build-monorepo.js --package=toast-player --production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ever-Onward-Games/toast.git"
+  },
+  "keywords": [
+    "foundry-vtt",
+    "foundryvtt",
+    "module",
+    "toast",
+    "celebration",
+    "notifications",
+    "player"
+  ],
+  "author": "Dynvar",
+  "license": "MIT"
+}

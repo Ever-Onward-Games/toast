@@ -1,0 +1,75 @@
+{{!-- Images Sub-Tab - Browse and manage image assets --}}
+<div class="subtab-panel {{#if assetsSubTab.images.active}}active{{/if}}" data-subtab="images">
+
+  {{!-- Split Layout: Image List + Preview Pane --}}
+  <div class="images-split-layout">
+
+    {{!-- Left Side: Toolbar + Image List --}}
+    <div class="image-list-container">
+      {{!-- Toolbar (2-line layout for images) --}}
+      <div class="assets-toolbar images-toolbar-multiline">
+        <div class="toolbar-row">
+          <input type="text" class="asset-search" placeholder="Search image files..." data-search-type="images">
+        </div>
+        <div class="toolbar-row">
+          <select class="asset-filter" data-filter-type="images">
+            <option value="all">All Sources</option>
+            <option value="default">Default</option>
+            <option value="custom">Custom</option>
+            <option value="animated">Animated Only</option>
+            <option value="static">Static Only</option>
+          </select>
+          <button type="button" class="refresh-assets-btn" data-refresh-type="images">
+            <i class="fas fa-sync"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      {{!-- Image Files Section --}}
+      <section class="asset-section image-list-section">
+        <h3><i class="fas fa-image"></i> Image Files ({{assets.imageFiles.length}})</h3>
+        <div class="asset-list image-list">
+          {{#if assets.imageFiles.length}}
+            {{#each assets.imageFiles}}
+              {{> "modules/toast/templates/partials/image-asset-item.hbs"}}
+            {{/each}}
+          {{else}}
+            {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-image" message="No image files found" submessage="Add custom directories in the Directories tab"}}
+          {{/if}}
+        </div>
+      </section>
+    </div>
+
+    {{!-- Right Side: Image Preview Pane --}}
+    <aside class="image-preview-pane">
+      <div class="preview-header">
+        <h3><i class="fas fa-eye"></i> Preview</h3>
+        <div class="preview-controls-hint">
+          <span title="Scroll to zoom"><i class="fas fa-search-plus"></i> Scroll</span>
+          <span title="Right-click and drag to pan"><i class="fas fa-arrows-alt"></i> Right-drag</span>
+        </div>
+      </div>
+      <div class="preview-content">
+        <div class="preview-placeholder">
+          <i class="fas fa-image"></i>
+          <p>Select an image to preview</p>
+        </div>
+        <div class="preview-display" style="display: none;">
+          <div class="preview-image-container">
+            <img src="" alt="Preview" id="image-preview-img">
+          </div>
+          <div class="preview-info">
+            <div class="preview-filename"></div>
+            <div class="preview-metadata">
+              <span class="preview-dimensions"></span>
+              <span class="preview-size"></span>
+              <span class="preview-zoom">Zoom: 100%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+</div>

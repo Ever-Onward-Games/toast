@@ -2549,6 +2549,14 @@ class ToastStudioApp extends FormApplication {
     this.isPanning = false;
     this.panStartX = 0;
     this.panStartY = 0;
+
+    // Animator state
+    this.animatorElements = [];        // Array of animation elements
+    this.currentFrame = 0;              // Current playhead frame
+    this.selectedElementId = null;      // ID of selected element
+    this.nextElementId = 1;             // Counter for element IDs
+    this.animationDuration = 90;        // Total frames (3 seconds at 30fps)
+    this.animationFPS = 30;             // Frame rate
   }
 
   /**
@@ -2597,11 +2605,11 @@ class ToastStudioApp extends FormApplication {
         active: this.activeTab === "packages"
       },
       {
-        id: "studio",
-        label: "Studio",
-        icon: "fas fa-palette",
-        active: this.activeTab === "studio",
-        disabled: true // Disabled until Phase 4.4
+        id: "animator",
+        label: "Animator",
+        icon: "fas fa-film",
+        active: this.activeTab === "animator",
+        disabled: false // Phase 4.4: Enabled!
       }
     ];
 
@@ -2609,7 +2617,7 @@ class ToastStudioApp extends FormApplication {
     data.tabsByName = {    // Object for {{#if tabsByName.packages.active}}
       assets: tabsArray[0],
       packages: tabsArray[1],
-      studio: tabsArray[2]
+      animator: tabsArray[2]
     };
 
     // Get asset data
@@ -2642,7 +2650,30 @@ class ToastStudioApp extends FormApplication {
       data.packageStats = packageData.packageStats;
     }
 
+    // Get animator data
+    if (this.activeTab === "animator") {
+      data.animator = this._getAnimatorData();
+    }
+
     return data;
+  }
+
+  /**
+   * Get animator data
+   */
+  _getAnimatorData() {
+    return {
+      elements: this.animatorElements.map((el, index) => ({
+        ...el,
+        index: index,
+        selected: el.id === this.selectedElementId
+      })),
+      currentFrame: this.currentFrame,
+      duration: this.animationDuration,
+      fps: this.animationFPS,
+      selectedElement: this.animatorElements.find(el => el.id === this.selectedElementId) || null,
+      hasElements: this.animatorElements.length > 0
+    };
   }
 
   /**
@@ -3148,6 +3179,16 @@ class ToastStudioApp extends FormApplication {
     html.find(".duplicate-package-btn").on("click", this._onDuplicatePackage.bind(this));
     html.find(".export-package-btn").on("click", this._onExportPackage.bind(this));
     html.find(".delete-package-btn").on("click", this._onDeletePackage.bind(this));
+
+    // Animator: Element management
+    html.find(".add-element-btn").on("click", this._onAddAnimatorElement.bind(this));
+    html.find(".delete-element-btn").on("click", this._onDeleteAnimatorElement.bind(this));
+    html.find(".element-item").on("click", this._onSelectAnimatorElement.bind(this));
+
+    // Animator: Initialize canvas if on animator tab
+    if (this.activeTab === "animator") {
+      this._initializeAnimatorCanvas();
+    }
   }
 
   /**
@@ -4008,6 +4049,161 @@ class ToastStudioApp extends FormApplication {
    */
   async _updateObject(event, formData) {
     // Not needed for this application
+  }
+
+  // ==========================================
+  // Animator Methods
+  // ==========================================
+
+  /**
+   * Initialize the animator canvas
+   */
+  _initializeAnimatorCanvas() {
+    const canvas = this.element.find("#animator-canvas")[0];
+    if (!canvas) {
+      console.warn("Toast Studio | Animator canvas not found");
+      return;
+    }
+
+    // Create StudioCanvas instance
+    this.studioCanvas = new StudioCanvas(canvas, 1920, 1080);
+
+    // Set initial elements
+    this.studioCanvas.setElements(this.animatorElements);
+    this.studioCanvas.setFrame(this.currentFrame);
+    this.studioCanvas.setSelection(this.selectedElementId ? [this.selectedElementId] : []);
+  }
+
+  /**
+   * Handle add animator element
+   */
+  _onAddAnimatorElement(event) {
+    event.preventDefault();
+    const type = $(event.currentTarget).data("type");
+
+    // Create element ID
+    const id = `element-${this.nextElementId++}`;
+
+    // Create element based on type
+    let element = {
+      id: id,
+      name: `${type.charAt(0).toUpperCase() + type.slice(1)} ${this.nextElementId - 1}`,
+      type: type,
+      keyframes: []
+    };
+
+    // Add type-specific properties
+    switch (type) {
+      case 'text':
+        element.text = 'New Text';
+        element.keyframes = [{
+          frame: 0,
+          properties: {
+            x: 960,
+            y: 540,
+            rotation: 0,
+            scale: 1.0,
+            opacity: 1.0,
+            fontSize: 72,
+            color: '#ffffff',
+            fontWeight: 'normal'
+          },
+          interpolation: 'ease-in-out'
+        }];
+        break;
+
+      case 'image':
+        element.src = '';
+        element.keyframes = [{
+          frame: 0,
+          properties: {
+            x: 960,
+            y: 540,
+            rotation: 0,
+            scale: 1.0,
+            opacity: 1.0,
+            width: 200,
+            height: 200
+          },
+          interpolation: 'ease-in-out'
+        }];
+        break;
+
+      case 'sound':
+        element.src = '';
+        element.keyframes = [{
+          frame: 0,
+          properties: {
+            volume: 0.8,
+            play: false
+          }
+        }];
+        break;
+    }
+
+    // Add to elements array
+    this.animatorElements.push(element);
+
+    // Select the new element
+    this.selectedElementId = id;
+
+    // Re-render
+    this.render();
+  }
+
+  /**
+   * Handle select animator element
+   */
+  _onSelectAnimatorElement(event) {
+    event.preventDefault();
+    const elementId = $(event.currentTarget).data("element-id");
+
+    this.selectedElementId = elementId;
+
+    // Update visual selection state
+    this.element.find(".element-item").removeClass("selected");
+    $(event.currentTarget).addClass("selected");
+
+    // Update canvas selection
+    if (this.studioCanvas) {
+      this.studioCanvas.setSelection([elementId]);
+    }
+
+    // Re-render to update properties panel
+    this.render();
+  }
+
+  /**
+   * Handle delete animator element
+   */
+  _onDeleteAnimatorElement(event) {
+    event.preventDefault();
+
+    if (!this.selectedElementId) {
+      ui.notifications.warn("No element selected");
+      return;
+    }
+
+    // Find element index
+    const index = this.animatorElements.findIndex(el => el.id === this.selectedElementId);
+    if (index === -1) {
+      ui.notifications.error("Element not found");
+      return;
+    }
+
+    // Get element name for notification
+    const elementName = this.animatorElements[index].name;
+
+    // Remove element
+    this.animatorElements.splice(index, 1);
+
+    // Clear selection
+    this.selectedElementId = null;
+
+    // Re-render
+    this.render();
+
+    ui.notifications.info(`Deleted ${elementName}`);
   }
 
   /**

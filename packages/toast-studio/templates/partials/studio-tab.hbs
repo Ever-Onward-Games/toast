@@ -1,0 +1,13 @@
+{{!-- Studio Tab - Visual toast editor --}}
+<div class="tab-panel {{#if tabsByName.studio.active}}active{{/if}}" data-tab="studio">
+  <div class="studio-container">
+    <div class="studio-header">
+      <h2>Presentation Studio</h2>
+      <p class="coming-soon">Visual editor coming in Phase 4.4!</p>
+    </div>
+    {{> "modules/toast/templates/partials/empty-state.hbs"
+      icon="fas fa-palette"
+      message="Create toasts visually with drag-and-drop"
+      submessage="Coming soon in v2.1.0"}}
+  </div>
+</div>
