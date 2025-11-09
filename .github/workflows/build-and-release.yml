@@ -32,37 +32,28 @@ jobs:
       - name: Validate version sync
         run: node scripts/validate-versions.js
 
-      - name: Build both modules
-        run: npm run build -- --production
+      - name: Build and create release ZIPs
+        run: npm run build:release
 
       - name: Verify build output
         run: |
-          echo "Checking dist directory..."
-          ls -la dist/
-          echo "Checking toast-player..."
-          ls -la dist/toast-player/ || echo "toast-player directory not found"
-          echo "Checking toast-studio..."
-          ls -la dist/toast-studio/ || echo "toast-studio directory not found"
-
-      - name: Create release artifacts
-        run: |
-          cd dist
-          zip -r ../toast-player.zip toast-player/
-          zip -r ../toast-studio.zip toast-studio/
-          cd ..
-          ls -lh toast-*.zip
+          echo "Checking dist/ directory..."
+          ls -lh dist/
+          echo ""
+          echo "Checking for ZIP files..."
+          ls -lh dist/*.zip
 
       - name: Upload toast-player artifact
         uses: actions/upload-artifact@v4
         with:
           name: toast-player
-          path: toast-player.zip
+          path: dist/toast-player-*.zip
 
       - name: Upload toast-studio artifact
         uses: actions/upload-artifact@v4
         with:
           name: toast-studio
-          path: toast-studio.zip
+          path: dist/toast-studio-*.zip
 
   release:
     name: Create Release
@@ -104,8 +95,8 @@ jobs:
           name: Toast v${{ steps.get_version.outputs.VERSION }}
           body_path: RELEASE_NOTES.md
           files: |
-            ./artifacts/toast-player.zip
-            ./artifacts/toast-studio.zip
+            ./artifacts/toast-player-v${{ steps.get_version.outputs.VERSION }}.zip
+            ./artifacts/toast-studio-v${{ steps.get_version.outputs.VERSION }}.zip
           draft: false
           prerelease: ${{ contains(steps.get_version.outputs.VERSION, 'beta') || contains(steps.get_version.outputs.VERSION, 'alpha') }}
         env:
@@ -115,8 +106,8 @@ jobs:
         if: "!contains(steps.get_version.outputs.VERSION, 'beta') && !contains(steps.get_version.outputs.VERSION, 'alpha')"
         run: |
           # Extract module.json files from ZIPs and upload them as latest
-          unzip -j ./artifacts/toast-player.zip toast-player/module.json -d ./latest-player
-          unzip -j ./artifacts/toast-studio.zip toast-studio/module.json -d ./latest-studio
+          unzip -j ./artifacts/toast-player-v${{ steps.get_version.outputs.VERSION }}.zip toast-player/module.json -d ./latest-player
+          unzip -j ./artifacts/toast-studio-v${{ steps.get_version.outputs.VERSION }}.zip toast-studio/module.json -d ./latest-studio
 
           gh release upload latest ./latest-player/module.json --clobber || true
           gh release upload latest ./latest-studio/module.json --clobber || true
