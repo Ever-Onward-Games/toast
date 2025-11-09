@@ -1,5 +1,26 @@
 # Changelog
 
+## Version 2.5.0-beta.23 - Package Style Application Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Text Element Styles:**
+- Fixed text element style application to support nested style objects
+- Package elements provide styles in `element.style` object, not directly on element
+- Updated `createTextElement()` to use `Object.assign()` when style object exists
+- Text styles (fontSize, color, fontFamily, fontWeight, textShadow) now applied correctly
+
+**Container Positioning:**
+- Fixed positioning styles not being applied to container elements
+- Updated `createElementNode()` to apply positioning properties from element.style
+- Container now receives: position, top, left, right, bottom, width, height, transform, zIndex
+- Text elements now position correctly on screen instead of defaulting to upper left
+
+**Files Changed:**
+- `src/core/ToastManager.js` - Fixed createTextElement() and createElementNode() style handling
+
+---
+
 ## Version 2.5.0-beta.22 - Package Launch Fix (2025-11-02)
 
 ### 🐛 Bug Fixes

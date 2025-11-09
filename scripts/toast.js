@@ -5756,13 +5756,24 @@ class ToastManager {
     container.className = "toast-element";
     container.id = `toast-element-${index}`;
 
-    // Apply base styles
-    if (element.rotation !== undefined) {
+    // Apply positioning and layout styles from element.style to container
+    if (element.style && typeof element.style === 'object') {
+      // Position-related properties that should be on the container
+      const containerProps = ['position', 'top', 'left', 'right', 'bottom', 'width', 'height', 'transform', 'zIndex'];
+      containerProps.forEach(prop => {
+        if (element.style[prop] !== undefined) {
+          container.style[prop] = element.style[prop];
+        }
+      });
+    }
+
+    // Apply base styles (legacy support)
+    if (element.rotation !== undefined && !element.style?.transform) {
       container.style.transform = `rotate(${element.rotation}deg)`;
     }
 
-    // Apply z-index if specified
-    if (element.zIndex !== undefined) {
+    // Apply z-index if specified (legacy support)
+    if (element.zIndex !== undefined && !element.style?.zIndex) {
       container.style.zIndex = element.zIndex;
     }
 
@@ -5855,11 +5866,20 @@ class ToastManager {
     text.className = "toast-text";
     text.textContent = element.text;
 
-    if (element.color) text.style.color = element.color;
-    if (element.fontSize) text.style.fontSize = element.fontSize;
-    if (element.fontFamily) text.style.fontFamily = element.fontFamily;
-    if (element.fontWeight) text.style.fontWeight = element.fontWeight;
-    if (element.textShadow) text.style.textShadow = element.textShadow;
+    // Support both direct properties and nested style object
+    const styles = element.style || element;
+
+    // Apply all styles from style object
+    if (element.style && typeof element.style === 'object') {
+      Object.assign(text.style, element.style);
+    } else {
+      // Legacy: apply individual properties directly on element
+      if (styles.color) text.style.color = styles.color;
+      if (styles.fontSize) text.style.fontSize = styles.fontSize;
+      if (styles.fontFamily) text.style.fontFamily = styles.fontFamily;
+      if (styles.fontWeight) text.style.fontWeight = styles.fontWeight;
+      if (styles.textShadow) text.style.textShadow = styles.textShadow;
+    }
 
     container.appendChild(text);
     return container;
