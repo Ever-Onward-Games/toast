@@ -18,10 +18,6 @@
   "styles": [
     "styles/toast.css"
   ],
-  "templates": [
-    "templates/partials/package-card.hbs",
-    "templates/partials/empty-state.hbs"
-  ],
   "socket": true,
   "url": "https://github.com/Ever-Onward-Games/toast",
   "manifest": "https://github.com/Ever-Onward-Games/toast/releases/download/latest/module.json",
