@@ -1,36 +1,94 @@
 # Changelog
 
-## Version 2.5.0-beta.31 - Single-File Package Storage Refactor (2025-11-02)
+## Version 2.5.0 - Package Manager Release (2025-11-09)
 
-### 🔄 Breaking Changes
+### 🎉 Major Features
+
+**Complete Package Management System:**
+- Create, manage, and launch reusable toast packages
+- Full CRUD operations with validation
+- Package filtering, search, and categorization
+- Import/export functionality for sharing packages
+- Package duplication for quick variations
+- Token replacement system for dynamic content
+
+**Toast Studio - Packages Tab:**
+- Visual package browser with cards showing name, description, category, and scope
+- Search and filter controls (by category, scope, tags, search query)
+- Toolbar with New Package, Import, and Refresh buttons
+- Launch packages directly from UI
+- Edit and delete package functionality
+- Category icons (combat, social, exploration, custom)
+- Scope badges (global/world)
 
 **Package Storage Architecture:**
-- Completely refactored package storage to use single JSON files instead of individual package files
-- Global packages: Stored in `{configurable-dir}/packages.json` (default: `toasts/packages.json`)
-- World packages: Stored in `worlds/{world-id}/toast-packages.json`
-- All packages of same scope stored together in one file
+- Single-file storage system for efficiency
+- Global packages: `{configurable-dir}/packages.json` (default: `toasts/packages.json`)
+- World packages: `worlds/{world-id}/toast-packages.json`
+- Configurable global directory via settings
+- All packages of same scope stored together for easy backup/portability
 
-**Benefits:**
-- Simpler file management (1-2 files instead of potentially hundreds)
-- Easier backup and portability
-- More efficient loading and saving
-- No individual file deletion issues
-- Cleaner directory structure
+**API Integration:**
+- `game.toast.packages.create(config)` - Create new package
+- `game.toast.packages.get(id)` - Get package by ID
+- `game.toast.packages.list(filters)` - List/filter packages
+- `game.toast.packages.update(id, updates)` - Update package
+- `game.toast.packages.delete(id)` - Delete package
+- `game.toast.packages.launch(id, tokenMap, options)` - Launch package
+- `game.toast.packages.export(id)` - Export package JSON
+- `game.toast.packages.import(json, options)` - Import package
+- `game.toast.packages.duplicate(id, newName)` - Duplicate package
 
-**Settings:**
-- Added configurable "Global Packages Directory" setting (default: "toasts")
-- Removed persistentStorage approach (not needed with user data in Data folder)
+### 🐛 Bug Fixes
 
-**Migration:**
-- Existing individual package files will NOT be automatically migrated
-- Users will need to re-create or import packages
-- This is a breaking change for beta users
+**Text Element Rendering:**
+- Fixed text element style application to support nested style objects
+- Fixed container positioning styles (position, top, left, transform)
+- Text elements now render with correct colors, sizes, and positions
 
-**Files Changed:**
-- `module.json` - Removed persistentStorage
-- `src/core/ToastManager.js` - Updated packages directory settings
-- `src/packages/PackageManager.js` - Complete refactor to single-file storage
-- `src/packages/Package.js` - Updated getFilePath() for new structure
+**Template System:**
+- Fixed Handlebars eq helper to work as proper block helper
+- Fixed partial loading with correct paths including .hbs extension
+- Fixed package data structure in templates
+
+**UI Polish:**
+- Fixed packages toolbar layout with proper 2-line flex design
+- Search input and filters on line 1
+- Action buttons (New/Import/Refresh) on line 2
+- Proper button sizing and spacing
+
+### ⚙️ Settings
+
+- **Global Packages Directory** - Configure where global packages are stored (default: "toasts")
+- **Default Package Category** - Default category when creating packages
+- **Default Package Scope** - Default scope (global/world) for new packages
+
+### 📝 Developer Notes
+
+**Package Schema:**
+```javascript
+{
+  id: string,           // Unique identifier
+  name: string,         // Display name
+  description: string,  // Package description
+  version: string,      // Semantic version
+  author: string,       // Package author
+  category: string,     // Category: combat, social, exploration, custom
+  scope: string,        // Scope: global or world
+  tags: string[],       // Searchable tags
+  config: {
+    elements: [{       // Toast elements (text, images, sounds, etc.)
+      id: string,      // Element identifier
+      type: string,    // Element type
+      // ... element-specific properties
+    }]
+  },
+  tokens: object       // Token definitions for dynamic replacement
+}
+```
+
+**Migration Note:**
+This is the first stable release of the package manager. Beta users with existing packages will need to re-create or import them.
 
 ---
 
