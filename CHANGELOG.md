@@ -1,5 +1,25 @@
 # Changelog
 
+## Version 2.5.0-beta.20 - Package Data Structure Fix (2025-11-02)
+
+### 🐛 Bug Fixes
+
+**Package Data Structure:**
+- Fixed package data not rendering even though packages were loaded
+- Template expected `packages` to be an array and `packageStats` at root level
+- But getData() was setting `data.packages` to the entire object from _getPackageData()
+- Now properly destructures the data:
+  - `data.packages` is set to the packages array directly
+  - `data.packageStats` is set to stats object at root level
+- Packages now render correctly in the packages tab with all metadata
+- Updated toast-studio.hbs to use unquoted partial syntax for consistency
+
+**Files Changed:**
+- `src/ui/ToastStudioApp.js` - Destructure package data properly in getData()
+- `templates/toast-studio.hbs` - Updated partial references to unquoted syntax
+
+---
+
 ## Version 2.5.0-beta.19 - Partial Extension Fix (2025-11-02)
 
 ### 🐛 Bug Fixes
