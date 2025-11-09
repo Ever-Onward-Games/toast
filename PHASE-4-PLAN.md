@@ -2,11 +2,12 @@
 
 > **Goal:** Build a comprehensive content creation studio for Toast within Foundry VTT
 
-**Status:** Phase 4.2 Complete, Phase 4.3 Next
+**Status:** Phase 4.2 Complete, Phase 4.4 Next (4.3 Deferred)
 **Version:** 2.5.0 (current)
 **Started:** 2025-10-29
 **Phase 4.1 Completed:** 2025-10-30
 **Phase 4.2 Completed:** 2025-11-09
+**Phase 4.3 Status:** DEFERRED - AI integrations postponed due to file management limitations
 
 ---
 
@@ -236,9 +237,10 @@ await game.toast.packages.import(jsonData);
 
 ---
 
-### Phase 4.3: DALL-E 3 Integration 🎯 NEXT
+### Phase 4.3: DALL-E 3 Integration ⏸️ DEFERRED
 **Goal:** Generate images and save to disk
-**Status:** 🎯 Up Next
+**Status:** ⏸️ DEFERRED - File management limitations make this impractical
+**Reason:** Without robust file deletion/management in Foundry, AI-generated assets would cause data bloat. Users should source their own content instead.
 
 **New Files:**
 - `src/ai/DALLEProvider.js` - DALL-E 3 API wrapper
@@ -306,8 +308,9 @@ const history = game.toast.assets.getGenerationHistory();
 
 ---
 
-### Phase 4.4: Presentation Studio
+### Phase 4.4: Presentation Studio 🎯 NEXT
 **Goal:** Visual editor for creating toasts
+**Status:** 🎯 Up Next - Build visual package creation interface
 
 **New Files:**
 - `src/ui/PresentationStudio.js` - Visual editor component
