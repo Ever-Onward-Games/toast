@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 3.0.0-beta.2
+
+### Bug Fixes
+- Added missing language files (lang/en.json) to both toast-player and toast-studio
+- Fixed package installation failure caused by missing localization files
+
 ## Version 3.0.0-beta.1 - Monorepo Split & Animation Studio Foundation (2025-11-09)
 
 ### 🏗️ Major Architecture Change: Monorepo Split
