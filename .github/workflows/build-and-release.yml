@@ -92,6 +92,23 @@ jobs:
           sed -n "/## Version $VERSION/,/## Version/p" CHANGELOG.md | sed '$ d' > RELEASE_NOTES.md
           cat RELEASE_NOTES.md
 
+      - name: Prepare release assets
+        run: |
+          # Extract module.json files from ZIPs
+          unzip -j ./artifacts/toast-player-v${{ steps.get_version.outputs.VERSION }}.zip toast-player/module.json -d ./release-assets
+          mv ./release-assets/module.json ./release-assets/toast-player-module.json
+
+          unzip -j ./artifacts/toast-studio-v${{ steps.get_version.outputs.VERSION }}.zip toast-studio/module.json -d ./temp-studio
+          mv ./temp-studio/module.json ./release-assets/toast-studio-module.json
+
+          # Create non-versioned copies of ZIPs
+          cp ./artifacts/toast-player-v${{ steps.get_version.outputs.VERSION }}.zip ./release-assets/toast-player.zip
+          cp ./artifacts/toast-studio-v${{ steps.get_version.outputs.VERSION }}.zip ./release-assets/toast-studio.zip
+
+          # List all release assets
+          echo "Release assets:"
+          ls -lh ./release-assets/
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -100,19 +117,11 @@ jobs:
           files: |
             ./artifacts/toast-player-v${{ steps.get_version.outputs.VERSION }}.zip
             ./artifacts/toast-studio-v${{ steps.get_version.outputs.VERSION }}.zip
+            ./release-assets/toast-player.zip
+            ./release-assets/toast-studio.zip
+            ./release-assets/toast-player-module.json
+            ./release-assets/toast-studio-module.json
           draft: false
-          prerelease: ${{ contains(steps.get_version.outputs.VERSION, 'beta') || contains(steps.get_version.outputs.VERSION, 'alpha') }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update latest manifests
-        if: "!contains(steps.get_version.outputs.VERSION, 'beta') && !contains(steps.get_version.outputs.VERSION, 'alpha')"
-        run: |
-          # Extract module.json files from ZIPs and upload them as latest
-          unzip -j ./artifacts/toast-player-v${{ steps.get_version.outputs.VERSION }}.zip toast-player/module.json -d ./latest-player
-          unzip -j ./artifacts/toast-studio-v${{ steps.get_version.outputs.VERSION }}.zip toast-studio/module.json -d ./latest-studio
-
-          gh release upload latest ./latest-player/module.json --clobber || true
-          gh release upload latest ./latest-studio/module.json --clobber || true
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
