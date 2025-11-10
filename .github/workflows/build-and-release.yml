@@ -59,7 +59,7 @@ jobs:
           path: dist/toast-studio-*.zip
 
   release:
-    name: Create Release
+    name: Create Releases
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
@@ -92,35 +92,97 @@ jobs:
           sed -n "/## Version $VERSION/,/## Version/p" CHANGELOG.md | sed '$ d' > RELEASE_NOTES.md
           cat RELEASE_NOTES.md
 
-      - name: Prepare release assets
+      - name: Prepare Toast Player release
         run: |
-          # Extract module.json files from ZIPs
-          unzip -j ./artifacts/toast-player-v${{ steps.get_version.outputs.VERSION }}.zip toast-player/module.json -d ./release-assets
-          mv ./release-assets/module.json ./release-assets/toast-player-module.json
+          mkdir -p ./player-release
+          unzip -j ./artifacts/toast-player-v${{ steps.get_version.outputs.VERSION }}.zip toast-player/module.json -d ./player-release
+          cp ./artifacts/toast-player-v${{ steps.get_version.outputs.VERSION }}.zip ./player-release/toast-player.zip
+          ls -lh ./player-release/
 
-          unzip -j ./artifacts/toast-studio-v${{ steps.get_version.outputs.VERSION }}.zip toast-studio/module.json -d ./temp-studio
-          mv ./temp-studio/module.json ./release-assets/toast-studio-module.json
+      - name: Prepare Toast Studio release
+        run: |
+          mkdir -p ./studio-release
+          unzip -j ./artifacts/toast-studio-v${{ steps.get_version.outputs.VERSION }}.zip toast-studio/module.json -d ./studio-release
+          cp ./artifacts/toast-studio-v${{ steps.get_version.outputs.VERSION }}.zip ./studio-release/toast-studio.zip
+          ls -lh ./studio-release/
 
-          # Create non-versioned copies of ZIPs
-          cp ./artifacts/toast-player-v${{ steps.get_version.outputs.VERSION }}.zip ./release-assets/toast-player.zip
-          cp ./artifacts/toast-studio-v${{ steps.get_version.outputs.VERSION }}.zip ./release-assets/toast-studio.zip
-
-          # List all release assets
-          echo "Release assets:"
-          ls -lh ./release-assets/
-
-      - name: Create GitHub Release
+      - name: Create Toast Player versioned release
         uses: softprops/action-gh-release@v1
         with:
-          name: Toast v${{ steps.get_version.outputs.VERSION }}
+          tag_name: toast-player-v${{ steps.get_version.outputs.VERSION }}
+          name: Toast Player v${{ steps.get_version.outputs.VERSION }}
           body_path: RELEASE_NOTES.md
           files: |
-            ./artifacts/toast-player-v${{ steps.get_version.outputs.VERSION }}.zip
-            ./artifacts/toast-studio-v${{ steps.get_version.outputs.VERSION }}.zip
-            ./release-assets/toast-player.zip
-            ./release-assets/toast-studio.zip
-            ./release-assets/toast-player-module.json
-            ./release-assets/toast-studio-module.json
+            ./player-release/module.json
+            ./player-release/toast-player.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Toast Studio versioned release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: toast-studio-v${{ steps.get_version.outputs.VERSION }}
+          name: Toast Studio v${{ steps.get_version.outputs.VERSION }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            ./studio-release/module.json
+            ./studio-release/toast-studio.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Toast Player latest release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: toast-player-latest
+          name: Toast Player (Latest)
+          body: |
+            **Latest Toast Player Release**
+
+            Current Version: v${{ steps.get_version.outputs.VERSION }}
+
+            This release is automatically updated to always point to the latest stable version.
+
+            ## Installation
+
+            Use this manifest URL in Foundry VTT:
+            ```
+            https://github.com/Ever-Onward-Games/toast/releases/download/toast-player-latest/module.json
+            ```
+          files: |
+            ./player-release/module.json
+            ./player-release/toast-player.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Toast Studio latest release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: toast-studio-latest
+          name: Toast Studio (Latest)
+          body: |
+            **Latest Toast Studio Release**
+
+            Current Version: v${{ steps.get_version.outputs.VERSION }}
+
+            This release is automatically updated to always point to the latest stable version.
+
+            **Note:** Toast Studio requires Toast Player to be installed.
+
+            ## Installation
+
+            Use this manifest URL in Foundry VTT:
+            ```
+            https://github.com/Ever-Onward-Games/toast/releases/download/toast-studio-latest/module.json
+            ```
+          files: |
+            ./studio-release/module.json
+            ./studio-release/toast-studio.zip
           draft: false
           prerelease: false
         env:
