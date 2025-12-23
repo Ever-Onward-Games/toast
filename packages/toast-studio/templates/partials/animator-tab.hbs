@@ -96,27 +96,27 @@
 
                   <div class="property-group">
                     <label>Position X (px)</label>
-                    <input type="number" class="element-prop" data-prop="x" value="960" step="1">
+                    <input type="number" class="element-prop" data-prop="x" value="{{../properties.x}}" step="1">
                   </div>
 
                   <div class="property-group">
                     <label>Position Y (px)</label>
-                    <input type="number" class="element-prop" data-prop="y" value="540" step="1">
+                    <input type="number" class="element-prop" data-prop="y" value="{{../properties.y}}" step="1">
                   </div>
 
                   <div class="property-group">
                     <label>Rotation (deg)</label>
-                    <input type="number" class="element-prop" data-prop="rotation" value="0" step="1">
+                    <input type="number" class="element-prop" data-prop="rotation" value="{{../properties.rotation}}" step="1">
                   </div>
 
                   <div class="property-group">
                     <label>Scale (%)</label>
-                    <input type="number" class="element-prop" data-prop="scale" value="100" step="1" min="1">
+                    <input type="number" class="element-prop" data-prop="scale" value="{{../properties.scalePercent}}" step="1" min="1">
                   </div>
 
                   <div class="property-group">
                     <label>Opacity (%)</label>
-                    <input type="number" class="element-prop" data-prop="opacity" value="100" step="1" min="0" max="100">
+                    <input type="number" class="element-prop" data-prop="opacity" value="{{../properties.opacityPercent}}" step="1" min="0" max="100">
                   </div>
                 </div>
               {{/if}}
@@ -133,19 +133,19 @@
 
                   <div class="property-group">
                     <label>Font Size (px)</label>
-                    <input type="number" class="element-prop" data-prop="fontSize" value="72" step="1" min="1">
+                    <input type="number" class="element-prop" data-prop="fontSize" value="{{../properties.fontSize}}" step="1" min="1">
                   </div>
 
                   <div class="property-group">
                     <label>Color</label>
-                    <input type="color" class="element-prop" data-prop="color" value="#ffffff">
+                    <input type="color" class="element-prop" data-prop="color" value="{{../properties.color}}">
                   </div>
 
                   <div class="property-group">
                     <label>Font Weight</label>
                     <select class="element-prop" data-prop="fontWeight">
-                      <option value="normal">Normal</option>
-                      <option value="bold">Bold</option>
+                      <option value="normal" {{#if (eq ../properties.fontWeight 'normal')}}selected{{/if}}>Normal</option>
+                      <option value="bold" {{#if (eq ../properties.fontWeight 'bold')}}selected{{/if}}>Bold</option>
                     </select>
                   </div>
                 </div>
@@ -166,12 +166,12 @@
 
                   <div class="property-group">
                     <label>Width (px)</label>
-                    <input type="number" class="element-prop" data-prop="width" value="200" step="1" min="1">
+                    <input type="number" class="element-prop" data-prop="width" value="{{../properties.width}}" step="1" min="1">
                   </div>
 
                   <div class="property-group">
                     <label>Height (px)</label>
-                    <input type="number" class="element-prop" data-prop="height" value="200" step="1" min="1">
+                    <input type="number" class="element-prop" data-prop="height" value="{{../properties.height}}" step="1" min="1">
                   </div>
                 </div>
               {{/if}}
@@ -191,7 +191,7 @@
 
                   <div class="property-group">
                     <label>Volume (0-1)</label>
-                    <input type="number" class="element-prop" data-prop="volume" value="0.8" step="0.1" min="0" max="1">
+                    <input type="number" class="element-prop" data-prop="volume" value="{{../properties.volume}}" step="0.1" min="0" max="1">
                   </div>
                 </div>
               {{/if}}
@@ -211,18 +211,23 @@
 
     </div>
 
-    {{!-- Bottom: Timeline Placeholder --}}
-    <div class="animator-timeline-panel">
-      <div class="panel-header">
-        <h3><i class="fas fa-film"></i> Timeline</h3>
-        <div class="timeline-info">
-          <span><i class="fas fa-tachometer-alt"></i> {{animator.fps}} FPS</span>
-          <span><i class="fas fa-clock"></i> {{animator.duration}} frames</span>
-        </div>
+    {{!-- Bottom: Controls and Actions --}}
+    <div class="animator-controls-panel">
+      <div class="animator-actions">
+        <button class="save-animation-btn" {{#unless animator.hasElements}}disabled{{/unless}} title="Save animation as a package">
+          <i class="fas fa-save"></i> Save as Package
+        </button>
+        <button class="preview-animation-btn" {{#unless animator.hasElements}}disabled{{/unless}} title="Preview animation locally">
+          <i class="fas fa-play"></i> Preview
+        </button>
+        <button class="clear-animation-btn" {{#unless animator.hasElements}}disabled{{/unless}} title="Clear all elements">
+          <i class="fas fa-broom"></i> Clear
+        </button>
       </div>
-      <div class="timeline-placeholder">
-        <p><i class="fas fa-construction"></i> Timeline coming in Phase 3</p>
-        <p class="hint">For now, focus on adding and positioning elements</p>
+      <div class="animator-info">
+        <span><i class="fas fa-layer-group"></i> {{animator.elements.length}} element{{#unless (eq animator.elements.length 1)}}s{{/unless}}</span>
+        <span><i class="fas fa-tachometer-alt"></i> {{animator.fps}} FPS</span>
+        <span><i class="fas fa-clock"></i> {{animator.duration}} frames ({{#with (divide animator.duration animator.fps)}}{{this}}{{/with}}s)</span>
       </div>
     </div>
 

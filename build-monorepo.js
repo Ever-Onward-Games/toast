@@ -62,6 +62,7 @@ const PACKAGES = {
       // Packages Layer (CRUD operations)
       'packages/PackageManager.js',
       'packages/TokenMappingDialog.js',
+      'packages/PackageEditorDialog.js',
 
       // Animator Layer (Phase 1 - more coming in future phases)
       'animator/StudioCanvas.js',
@@ -75,6 +76,7 @@ const PACKAGES = {
     requiredClasses: [
       'PackageManager',
       'TokenMappingDialog',
+      'PackageEditorDialog',
       'StudioCanvas',
       'ToastStudioApp'
     ],

@@ -523,6 +523,93 @@
 }
 
 // ==========================================
+// Animator Controls Panel
+// ==========================================
+
+.animator-controls-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--color-bg-option);
+  border: 1px solid var(--color-border-dark);
+  border-radius: 4px;
+
+  .animator-actions {
+    display: flex;
+    gap: 0.5rem;
+
+    button {
+      padding: 0.5rem 1rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+
+      i {
+        margin-right: 0.5rem;
+      }
+
+      &.save-animation-btn {
+        background: rgba(74, 144, 226, 0.3);
+        border-color: var(--color-primary);
+        color: #fff;
+
+        &:hover:not(:disabled) {
+          background: rgba(74, 144, 226, 0.5);
+          box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+        }
+      }
+
+      &.preview-animation-btn {
+        background: rgba(139, 195, 74, 0.3);
+        border-color: #8bc34a;
+        color: #fff;
+
+        &:hover:not(:disabled) {
+          background: rgba(139, 195, 74, 0.5);
+        }
+      }
+
+      &.clear-animation-btn {
+        background: rgba(244, 67, 54, 0.3);
+        border-color: #f44336;
+        color: #fff;
+
+        &:hover:not(:disabled) {
+          background: rgba(244, 67, 54, 0.5);
+        }
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .animator-info {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--color-text-dark-secondary);
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+
+      i {
+        color: var(--color-primary);
+      }
+    }
+  }
+}
+
+// ==========================================
 // Responsive Adjustments
 // ==========================================
 

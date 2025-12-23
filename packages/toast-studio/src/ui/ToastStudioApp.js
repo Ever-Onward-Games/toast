@@ -135,6 +135,37 @@ class ToastStudioApp extends FormApplication {
    * Get animator data
    */
   _getAnimatorData() {
+    const selectedElement = this.animatorElements.find(el => el.id === this.selectedElementId) || null;
+
+    // Extract current property values from selected element
+    let properties = {};
+    if (selectedElement) {
+      // Get properties from first keyframe, or use defaults
+      const defaults = {
+        x: 960,
+        y: 540,
+        rotation: 0,
+        scale: 1.0,
+        opacity: 1.0,
+        fontSize: 72,
+        color: '#ffffff',
+        fontWeight: 'normal',
+        width: 200,
+        height: 200,
+        volume: 0.8
+      };
+
+      if (selectedElement.keyframes && selectedElement.keyframes.length > 0) {
+        properties = { ...defaults, ...selectedElement.keyframes[0].properties };
+      } else {
+        properties = defaults;
+      }
+
+      // Convert scale and opacity to percentages for display
+      properties.scalePercent = Math.round(properties.scale * 100);
+      properties.opacityPercent = Math.round(properties.opacity * 100);
+    }
+
     return {
       elements: this.animatorElements.map((el, index) => ({
         ...el,
@@ -144,7 +175,8 @@ class ToastStudioApp extends FormApplication {
       currentFrame: this.currentFrame,
       duration: this.animationDuration,
       fps: this.animationFPS,
-      selectedElement: this.animatorElements.find(el => el.id === this.selectedElementId) || null,
+      selectedElement: selectedElement,
+      properties: properties,
       hasElements: this.animatorElements.length > 0
     };
   }
@@ -657,6 +689,15 @@ class ToastStudioApp extends FormApplication {
     html.find(".add-element-btn").on("click", this._onAddAnimatorElement.bind(this));
     html.find(".delete-element-btn").on("click", this._onDeleteAnimatorElement.bind(this));
     html.find(".element-item").on("click", this._onSelectAnimatorElement.bind(this));
+
+    // Animator: Property editing
+    html.find(".element-prop").on("change", this._onElementPropertyChange.bind(this));
+    html.find(".browse-asset-btn").on("click", this._onBrowseAsset.bind(this));
+
+    // Animator: Actions
+    html.find(".save-animation-btn").on("click", this._onSaveAnimation.bind(this));
+    html.find(".preview-animation-btn").on("click", this._onPreviewAnimation.bind(this));
+    html.find(".clear-animation-btn").on("click", this._onClearAnimation.bind(this));
 
     // Animator: Initialize canvas if on animator tab
     if (this.activeTab === "animator") {
@@ -1474,8 +1515,20 @@ class ToastStudioApp extends FormApplication {
    */
   async _onNewPackage(event) {
     event.preventDefault();
-    ui.notifications.warn("Package editor coming in next update! Use the API for now: game.toast.packages.create()");
-    // TODO: Open PackageEditorDialog
+
+    try {
+      const packageManager = ToastManager.packageManager;
+      if (!packageManager) {
+        ui.notifications.error("Package manager not initialized");
+        return;
+      }
+
+      // Open the package editor for a new package
+      PackageEditorDialog.show(null, packageManager);
+    } catch (err) {
+      console.error("Toast Studio | Failed to open package editor:", err);
+      ui.notifications.error("Failed to open package editor");
+    }
   }
 
   /**
@@ -1484,8 +1537,26 @@ class ToastStudioApp extends FormApplication {
   async _onEditPackage(event) {
     event.preventDefault();
     const packageId = event.currentTarget.dataset.packageId;
-    ui.notifications.warn("Package editor coming in next update! Use the API for now: game.toast.packages.update()");
-    // TODO: Open PackageEditorDialog with package data
+
+    try {
+      const packageManager = ToastManager.packageManager;
+      if (!packageManager) {
+        ui.notifications.error("Package manager not initialized");
+        return;
+      }
+
+      const pkg = packageManager.get(packageId);
+      if (!pkg) {
+        ui.notifications.error("Package not found");
+        return;
+      }
+
+      // Open the package editor for editing
+      PackageEditorDialog.show(pkg, packageManager);
+    } catch (err) {
+      console.error("Toast Studio | Failed to open package editor:", err);
+      ui.notifications.error("Failed to open package editor");
+    }
   }
 
   /**
@@ -1677,6 +1748,272 @@ class ToastStudioApp extends FormApplication {
     this.render();
 
     ui.notifications.info(`Deleted ${elementName}`);
+  }
+
+  /**
+   * Handle element property change
+   */
+  _onElementPropertyChange(event) {
+    event.preventDefault();
+
+    if (!this.selectedElementId) return;
+
+    const element = this.animatorElements.find(el => el.id === this.selectedElementId);
+    if (!element) return;
+
+    const input = event.currentTarget;
+    const propName = input.dataset.prop;
+    let value = input.value;
+
+    // Type conversion based on input type
+    if (input.type === "number") {
+      value = parseFloat(value) || 0;
+
+      // Special handling for percentage values (scale, opacity)
+      if (propName === "scale") {
+        value = value / 100; // Convert from 0-100 to 0-1
+      } else if (propName === "opacity") {
+        value = value / 100; // Convert from 0-100 to 0-1
+      }
+    }
+
+    // Update element property directly (non-keyframe mode for now)
+    if (propName === "text" || propName === "src") {
+      // Update root-level properties
+      element[propName] = value;
+    } else {
+      // Update keyframe properties
+      if (!element.keyframes || element.keyframes.length === 0) {
+        // Create first keyframe if none exists
+        element.keyframes = [{
+          frame: 0,
+          properties: {},
+          interpolation: 'ease-in-out'
+        }];
+      }
+
+      // Update first keyframe (simple mode - no animation yet)
+      element.keyframes[0].properties[propName] = value;
+    }
+
+    // Update canvas immediately
+    if (this.studioCanvas) {
+      this.studioCanvas.setElements(this.animatorElements);
+    }
+  }
+
+  /**
+   * Handle browse asset button
+   */
+  _onBrowseAsset(event) {
+    event.preventDefault();
+
+    if (!this.selectedElementId) return;
+
+    const element = this.animatorElements.find(el => el.id === this.selectedElementId);
+    if (!element) return;
+
+    const assetType = event.currentTarget.dataset.assetType;
+
+    // Open file picker
+    new foundry.applications.apps.FilePicker({
+      type: assetType === "audio" ? "audio" : "image",
+      current: element.src || "",
+      callback: (path) => {
+        // Update element source
+        element.src = path;
+
+        // Update canvas
+        if (this.studioCanvas) {
+          this.studioCanvas.setElements(this.animatorElements);
+        }
+
+        // Re-render to update property field
+        this.render();
+      }
+    }).render(true);
+  }
+
+  /**
+   * Handle save animation as package
+   */
+  async _onSaveAnimation(event) {
+    event.preventDefault();
+
+    if (this.animatorElements.length === 0) {
+      ui.notifications.warn("No elements to save");
+      return;
+    }
+
+    try {
+      // Convert animator elements to Toast package format
+      const elements = this.animatorElements.map(el => {
+        const baseElement = {
+          type: el.type,
+          id: el.id
+        };
+
+        // Add type-specific properties
+        if (el.type === 'text') {
+          baseElement.text = el.text || 'Text';
+        } else if (el.type === 'image' || el.type === 'sound') {
+          baseElement.src = el.src || '';
+        }
+
+        // Add animation properties from first keyframe
+        if (el.keyframes && el.keyframes.length > 0) {
+          const kf = el.keyframes[0];
+          if (el.type === 'text' || el.type === 'image') {
+            baseElement.animation = {
+              startX: kf.properties.x || 960,
+              startY: kf.properties.y || 540,
+              duration: this.animationDuration / this.animationFPS
+            };
+
+            // Add visual properties
+            if (el.type === 'text') {
+              baseElement.fontSize = kf.properties.fontSize || 72;
+              baseElement.color = kf.properties.color || '#ffffff';
+              baseElement.fontWeight = kf.properties.fontWeight || 'normal';
+            } else if (el.type === 'image') {
+              baseElement.width = kf.properties.width || 200;
+              baseElement.height = kf.properties.height || 200;
+            }
+
+            // Add transform properties
+            if (kf.properties.rotation) baseElement.rotation = kf.properties.rotation;
+            if (kf.properties.scale && kf.properties.scale !== 1.0) baseElement.scale = kf.properties.scale;
+            if (kf.properties.opacity && kf.properties.opacity !== 1.0) baseElement.opacity = kf.properties.opacity;
+          } else if (el.type === 'sound') {
+            baseElement.volume = kf.properties.volume || 0.8;
+          }
+        }
+
+        return baseElement;
+      });
+
+      // Create package config
+      const packageConfig = {
+        config: {
+          elements: elements
+        }
+      };
+
+      // Open package editor with this config
+      const packageManager = ToastManager.packageManager;
+      if (!packageManager) {
+        ui.notifications.error("Package manager not initialized");
+        return;
+      }
+
+      // Show package editor with pre-populated config
+      PackageEditorDialog.show(packageConfig, packageManager);
+
+      ui.notifications.info("Opening package editor with your animation");
+
+    } catch (err) {
+      console.error("Toast Studio | Failed to save animation:", err);
+      ui.notifications.error(`Failed to save animation: ${err.message}`);
+    }
+  }
+
+  /**
+   * Handle preview animation
+   */
+  async _onPreviewAnimation(event) {
+    event.preventDefault();
+
+    if (this.animatorElements.length === 0) {
+      ui.notifications.warn("No elements to preview");
+      return;
+    }
+
+    try {
+      // Convert to Toast elements and show locally
+      const elements = this.animatorElements.map(el => {
+        const baseElement = {
+          type: el.type,
+          id: el.id
+        };
+
+        if (el.type === 'text') {
+          baseElement.text = el.text || 'Text';
+        } else if (el.type === 'image' || el.type === 'sound') {
+          baseElement.src = el.src || '';
+        }
+
+        if (el.keyframes && el.keyframes.length > 0) {
+          const kf = el.keyframes[0];
+          if (el.type === 'text' || el.type === 'image') {
+            baseElement.animation = {
+              startX: kf.properties.x || 960,
+              startY: kf.properties.y || 540,
+              duration: this.animationDuration / this.animationFPS
+            };
+
+            if (el.type === 'text') {
+              baseElement.fontSize = kf.properties.fontSize || 72;
+              baseElement.color = kf.properties.color || '#ffffff';
+              baseElement.fontWeight = kf.properties.fontWeight || 'normal';
+            } else if (el.type === 'image') {
+              baseElement.width = kf.properties.width || 200;
+              baseElement.height = kf.properties.height || 200;
+            }
+
+            if (kf.properties.rotation) baseElement.rotation = kf.properties.rotation;
+            if (kf.properties.scale && kf.properties.scale !== 1.0) baseElement.scale = kf.properties.scale;
+            if (kf.properties.opacity && kf.properties.opacity !== 1.0) baseElement.opacity = kf.properties.opacity;
+          } else if (el.type === 'sound') {
+            baseElement.volume = kf.properties.volume || 0.8;
+          }
+        }
+
+        return baseElement;
+      });
+
+      // Show locally (GM only)
+      if (game.toast && game.toast.showLocal) {
+        await game.toast.showLocal(elements);
+        ui.notifications.info("Previewing animation locally");
+      } else {
+        ui.notifications.error("Toast Player not available");
+      }
+
+    } catch (err) {
+      console.error("Toast Studio | Failed to preview animation:", err);
+      ui.notifications.error(`Failed to preview animation: ${err.message}`);
+    }
+  }
+
+  /**
+   * Handle clear animation
+   */
+  async _onClearAnimation(event) {
+    event.preventDefault();
+
+    if (this.animatorElements.length === 0) return;
+
+    const confirmed = await Dialog.confirm({
+      title: "Clear Animation",
+      content: "<p>Are you sure you want to clear all elements?</p><p>This action cannot be undone.</p>",
+      yes: () => true,
+      no: () => false,
+      defaultYes: false
+    });
+
+    if (confirmed) {
+      this.animatorElements = [];
+      this.selectedElementId = null;
+      this.nextElementId = 1;
+
+      // Clear canvas
+      if (this.studioCanvas) {
+        this.studioCanvas.clear();
+      }
+
+      this.render();
+      ui.notifications.info("Animation cleared");
+    }
   }
 
   /**
