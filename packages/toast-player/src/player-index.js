@@ -3,21 +3,17 @@
  * Entry point and hooks
  */
 
+// Initialize settings on init
+Hooks.once('init', () => {
+  ToastManager.init();
+});
+
 // Initialize Toast Player on Foundry ready
 Hooks.once('ready', async () => {
   console.log('Toast Player | Initializing...');
 
-  // Create global Toast API
-  window.game.toast = new ToastManager();
-
-  // Initialize package manager if available
-  if (game.user.isGM) {
-    try {
-      await game.toast.initializePackageManager();
-    } catch (err) {
-      console.error('Toast Player | Failed to initialize package manager:', err);
-    }
-  }
+  // Set up Toast API, sockets, and package manager
+  await ToastManager.ready();
 
   console.log('Toast Player | Ready!');
 });

@@ -55,13 +55,17 @@ class ToastManager {
       console.warn("Toast | Failed to initialize TTS cache:", err);
     }
 
-    // Initialize Package Manager
-    try {
-      this.packageManager = new PackageManager();
-      await this.packageManager.initialize();
-      console.log("Toast | Package manager initialized");
-    } catch (err) {
-      console.warn("Toast | Failed to initialize package manager:", err);
+    // Initialize Package Manager (if available - provided by toast-studio module)
+    if (typeof PackageManager !== 'undefined') {
+      try {
+        this.packageManager = new PackageManager();
+        await this.packageManager.initialize();
+        console.log("Toast | Package manager initialized");
+      } catch (err) {
+        console.warn("Toast | Failed to initialize package manager:", err);
+      }
+    } else {
+      console.log("Toast | Package manager not available (install toast-studio module for package features)");
     }
 
     // Preload template partials

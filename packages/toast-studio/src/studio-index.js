@@ -4,23 +4,6 @@
  * Requires: toast-player module
  */
 
-// Register settings on init
-Hooks.once('init', () => {
-  game.settings.register("toast", "studio-default-tab", {
-    name: "Default Studio Tab",
-    hint: "Which tab to show when Toast Studio opens",
-    scope: "client",
-    config: false,
-    type: String,
-    default: "assets",
-    choices: {
-      "assets": "Assets",
-      "packages": "Packages",
-      "animator": "Animator"
-    }
-  });
-});
-
 // Initialize Toast Studio on Foundry ready
 Hooks.once('ready', async () => {
   console.log('Toast Studio | Initializing...');
