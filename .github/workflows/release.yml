@@ -76,6 +76,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update download URLs in manifests
+        run: |
+          # Update toast-player manifest
+          sed -i 's|"download": ".*"|"download": "https://github.com/Ever-Onward-Games/toast/releases/download/${{ github.ref_name }}/toast-player.zip"|' docs/toast-player/module.json
+          # Update toast-studio manifest
+          sed -i 's|"download": ".*"|"download": "https://github.com/Ever-Onward-Games/toast/releases/download/${{ github.ref_name }}/toast-studio.zip"|' docs/toast-studio/module.json
+
       - name: Commit updated manifests to docs/
         run: |
           git config user.name "github-actions[bot]"
