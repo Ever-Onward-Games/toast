@@ -4,15 +4,16 @@
  * Requires: toast-player module
  */
 
-// Verify toast-player is loaded
-if (!game.modules.get('toast-player')?.active) {
-  console.error('Toast Studio | ERROR: toast-player module is required but not active!');
-  ui.notifications.error('Toast Studio requires the Toast Player module to be enabled.');
-}
-
 // Initialize Toast Studio on Foundry ready
 Hooks.once('ready', async () => {
   console.log('Toast Studio | Initializing...');
+
+  // Verify toast-player is loaded and active
+  if (!game.modules.get('toast-player')?.active) {
+    console.error('Toast Studio | ERROR: toast-player module is required but not active!');
+    ui.notifications.error('Toast Studio requires the Toast Player module to be enabled.');
+    return;
+  }
 
   // Verify toast API exists (from toast-player)
   if (!game.toast) {
