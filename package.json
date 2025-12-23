@@ -17,7 +17,8 @@
     "clean": "node -e \"const fs=require('fs'); const path=require('path'); const dir=path.join(__dirname,'dist'); if(fs.existsSync(dir)){fs.rmSync(dir,{recursive:true}); console.log('✅ Cleaned dist/');}\"",
     "test": "echo \"No tests configured\" && exit 0",
     "version:sync": "node scripts/sync-versions.js",
-    "version:bump-beta": "node scripts/bump-beta.js"
+    "version:bump-beta": "node scripts/bump-beta.js",
+    "docs:sync": "node scripts/sync-manifests-to-docs.js"
   },
   "repository": {
     "type": "git",
