@@ -396,6 +396,42 @@ async function build() {
   log.info('  4. Enable both modules in your world settings');
   console.log('');
 
+  // Sync manifests to docs/ for GitHub Pages
+  try {
+    log.info('📄 Syncing manifests to docs/ for GitHub Pages...');
+    const docsDir = path.join(ROOT_DIR, 'docs');
+
+    // Ensure docs directories exist
+    const playerDocsDir = path.join(docsDir, 'toast-player');
+    const studioDocsDir = path.join(docsDir, 'toast-studio');
+
+    if (!fs.existsSync(playerDocsDir)) {
+      fs.mkdirSync(playerDocsDir, { recursive: true });
+    }
+    if (!fs.existsSync(studioDocsDir)) {
+      fs.mkdirSync(studioDocsDir, { recursive: true });
+    }
+
+    // Copy manifest files
+    fs.copyFileSync(
+      path.join(DIST_DIR, 'toast-player', 'module.json'),
+      path.join(playerDocsDir, 'module.json')
+    );
+    fs.copyFileSync(
+      path.join(DIST_DIR, 'toast-studio', 'module.json'),
+      path.join(studioDocsDir, 'module.json')
+    );
+
+    log.success('✅ Manifests synced to docs/');
+    log.verbose('   Toast Player: docs/toast-player/module.json');
+    log.verbose('   Toast Studio: docs/toast-studio/module.json');
+    console.log('');
+  } catch (err) {
+    log.warn('⚠️  Failed to sync manifests to docs/:');
+    log.warn(`   ${err.message}`);
+    console.log('');
+  }
+
   if (PRODUCTION) {
     log.success('🎯 Production build complete!');
     log.info('   Next steps:');
