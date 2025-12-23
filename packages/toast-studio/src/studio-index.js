@@ -21,9 +21,28 @@ Hooks.once('ready', async () => {
     return;
   }
 
+  // Register studio API on game.toast
+  game.toast.studio = {
+    /**
+     * Open Toast Studio
+     * @returns {ToastStudioApp} The studio application instance
+     */
+    open: () => {
+      return new ToastStudioApp().render(true);
+    },
+
+    /**
+     * Get the current studio app instance (if open)
+     * @returns {ToastStudioApp|null}
+     */
+    get app() {
+      return Object.values(ui.windows).find(w => w instanceof ToastStudioApp) || null;
+    }
+  };
+
   // Add studio UI controls (GM only)
   if (game.user.isGM) {
-    // Add Toast Studio button to sidebar
+    // Add Toast Studio button to scene controls
     Hooks.on('getSceneControlButtons', (controls) => {
       controls.push({
         name: 'toast-studio',
@@ -31,11 +50,11 @@ Hooks.once('ready', async () => {
         icon: 'fas fa-glass-cheers',
         button: true,
         onClick: () => {
-          new ToastStudioApp().render(true);
+          game.toast.studio.open();
         }
       });
     });
   }
 
-  console.log('Toast Studio | Ready!');
+  console.log('Toast Studio | Ready! Use game.toast.studio.open() to launch.');
 });
