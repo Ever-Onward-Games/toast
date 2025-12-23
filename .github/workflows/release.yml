@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'v*.*.*-*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build modules
+        run: npm run build:production
+
+      - name: Create release ZIPs
+        run: |
+          node build-zip-monorepo.js --version
+          cd dist
+          cp toast-player-*.zip toast-player.zip
+          cp toast-studio-*.zip toast-studio.zip
+          ls -lh *.zip
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          cat > release-notes.md << 'EOF'
+          ## 🎉 Toast v${{ steps.version.outputs.VERSION }}
+
+          ### 📦 Installation
+
+          Use these manifest URLs in Foundry VTT:
+          - **Toast Player**: https://ever-onward-games.github.io/toast/toast-player/module.json
+          - **Toast Studio**: https://ever-onward-games.github.io/toast/toast-studio/module.json
+
+          ### 📥 Direct Downloads
+          - [Toast Player ZIP](https://github.com/Ever-Onward-Games/toast/releases/download/${{ github.ref_name }}/toast-player.zip)
+          - [Toast Studio ZIP](https://github.com/Ever-Onward-Games/toast/releases/download/${{ github.ref_name }}/toast-studio.zip)
+
+          ---
+
+          🤖 Automated release created by GitHub Actions
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "v${{ steps.version.outputs.VERSION }}"
+          body_path: release-notes.md
+          files: |
+            dist/toast-player.zip
+            dist/toast-studio.zip
+            dist/toast-player-v*.zip
+            dist/toast-studio-v*.zip
+          draft: false
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'rc') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit updated manifests to docs/
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          git diff --staged --quiet || git commit -m "Update manifests for ${{ github.ref_name }}"
+          git push origin HEAD:master
+
+      - name: Deploy summary
+        run: |
+          echo "### ✅ Release Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** v${{ steps.version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Release:** https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Manifest URLs:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Toast Player: https://ever-onward-games.github.io/toast/toast-player/module.json" >> $GITHUB_STEP_SUMMARY
+          echo "- Toast Studio: https://ever-onward-games.github.io/toast/toast-studio/module.json" >> $GITHUB_STEP_SUMMARY
