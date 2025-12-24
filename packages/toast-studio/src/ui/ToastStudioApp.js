@@ -7,9 +7,9 @@
  * - Package management
  * - Visual toast editor (future)
  */
-class ToastStudioApp extends FormApplication {
+class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   constructor(options = {}) {
-    super({}, options);
+    super(options);
 
     this.activeTab = options.tab || game.settings.get("toast", "studio-default-tab") || "assets";
     this.activeAssetsSubTab = options.assetsSubTab || game.settings.get("toast", "assets-default-subtab") || "audio";
@@ -33,33 +33,45 @@ class ToastStudioApp extends FormApplication {
   }
 
   /**
-   * FormApplication configuration
+   * ApplicationV2 configuration
    */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      id: "toast-studio",
-      title: "Toast Studio",
-      template: "modules/toast/templates/toast-studio.hbs",
-      width: 900,
-      height: 700,
-      resizable: true,
+  static DEFAULT_OPTIONS = {
+    id: "toast-studio",
+    tag: "form",
+    form: {
+      handler: ToastStudioApp.#onSubmit,
       closeOnSubmit: false,
-      submitOnChange: false,
-      tabs: [
-        {
-          navSelector: ".tabs",
-          contentSelector: ".tab-content",
-          initial: "assets"
-        }
-      ]
-    });
+      submitOnChange: false
+    },
+    window: {
+      title: "Toast Studio",
+      resizable: true
+    },
+    position: {
+      width: 900,
+      height: 700
+    },
+    actions: {}
+  };
+
+  static PARTS = {
+    form: {
+      template: "modules/toast-studio/templates/toast-studio.hbs"
+    }
+  };
+
+  /**
+   * Handle form submission
+   */
+  static async #onSubmit(event, form, formData) {
+    // Form submission not needed for this application
   }
 
   /**
-   * Get data for template rendering
+   * Prepare context data for rendering
    */
-  async getData() {
-    const data = await super.getData();
+  async _prepareContext(options) {
+    const data = {};
 
     data.activeTab = this.activeTab;
 
@@ -636,8 +648,8 @@ class ToastStudioApp extends FormApplication {
   /**
    * Activate event listeners
    */
-  activateListeners(html) {
-    super.activateListeners(html);
+  _onRender(context, options) {
+    const html = $(this.element);
 
     // Tab switching
     html.find(".tabs .item").on("click", this._onTabChange.bind(this));
@@ -1586,13 +1598,6 @@ class ToastStudioApp extends FormApplication {
       console.error("Toast Studio | Failed to launch package:", err);
       ui.notifications.error("Failed to launch package: " + err.message);
     }
-  }
-
-  /**
-   * Handle form submission (not used, but required by FormApplication)
-   */
-  async _updateObject(event, formData) {
-    // Not needed for this application
   }
 
   // ==========================================
