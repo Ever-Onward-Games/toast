@@ -85,17 +85,17 @@ class ToastManager {
    */
   static async preloadTemplatePartials() {
     const partials = [
-      "modules/toast/templates/partials/assets-tab.hbs",
-      "modules/toast/templates/partials/directories-subtab.hbs",
-      "modules/toast/templates/partials/audio-subtab.hbs",
-      "modules/toast/templates/partials/images-subtab.hbs",
-      "modules/toast/templates/partials/directory-item.hbs",
-      "modules/toast/templates/partials/audio-asset-item.hbs",
-      "modules/toast/templates/partials/image-asset-item.hbs",
-      "modules/toast/templates/partials/packages-tab.hbs",
-      "modules/toast/templates/partials/package-card.hbs",
-      "modules/toast/templates/partials/studio-tab.hbs",
-      "modules/toast/templates/partials/empty-state.hbs"
+      "modules/toast-studio/templates/partials/assets-tab.hbs",
+      "modules/toast-studio/templates/partials/directories-subtab.hbs",
+      "modules/toast-studio/templates/partials/audio-subtab.hbs",
+      "modules/toast-studio/templates/partials/images-subtab.hbs",
+      "modules/toast-studio/templates/partials/directory-item.hbs",
+      "modules/toast-studio/templates/partials/audio-asset-item.hbs",
+      "modules/toast-studio/templates/partials/image-asset-item.hbs",
+      "modules/toast-studio/templates/partials/packages-tab.hbs",
+      "modules/toast-studio/templates/partials/package-card.hbs",
+      "modules/toast-studio/templates/partials/studio-tab.hbs",
+      "modules/toast-studio/templates/partials/empty-state.hbs"
     ];
 
     try {
@@ -155,7 +155,7 @@ class ToastManager {
     // Announcer pack setting
     game.settings.register(this.MODULE_ID, "announcerPack", {
       name: "Announcer Pack",
-      hint: "Select which announcer voice pack to use for sounds. Place announcer folders in modules/toast/sounds/announcers/",
+      hint: "Select which announcer voice pack to use for sounds. Place announcer folders in modules/toast-player/sounds/announcers/",
       scope: "world",
       config: true,
       type: String,
@@ -345,7 +345,7 @@ class ToastManager {
    */
   static async scanAnnouncerPacks() {
     try {
-      const announcersPath = "modules/toast/sounds/announcers";
+      const announcersPath = "modules/toast-player/sounds/announcers";
 
       // Start with registered announcers
       const allAnnouncerPacks = { ...this.getRegisteredAnnouncerChoices() };
@@ -412,7 +412,7 @@ class ToastManager {
       }
 
       // Default to file-based announcer in Toast's directory
-      return `modules/toast/sounds/announcers/${announcerPack}/${filename}`;
+      return `modules/toast-player/sounds/announcers/${announcerPack}/${filename}`;
     } catch (err) {
       console.warn("Toast | getAnnouncerSound failed:", err);
       return null;
