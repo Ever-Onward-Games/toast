@@ -99,10 +99,11 @@ class ToastManager {
     ];
 
     try {
-      await loadTemplates(partials);
+      await foundry.applications.handlebars.loadTemplates(partials);
       console.log("Toast | Template partials preloaded");
     } catch (err) {
-      console.warn("Toast | Failed to preload template partials:", err);
+      // Silently fail - templates are loaded by toast-studio module
+      console.log("Toast | Template partials not loaded (loaded by toast-studio if installed)");
     }
   }
 
@@ -350,6 +351,7 @@ class ToastManager {
       const allAnnouncerPacks = { ...this.getRegisteredAnnouncerChoices() };
 
       // Use FilePicker to browse the announcers directory
+      const FilePicker = foundry.applications.apps.FilePicker.implementation;
       const browse = await FilePicker.browse("data", announcersPath);
 
       if (browse && browse.dirs && browse.dirs.length > 0) {
@@ -498,6 +500,9 @@ class ToastManager {
    * Register the global API for macros
    */
   static registerAPI() {
+    // Expose ToastManager globally for toast-studio access
+    window.ToastManager = this;
+
     game.toast = {
       // Main API methods
       show: (elements) => this.showToast(elements),
