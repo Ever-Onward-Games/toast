@@ -9,10 +9,10 @@
         <p class="section-description">Built-in module directories</p>
         {{#if directories.default.length}}
           {{#each directories.default}}
-            {{> "modules/toast/templates/partials/directory-item.hbs" readonly=true}}
+            {{> "modules/toast-studio/templates/partials/directory-item.hbs" readonly=true}}
           {{/each}}
         {{else}}
-          {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-folder" message="No default directories"}}
+          {{> "modules/toast-studio/templates/partials/empty-state.hbs" icon="fas fa-folder" message="No default directories"}}
         {{/if}}
       </div>
     </div>
@@ -24,10 +24,10 @@
         <p class="section-description">Registered by modules</p>
         {{#if directories.announcers.length}}
           {{#each directories.announcers}}
-            {{> "modules/toast/templates/partials/directory-item.hbs" readonly=true announcer=true}}
+            {{> "modules/toast-studio/templates/partials/directory-item.hbs" readonly=true announcer=true}}
           {{/each}}
         {{else}}
-          {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-bullhorn" message="No packs registered" submessage="Modules can register via API"}}
+          {{> "modules/toast-studio/templates/partials/empty-state.hbs" icon="fas fa-bullhorn" message="No packs registered" submessage="Modules can register via API"}}
         {{/if}}
       </div>
     </div>
@@ -39,10 +39,10 @@
         <p class="section-description">Your asset directories</p>
         {{#if directories.custom.length}}
           {{#each directories.custom}}
-            {{> "modules/toast/templates/partials/directory-item.hbs" readonly=false custom=true}}
+            {{> "modules/toast-studio/templates/partials/directory-item.hbs" readonly=false custom=true}}
           {{/each}}
         {{else}}
-          {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-folder-plus" message="No custom directories" submessage="Add your directories below"}}
+          {{> "modules/toast-studio/templates/partials/empty-state.hbs" icon="fas fa-folder-plus" message="No custom directories" submessage="Add your directories below"}}
         {{/if}}
 
         {{!-- Add Directory Button --}}

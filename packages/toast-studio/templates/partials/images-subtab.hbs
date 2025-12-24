@@ -31,10 +31,10 @@
         <div class="asset-list image-list">
           {{#if assets.imageFiles.length}}
             {{#each assets.imageFiles}}
-              {{> "modules/toast/templates/partials/image-asset-item.hbs"}}
+              {{> "modules/toast-studio/templates/partials/image-asset-item.hbs"}}
             {{/each}}
           {{else}}
-            {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-image" message="No image files found" submessage="Add custom directories in the Directories tab"}}
+            {{> "modules/toast-studio/templates/partials/empty-state.hbs" icon="fas fa-image" message="No image files found" submessage="Add custom directories in the Directories tab"}}
           {{/if}}
         </div>
       </section>

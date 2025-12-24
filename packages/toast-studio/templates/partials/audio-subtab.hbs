@@ -21,10 +21,10 @@
     <div class="asset-list audio-list">
       {{#if assets.audioFiles.length}}
         {{#each assets.audioFiles}}
-          {{> "modules/toast/templates/partials/audio-asset-item.hbs"}}
+          {{> "modules/toast-studio/templates/partials/audio-asset-item.hbs"}}
         {{/each}}
       {{else}}
-        {{> "modules/toast/templates/partials/empty-state.hbs" icon="fas fa-music" message="No audio files found" submessage="Add custom directories in the Directories tab"}}
+        {{> "modules/toast-studio/templates/partials/empty-state.hbs" icon="fas fa-music" message="No audio files found" submessage="Add custom directories in the Directories tab"}}
       {{/if}}
     </div>
   </section>
