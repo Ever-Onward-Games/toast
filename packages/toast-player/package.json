@@ -1,6 +1,6 @@
 {
   "name": "toast-player",
-  "version": "3.0.0-beta.13",
+  "version": "3.0.0-beta.14",
   "description": "Lightweight toast playback engine for Foundry VTT",
   "main": "scripts/toast-player.js",
   "scripts": {
