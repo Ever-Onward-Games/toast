@@ -44,15 +44,22 @@ class ToastManager {
     console.log("Toast | Module ready");
     this.setupSocket();
     this.registerAPI();
-    this.initializeBuiltInTemplates();
+
+    // Initialize built-in templates (if method exists)
+    if (typeof this.initializeBuiltInTemplates === 'function') {
+      this.initializeBuiltInTemplates();
+    }
+
     await this.scanAnnouncerPacks();
 
-    // Initialize TTS cache
-    try {
-      await TTSCacheManager.init();
-      console.log("Toast | TTS cache initialized");
-    } catch (err) {
-      console.warn("Toast | Failed to initialize TTS cache:", err);
+    // Initialize TTS cache (if available)
+    if (typeof TTSCacheManager !== 'undefined') {
+      try {
+        await TTSCacheManager.init();
+        console.log("Toast | TTS cache initialized");
+      } catch (err) {
+        console.warn("Toast | Failed to initialize TTS cache:", err);
+      }
     }
 
     // Initialize Package Manager (if available - provided by toast-studio module)
@@ -795,17 +802,17 @@ class ToastManager {
       registerAnnouncer: (id, config) => this.registerAnnouncer(id, config),
       // Template methods
       templates: {
-        register: (id, config) => this.registerTemplate(id, config),
-        get: (id) => this.getTemplate(id),
-        list: (tag = null) => this.listTemplates(tag),
-        delete: (id) => this.deleteTemplate(id),
-        render: (id, tokens) => this.renderTemplate(id, tokens)
+        register: (id, config) => typeof this.registerTemplate === 'function' ? this.registerTemplate(id, config) : console.warn("Toast | Template system not available"),
+        get: (id) => typeof this.getTemplate === 'function' ? this.getTemplate(id) : null,
+        list: (tag = null) => typeof this.listTemplates === 'function' ? this.listTemplates(tag) : [],
+        delete: (id) => typeof this.deleteTemplate === 'function' ? this.deleteTemplate(id) : false,
+        render: (id, tokens) => typeof this.renderTemplate === 'function' ? this.renderTemplate(id, tokens) : null
       },
       // TTS Cache management
       cache: {
-        clear: () => TTSCacheManager.clear(),
-        getSize: () => TTSCacheManager.getSize(),
-        getCount: () => TTSCacheManager.count()
+        clear: () => typeof TTSCacheManager !== 'undefined' ? TTSCacheManager.clear() : Promise.resolve(),
+        getSize: () => typeof TTSCacheManager !== 'undefined' ? TTSCacheManager.getSize() : 0,
+        getCount: () => typeof TTSCacheManager !== 'undefined' ? TTSCacheManager.count() : 0
       },
       // Toast Studio
       studio: {
@@ -1243,7 +1250,7 @@ class ToastManager {
 
     try {
       // Check cache first
-      if (cacheEnabled) {
+      if (cacheEnabled && typeof TTSCacheManager !== 'undefined') {
         const cacheKey = TTSCacheManager.generateKey(renderedText, voiceId);
         console.log(`Toast | Checking cache for key: ${cacheKey}`);
         ttsAudio = await TTSCacheManager.get(cacheKey);
@@ -1255,13 +1262,18 @@ class ToastManager {
 
       // Generate TTS if not in cache
       if (!ttsAudio) {
+        if (typeof ElevenLabsAPI === 'undefined') {
+          ui.notifications.error("TTS API not available");
+          return;
+        }
+
         console.log("Toast | Generating TTS audio via ElevenLabs API...");
         ui.notifications.info("Generating toast audio...");
 
         ttsAudio = await ElevenLabsAPI.generateTTS(renderedText, apiKey, voiceId);
 
         // Cache the result
-        if (cacheEnabled) {
+        if (cacheEnabled && typeof TTSCacheManager !== 'undefined') {
           const cacheKey = TTSCacheManager.generateKey(renderedText, voiceId);
           const maxCacheSizeMB = game.settings.get(this.MODULE_ID, "tts-cache-size-mb");
           await TTSCacheManager.set(cacheKey, ttsAudio);
@@ -1309,6 +1321,12 @@ class ToastManager {
    */
   static async showDynamicAI(config) {
     const { prompt, elements = [], fallbackTemplate, ...context } = config;
+
+    // Check if AI classes are available
+    if (typeof AIStatusWindow === 'undefined' || typeof AIProviderFactory === 'undefined') {
+      ui.notifications.error("AI generation not available - required modules not loaded");
+      return;
+    }
 
     // Validate prompt
     if (!prompt) {
@@ -1503,7 +1521,7 @@ class ToastManager {
 
     try {
       // Check cache
-      if (cacheEnabled) {
+      if (cacheEnabled && typeof TTSCacheManager !== 'undefined') {
         const cacheKey = TTSCacheManager.generateKey(text, voiceId);
         ttsAudio = await TTSCacheManager.get(cacheKey);
 
@@ -1514,11 +1532,16 @@ class ToastManager {
 
       // Generate if not cached
       if (!ttsAudio) {
+        if (typeof ElevenLabsAPI === 'undefined') {
+          ui.notifications.error("TTS API not available");
+          return;
+        }
+
         console.log("Toast | Generating TTS audio...");
         ttsAudio = await ElevenLabsAPI.generateTTS(text, apiKey, voiceId);
 
         // Cache it
-        if (cacheEnabled) {
+        if (cacheEnabled && typeof TTSCacheManager !== 'undefined') {
           const cacheKey = TTSCacheManager.generateKey(text, voiceId);
           const maxCacheSizeMB = game.settings.get(this.MODULE_ID, "tts-cache-size-mb");
           await TTSCacheManager.set(cacheKey, ttsAudio);
