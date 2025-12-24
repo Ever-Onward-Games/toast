@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 3.0.0-beta.15
+
+### Changes
+- TBD
+
 ## Version 3.0.0-beta.14
 
 ### Changes
