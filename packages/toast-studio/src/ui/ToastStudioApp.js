@@ -265,13 +265,13 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
   _getDefaultDirectories() {
     return [
       {
-        path: "modules/toast-studio/sounds",
+        path: "modules/toast-player/sounds",
         type: "audio",
         source: "default",
         label: "Default Sounds"
       },
       {
-        path: "modules/toast-studio/images",
+        path: "modules/toast-player/images",
         type: "images",
         source: "default",
         label: "Default Images"
@@ -488,7 +488,7 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
     try {
       // Get files from module sounds directory
       const source = "data";
-      const target = "modules/toast-studio/sounds";
+      const target = "modules/toast-player/sounds";
 
       // Use FilePicker to browse directory (v13 API)
       const FilePicker = foundry.applications.apps.FilePicker.implementation;
@@ -523,7 +523,7 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
     try {
       // Get files from module images directory
       const source = "data";
-      const target = "modules/toast-studio/images";
+      const target = "modules/toast-player/images";
 
       // Use FilePicker to browse directory (v13 API)
       const FilePicker = foundry.applications.apps.FilePicker.implementation;
