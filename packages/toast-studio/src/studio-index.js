@@ -4,6 +4,34 @@
  * Requires: toast-player module
  */
 
+// Preload template partials on init
+Hooks.once('init', async () => {
+  console.log('Toast Studio | Preloading templates...');
+
+  const partials = [
+    "modules/toast-studio/templates/partials/assets-tab.hbs",
+    "modules/toast-studio/templates/partials/directories-subtab.hbs",
+    "modules/toast-studio/templates/partials/audio-subtab.hbs",
+    "modules/toast-studio/templates/partials/images-subtab.hbs",
+    "modules/toast-studio/templates/partials/directory-item.hbs",
+    "modules/toast-studio/templates/partials/audio-asset-item.hbs",
+    "modules/toast-studio/templates/partials/image-asset-item.hbs",
+    "modules/toast-studio/templates/partials/packages-tab.hbs",
+    "modules/toast-studio/templates/partials/package-card.hbs",
+    "modules/toast-studio/templates/partials/package-editor.hbs",
+    "modules/toast-studio/templates/partials/animator-tab.hbs",
+    "modules/toast-studio/templates/partials/studio-tab.hbs",
+    "modules/toast-studio/templates/partials/empty-state.hbs"
+  ];
+
+  try {
+    await foundry.applications.handlebars.loadTemplates(partials);
+    console.log('Toast Studio | Templates preloaded');
+  } catch (err) {
+    console.error('Toast Studio | Failed to preload templates:', err);
+  }
+});
+
 // Initialize Toast Studio on Foundry ready
 Hooks.once('ready', async () => {
   console.log('Toast Studio | Initializing...');

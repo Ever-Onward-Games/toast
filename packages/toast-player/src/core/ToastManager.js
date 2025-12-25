@@ -74,37 +74,6 @@ class ToastManager {
     } else {
       console.log("Toast | Package manager not available (install toast-studio module for package features)");
     }
-
-    // Preload template partials
-    await this.preloadTemplatePartials();
-  }
-
-  /**
-   * Preload Handlebars template partials
-   * Required for partials to be available during rendering
-   */
-  static async preloadTemplatePartials() {
-    const partials = [
-      "modules/toast-studio/templates/partials/assets-tab.hbs",
-      "modules/toast-studio/templates/partials/directories-subtab.hbs",
-      "modules/toast-studio/templates/partials/audio-subtab.hbs",
-      "modules/toast-studio/templates/partials/images-subtab.hbs",
-      "modules/toast-studio/templates/partials/directory-item.hbs",
-      "modules/toast-studio/templates/partials/audio-asset-item.hbs",
-      "modules/toast-studio/templates/partials/image-asset-item.hbs",
-      "modules/toast-studio/templates/partials/packages-tab.hbs",
-      "modules/toast-studio/templates/partials/package-card.hbs",
-      "modules/toast-studio/templates/partials/studio-tab.hbs",
-      "modules/toast-studio/templates/partials/empty-state.hbs"
-    ];
-
-    try {
-      await foundry.applications.handlebars.loadTemplates(partials);
-      console.log("Toast | Template partials preloaded");
-    } catch (err) {
-      // Silently fail - templates are loaded by toast-studio module
-      console.log("Toast | Template partials not loaded (loaded by toast-studio if installed)");
-    }
   }
 
   /**
