@@ -4,6 +4,9 @@
  * Requires: toast-player module
  */
 
+// Expose PackageManager globally for toast-player to access
+window.PackageManager = PackageManager;
+
 // Initialize Toast Studio on Foundry ready
 Hooks.once('ready', async () => {
   console.log('Toast Studio | Initializing...');
@@ -20,6 +23,21 @@ Hooks.once('ready', async () => {
     console.error('Toast Studio | ERROR: game.toast not found! Is toast-player loaded?');
     ui.notifications.error('Toast Studio failed to initialize. Please check that Toast Player is enabled.');
     return;
+  }
+
+  // Initialize Package Manager
+  try {
+    const packageManager = new PackageManager();
+    await packageManager.initialize();
+
+    // Attach to toast-player's ToastManager
+    if (window.ToastManager) {
+      window.ToastManager.packageManager = packageManager;
+    }
+
+    console.log('Toast Studio | Package Manager initialized');
+  } catch (err) {
+    console.error('Toast Studio | Failed to initialize Package Manager:', err);
   }
 
   // Register studio API on game.toast
