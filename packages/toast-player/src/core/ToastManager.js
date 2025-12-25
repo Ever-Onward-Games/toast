@@ -26,8 +26,18 @@ class ToastManager {
    */
   static registerHandlebarsHelpers() {
     // Equality helper for comparisons in templates
+    // Works both as block helper: {{#eq a b}}...{{/eq}}
+    // And as subexpression: {{#if (eq a b)}}...{{/if}}
     Handlebars.registerHelper('eq', function(a, b, options) {
-      if (a === b) {
+      const result = (a === b);
+
+      // When used as subexpression (inside {{#if}}, etc.), just return boolean
+      if (!options || typeof options.fn !== 'function') {
+        return result;
+      }
+
+      // When used as block helper, render appropriate block
+      if (result) {
         return options.fn(this);
       } else {
         return options.inverse ? options.inverse(this) : '';
@@ -37,6 +47,13 @@ class ToastManager {
     // Division helper for calculations
     Handlebars.registerHelper('divide', function(a, b) {
       return (a / b).toFixed(2);
+    });
+
+    // OR helper for boolean logic
+    Handlebars.registerHelper('or', function() {
+      // All arguments except the last one (which is options)
+      const args = Array.prototype.slice.call(arguments, 0, -1);
+      return args.some(arg => !!arg);
     });
 
     console.log("Toast | Handlebars helpers registered");
