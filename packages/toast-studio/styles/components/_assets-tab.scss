@@ -34,13 +34,14 @@
 
       &:hover {
         background: var(--color-bg-btn);
-        color: var(--color-text-dark-primary);
+        color: var(--color-text-light-primary);
       }
 
       &.active {
         background: var(--color-bg);
         border-bottom-color: var(--color-border-highlight);
-        color: var(--color-text-dark-primary);
+        color: var(--color-text-light-primary);
+        font-weight: 600;
       }
 
       i {
