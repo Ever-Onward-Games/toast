@@ -135,6 +135,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update Toast Player latest release
+        if: ${{ !contains(github.ref, 'beta') && !contains(github.ref, 'alpha') && !contains(github.ref, 'rc') }}
         uses: softprops/action-gh-release@v1
         with:
           tag_name: toast-player-latest
@@ -161,6 +162,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update Toast Studio latest release
+        if: ${{ !contains(github.ref, 'beta') && !contains(github.ref, 'alpha') && !contains(github.ref, 'rc') }}
         uses: softprops/action-gh-release@v1
         with:
           tag_name: toast-studio-latest
