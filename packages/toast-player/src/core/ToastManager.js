@@ -34,6 +34,11 @@ class ToastManager {
       }
     });
 
+    // Division helper for calculations
+    Handlebars.registerHelper('divide', function(a, b) {
+      return (a / b).toFixed(2);
+    });
+
     console.log("Toast | Handlebars helpers registered");
   }
 
