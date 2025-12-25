@@ -14,13 +14,12 @@ class PackageManager {
     this.loaded = false;
     this.loading = false;
 
-    // File paths for package collections
-    this._globalFilePath = null;
-    this._worldFilePath = null;
+    // Compendium reference
+    this.compendium = null;
   }
 
   /**
-   * Initialize and load all packages from disk
+   * Initialize and load all packages from compendium
    * @returns {Promise<void>}
    */
   async initialize() {
@@ -33,20 +32,22 @@ class PackageManager {
     console.log("Toast PackageManager | Initializing...");
 
     try {
-      // Get global packages directory from settings
-      const globalDir = game.settings.get("toast", "packages-directory-global") || "toasts";
-      this._globalFilePath = `${globalDir}/packages.json`;
+      // Get or create the Toast Packages compendium
+      this.compendium = game.packs.get("world.toast-packages");
 
-      // Set world file path
-      if (game?.world?.id) {
-        this._worldFilePath = `worlds/${game.world.id}/toast-packages.json`;
+      if (!this.compendium) {
+        // Create the compendium if it doesn't exist
+        this.compendium = await CompendiumCollection.createCompendium({
+          name: "toast-packages",
+          label: "Toast Packages",
+          type: "Macro",
+          package: "world"
+        });
+        console.log("Toast PackageManager | Created Toast Packages compendium");
       }
 
-      // Load packages from both files
-      await this._loadPackagesFromFile(this._globalFilePath, "global");
-      if (this._worldFilePath) {
-        await this._loadPackagesFromFile(this._worldFilePath, "world");
-      }
+      // Load all packages from the compendium
+      await this._loadPackagesFromCompendium();
 
       this.loaded = true;
       this.loading = false;
@@ -60,7 +61,40 @@ class PackageManager {
   }
 
   /**
-   * Load all packages from a single JSON file
+   * Load all packages from the compendium
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _loadPackagesFromCompendium() {
+    try {
+      console.log("Toast PackageManager | Loading packages from compendium");
+
+      // Get all macro documents from the compendium
+      const documents = await this.compendium.getDocuments();
+
+      let loaded = 0;
+      for (const doc of documents) {
+        try {
+          // Parse the package data from the macro's command
+          const pkgData = JSON.parse(doc.command);
+          const pkg = Package.fromJSON(pkgData);
+
+          this.packages.set(pkg.id, pkg);
+          loaded++;
+        } catch (err) {
+          console.warn(`Toast PackageManager | Failed to load package from ${doc.name}:`, err);
+        }
+      }
+
+      console.log(`Toast PackageManager | Loaded ${loaded} packages from compendium`);
+    } catch (err) {
+      console.error("Toast PackageManager | Failed to load packages from compendium:", err);
+      // Don't throw - compendium may be empty
+    }
+  }
+
+  /**
+   * OLD METHOD - Load all packages from a single JSON file
    * @param {string} filePath - Path to packages.json file
    * @param {string} expectedScope - Expected scope for validation
    * @returns {Promise<void>}
@@ -133,8 +167,8 @@ class PackageManager {
     // Add to memory
     this.packages.set(pkg.id, pkg);
 
-    // Save entire collection to disk
-    await this._savePackageCollection(pkg.scope);
+    // Save to compendium
+    await this._savePackageToCompendium(pkg);
 
     console.log(`Toast PackageManager | Created package: ${pkg.id}`);
     return pkg;
@@ -218,8 +252,8 @@ class PackageManager {
     // Validate updated package
     await pkg.validate();
 
-    // Save entire collection to disk
-    await this._savePackageCollection(pkg.scope);
+    // Save to compendium
+    await this._savePackageToCompendium(pkg);
 
     console.log(`Toast PackageManager | Updated package: ${id}`);
     return pkg;
@@ -236,13 +270,15 @@ class PackageManager {
       throw new Error(`Package not found: ${id}`);
     }
 
-    const scope = pkg.scope;
-
     // Remove from memory
     this.packages.delete(id);
 
-    // Save entire collection to disk (without this package)
-    await this._savePackageCollection(scope);
+    // Delete from compendium
+    const existingDoc = this.compendium.index.find(entry => entry.name === id);
+    if (existingDoc) {
+      const doc = await this.compendium.getDocument(existingDoc._id);
+      await doc.delete();
+    }
 
     console.log(`Toast PackageManager | Deleted package: ${id}`);
     ui.notifications?.info(`Package "${pkg.name}" deleted successfully`);
@@ -407,74 +443,39 @@ class PackageManager {
   }
 
   /**
-   * Save all packages of a given scope to their collection file
-   * @param {string} scope - Package scope ("global" or "world")
+   * Save a package to the compendium
+   * @param {Package} pkg - Package to save
    * @returns {Promise<void>}
    * @private
    */
-  async _savePackageCollection(scope) {
+  async _savePackageToCompendium(pkg) {
     try {
-      // Get all packages of this scope
-      const packagesArray = Array.from(this.packages.values())
-        .filter(pkg => pkg.scope === scope)
-        .map(pkg => pkg.toJSON());
+      console.log(`Toast PackageManager | Saving package to compendium: ${pkg.name}`);
 
-      // Determine file path based on scope
-      let filePath;
-      if (scope === "global") {
-        filePath = this._globalFilePath;
-      } else if (scope === "world") {
-        if (!this._worldFilePath) {
-          throw new Error("Cannot save world-scoped packages: no world loaded");
-        }
-        filePath = this._worldFilePath;
+      // Check if a macro with this package ID already exists
+      const existingDoc = this.compendium.index.find(entry => entry.name === pkg.id);
+
+      const macroData = {
+        name: pkg.id,
+        type: "script",
+        command: JSON.stringify(pkg.toJSON(), null, 2),
+        img: pkg.thumbnail || "icons/svg/book.svg",
+        folder: null
+      };
+
+      if (existingDoc) {
+        // Update existing macro
+        const doc = await this.compendium.getDocument(existingDoc._id);
+        await doc.update(macroData);
+        console.log(`Toast PackageManager | Updated package in compendium: ${pkg.name}`);
       } else {
-        throw new Error(`Invalid package scope: ${scope}`);
+        // Create new macro
+        await Macro.create(macroData, { pack: this.compendium.collection });
+        console.log(`Toast PackageManager | Created package in compendium: ${pkg.name}`);
       }
-
-      console.log(`Toast PackageManager | Saving ${packagesArray.length} ${scope} packages to: ${filePath}`);
-
-      // Extract directory from file path
-      const lastSlashIndex = filePath.lastIndexOf('/');
-      const directory = lastSlashIndex > 0 ? filePath.substring(0, lastSlashIndex) : "";
-      const filename = filePath.substring(lastSlashIndex + 1);
-
-      // Create directory if it doesn't exist
-      if (directory) {
-        try {
-          await foundry.applications.apps.FilePicker.implementation.createDirectory("data", directory, {});
-          console.log(`Toast PackageManager | Created directory: ${directory}`);
-        } catch (err) {
-          // Directory might already exist - that's fine
-          if (!err.message?.includes("EEXIST")) {
-            console.warn(`Toast PackageManager | Could not create directory:`, err);
-          }
-        }
-      }
-
-      // Create JSON content
-      const json = JSON.stringify(packagesArray, null, 2);
-
-      // Create a File object
-      const file = new File([json], filename, { type: "application/json" });
-
-      // Upload the file
-      const result = await foundry.applications.apps.FilePicker.implementation.upload(
-        "data",
-        directory || ".",
-        file,
-        {},
-        { notify: false }
-      );
-
-      if (!result || !result.path) {
-        throw new Error(`Upload failed: No path returned`);
-      }
-
-      console.log(`Toast PackageManager | Saved ${scope} packages to: ${result.path}`);
     } catch (err) {
-      console.error(`Toast PackageManager | Failed to save ${scope} packages:`, err);
-      throw new Error(`Could not save ${scope} packages: ${err.message}`);
+      console.error(`Toast PackageManager | Failed to save package to compendium:`, err);
+      throw new Error(`Could not save package: ${err.message}`);
     }
   }
 

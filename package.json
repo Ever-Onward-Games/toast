@@ -1,6 +1,6 @@
 {
   "name": "toast-monorepo",
-  "version": "3.0.0-beta.23",
+  "version": "3.0.0-beta.24",
   "description": "Toast monorepo - Player and Studio modules for Foundry VTT",
   "private": true,
   "workspaces": [
