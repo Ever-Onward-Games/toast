@@ -2,7 +2,7 @@
  * Package Editor Dialog
  * Create or edit toast packages
  */
-class PackageEditorDialog extends FormApplication {
+class PackageEditorDialog extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   /**
    * Create a new PackageEditorDialog
    * @param {Package|null} packageData - Package to edit (null for new)
@@ -10,7 +10,7 @@ class PackageEditorDialog extends FormApplication {
    * @param {Object} options - Application options
    */
   constructor(packageData = null, packageManager, options = {}) {
-    super({}, options);
+    super(options);
 
     this.packageManager = packageManager;
     this.isNew = !packageData;
@@ -42,21 +42,33 @@ class PackageEditorDialog extends FormApplication {
   }
 
   /**
-   * FormApplication configuration
+   * ApplicationV2 configuration
    */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      id: "package-editor-dialog",
-      title: "Package Editor",
-      template: "modules/toast-studio/templates/partials/package-editor.hbs",
-      width: 600,
-      height: "auto",
-      resizable: true,
+  static DEFAULT_OPTIONS = {
+    id: "package-editor-dialog",
+    classes: ["toast-studio", "package-editor"],
+    tag: "form",
+    form: {
+      handler: PackageEditorDialog.#onSubmit,
       closeOnSubmit: false,
-      submitOnChange: false,
-      classes: ["toast-studio", "package-editor"]
-    });
-  }
+      submitOnChange: false
+    },
+    window: {
+      title: "Package Editor",
+      resizable: true
+    },
+    position: {
+      width: 600,
+      height: "auto"
+    },
+    actions: {}
+  };
+
+  static PARTS = {
+    form: {
+      template: "modules/toast-studio/templates/partials/package-editor.hbs"
+    }
+  };
 
   /**
    * Get dialog title
@@ -66,10 +78,17 @@ class PackageEditorDialog extends FormApplication {
   }
 
   /**
-   * Get data for template rendering
+   * Handle form submission
    */
-  async getData() {
-    const data = await super.getData();
+  static async #onSubmit(event, form, formData) {
+    // Form submission not used - we use custom save button
+  }
+
+  /**
+   * Prepare context data for rendering
+   */
+  async _prepareContext(options) {
+    const data = {};
 
     data.isNew = this.isNew;
     data.package = this.packageData;
@@ -112,8 +131,8 @@ class PackageEditorDialog extends FormApplication {
   /**
    * Activate event listeners
    */
-  activateListeners(html) {
-    super.activateListeners(html);
+  _onRender(context, options) {
+    const html = $(this.element);
 
     // Track form changes
     html.find("input, select, textarea").on("change", () => {
@@ -264,8 +283,9 @@ class PackageEditorDialog extends FormApplication {
     event.preventDefault();
 
     try {
-      // Get form data
-      const formData = this._getSubmitData();
+      // Get form element and extract data
+      const formElement = this.element.querySelector("form");
+      const formData = new FormDataExtended(formElement).object;
 
       // Update package data with form values
       this.packageData.name = formData.name.trim();
@@ -342,13 +362,6 @@ class PackageEditorDialog extends FormApplication {
     }
 
     this.close();
-  }
-
-  /**
-   * Handle form submission (use save button instead)
-   */
-  async _updateObject(event, formData) {
-    // Not used - we use custom save button
   }
 
   /**
