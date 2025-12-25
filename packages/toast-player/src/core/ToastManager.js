@@ -30,7 +30,7 @@ class ToastManager {
       if (a === b) {
         return options.fn(this);
       } else {
-        return options.inverse(this);
+        return options.inverse ? options.inverse(this) : '';
       }
     });
 

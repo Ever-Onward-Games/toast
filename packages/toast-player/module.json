@@ -2,7 +2,7 @@
   "id": "toast-player",
   "title": "Toast Player",
   "description": "Lightweight toast playback engine. Display full-screen visuals and celebration text to all players. Plays toast packages created in Toast Studio.",
-  "version": "3.0.0-beta.17",
+  "version": "3.0.0-beta.18",
   "compatibility": {
     "minimum": "13",
     "verified": "13"
