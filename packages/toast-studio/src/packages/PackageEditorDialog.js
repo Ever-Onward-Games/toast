@@ -17,7 +17,11 @@ class PackageEditorDialog extends FormApplication {
 
     // Clone package data to avoid mutating original
     if (packageData) {
-      this.packageData = foundry.utils.deepClone(packageData.toJSON());
+      // Handle both Package instances (with toJSON) and plain objects
+      const data = typeof packageData.toJSON === 'function'
+        ? packageData.toJSON()
+        : packageData;
+      this.packageData = foundry.utils.deepClone(data);
     } else {
       // Create new package with defaults
       this.packageData = {
