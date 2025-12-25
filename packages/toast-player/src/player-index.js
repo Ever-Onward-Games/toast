@@ -3,9 +3,33 @@
  * Entry point and hooks
  */
 
-// Initialize settings on init
-Hooks.once('init', () => {
+// Initialize settings and templates on init
+Hooks.once('init', async () => {
   ToastManager.init();
+
+  // Preload template partials for Toast Studio
+  const partials = [
+    "modules/toast-studio/templates/partials/assets-tab.hbs",
+    "modules/toast-studio/templates/partials/directories-subtab.hbs",
+    "modules/toast-studio/templates/partials/audio-subtab.hbs",
+    "modules/toast-studio/templates/partials/images-subtab.hbs",
+    "modules/toast-studio/templates/partials/directory-item.hbs",
+    "modules/toast-studio/templates/partials/audio-asset-item.hbs",
+    "modules/toast-studio/templates/partials/image-asset-item.hbs",
+    "modules/toast-studio/templates/partials/packages-tab.hbs",
+    "modules/toast-studio/templates/partials/package-card.hbs",
+    "modules/toast-studio/templates/partials/package-editor.hbs",
+    "modules/toast-studio/templates/partials/animator-tab.hbs",
+    "modules/toast-studio/templates/partials/studio-tab.hbs",
+    "modules/toast-studio/templates/partials/empty-state.hbs"
+  ];
+
+  try {
+    await foundry.applications.handlebars.loadTemplates(partials);
+    console.log('Toast Player | Template partials preloaded');
+  } catch (err) {
+    console.log('Toast Player | Template partials not loaded (toast-studio not installed)');
+  }
 });
 
 // Initialize Toast Player on Foundry ready
