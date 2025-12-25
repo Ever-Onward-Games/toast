@@ -3,7 +3,19 @@
 ## Version 3.0.0-beta.26
 
 ### Changes
-- TBD
+- **Migrated PackageEditorDialog to ApplicationV2**: Removed V1 Application framework deprecation warning
+  - Updated to use `foundry.applications.api.ApplicationV2` with `HandlebarsApplicationMixin`
+  - Replaced `getData()` with `_prepareContext()`
+  - Replaced `activateListeners()` with `_onRender()`
+  - Updated static configuration to use `DEFAULT_OPTIONS` and `PARTS`
+- **Unified Package Editor theme with Toast Studio**: Complete visual overhaul to match dark theme
+  - Dark background (#1a1a1d) matching Toast Studio
+  - Orange highlights (var(--color-border-highlight)) for accents
+  - Removed boxed sections, using subtle dividers instead
+  - Dark input fields with orange focus states
+  - Small uppercase section headers with orange color
+  - Orange primary button with black text and glow effect
+  - Consistent minimalist aesthetic across all Toast components
 
 ## Version 3.0.0-beta.25
 
