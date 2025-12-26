@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 3.0.0-beta.27
+
+### Changes
+- **Fixed Animator tab crashes when creating text elements**:
+  - Fixed color input validation error by adding default #ffffff value when color property is undefined
+  - Fixed `this.element.find is not a function` error by wrapping native DOM element with jQuery in `_initializeAnimatorCanvas()`
+  - Animator tab now properly initializes canvas when creating new text/image/sound elements
+
 ## Version 3.0.0-beta.26
 
 ### Changes

@@ -1608,7 +1608,7 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
    * Initialize the animator canvas
    */
   _initializeAnimatorCanvas() {
-    const canvas = this.element.find("#animator-canvas")[0];
+    const canvas = $(this.element).find("#animator-canvas")[0];
     if (!canvas) {
       console.warn("Toast Studio | Animator canvas not found");
       return;
