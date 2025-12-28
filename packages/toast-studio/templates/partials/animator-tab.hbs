@@ -96,27 +96,27 @@
 
                   <div class="property-group">
                     <label>Position X (px)</label>
-                    <input type="number" class="element-prop" data-prop="x" value="{{../properties.x}}" step="1">
+                    <input type="number" class="element-prop" data-prop="x" value="{{animator.properties.x}}" step="1">
                   </div>
 
                   <div class="property-group">
                     <label>Position Y (px)</label>
-                    <input type="number" class="element-prop" data-prop="y" value="{{../properties.y}}" step="1">
+                    <input type="number" class="element-prop" data-prop="y" value="{{animator.properties.y}}" step="1">
                   </div>
 
                   <div class="property-group">
                     <label>Rotation (deg)</label>
-                    <input type="number" class="element-prop" data-prop="rotation" value="{{../properties.rotation}}" step="1">
+                    <input type="number" class="element-prop" data-prop="rotation" value="{{animator.properties.rotation}}" step="1">
                   </div>
 
                   <div class="property-group">
                     <label>Scale (%)</label>
-                    <input type="number" class="element-prop" data-prop="scale" value="{{../properties.scalePercent}}" step="1" min="1">
+                    <input type="number" class="element-prop" data-prop="scale" value="{{animator.properties.scalePercent}}" step="1" min="1">
                   </div>
 
                   <div class="property-group">
                     <label>Opacity (%)</label>
-                    <input type="number" class="element-prop" data-prop="opacity" value="{{../properties.opacityPercent}}" step="1" min="0" max="100">
+                    <input type="number" class="element-prop" data-prop="opacity" value="{{animator.properties.opacityPercent}}" step="1" min="0" max="100">
                   </div>
                 </div>
               {{/if}}
@@ -133,19 +133,19 @@
 
                   <div class="property-group">
                     <label>Font Size (px)</label>
-                    <input type="number" class="element-prop" data-prop="fontSize" value="{{../properties.fontSize}}" step="1" min="1">
+                    <input type="number" class="element-prop" data-prop="fontSize" value="{{animator.properties.fontSize}}" step="1" min="1">
                   </div>
 
                   <div class="property-group">
                     <label>Color</label>
-                    <input type="color" class="element-prop" data-prop="color" value="{{#if ../properties.color}}{{../properties.color}}{{else}}#ffffff{{/if}}">
+                    <input type="color" class="element-prop" data-prop="color" value="{{#if animator.properties.color}}{{animator.properties.color}}{{else}}#ffffff{{/if}}">
                   </div>
 
                   <div class="property-group">
                     <label>Font Weight</label>
                     <select class="element-prop" data-prop="fontWeight">
-                      <option value="normal" {{#if (eq ../properties.fontWeight 'normal')}}selected{{/if}}>Normal</option>
-                      <option value="bold" {{#if (eq ../properties.fontWeight 'bold')}}selected{{/if}}>Bold</option>
+                      <option value="normal" {{#if (eq animator.properties.fontWeight 'normal')}}selected{{/if}}>Normal</option>
+                      <option value="bold" {{#if (eq animator.properties.fontWeight 'bold')}}selected{{/if}}>Bold</option>
                     </select>
                   </div>
                 </div>
@@ -166,12 +166,12 @@
 
                   <div class="property-group">
                     <label>Width (px)</label>
-                    <input type="number" class="element-prop" data-prop="width" value="{{../properties.width}}" step="1" min="1">
+                    <input type="number" class="element-prop" data-prop="width" value="{{animator.properties.width}}" step="1" min="1">
                   </div>
 
                   <div class="property-group">
                     <label>Height (px)</label>
-                    <input type="number" class="element-prop" data-prop="height" value="{{../properties.height}}" step="1" min="1">
+                    <input type="number" class="element-prop" data-prop="height" value="{{animator.properties.height}}" step="1" min="1">
                   </div>
                 </div>
               {{/if}}
@@ -191,7 +191,7 @@
 
                   <div class="property-group">
                     <label>Volume (0-1)</label>
-                    <input type="number" class="element-prop" data-prop="volume" value="{{../properties.volume}}" step="0.1" min="0" max="1">
+                    <input type="number" class="element-prop" data-prop="volume" value="{{animator.properties.volume}}" step="0.1" min="0" max="1">
                   </div>
                 </div>
               {{/if}}

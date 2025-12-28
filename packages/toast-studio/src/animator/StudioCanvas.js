@@ -39,14 +39,12 @@ class StudioCanvas {
     this.onElementsChanged = null;  // Callback for element property changes
     this.onSelectionChanged = null;  // Callback for selection changes
 
-    // Set canvas size
+    // Set canvas logical size (1920x1080)
     this.canvas.width = width;
     this.canvas.height = height;
 
-    // Scale canvas to fit container (will be set by CSS)
-    this.canvas.style.width = '100%';
-    this.canvas.style.height = '100%';
-    this.canvas.style.objectFit = 'contain';
+    // Let CSS handle display size - canvas will scale to fit container
+    // CSS uses max-width/max-height: 100% with width/height: auto to maintain aspect ratio
 
     // Attach mouse event listeners
     this.canvas.addEventListener('mousedown', this._onMouseDown.bind(this));
