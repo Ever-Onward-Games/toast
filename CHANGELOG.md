@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 3.0.0-beta.28
+
+### Changes
+- **Fixed Enter key triggering unwanted actions in Animator tab**:
+  - Added `type="button"` to all buttons in animator template to prevent form submission
+  - Pressing Enter in text input fields no longer creates new elements or triggers other buttons
+  - Elements remain selectable after editing text properties
+
 ## Version 3.0.0-beta.27
 
 ### Changes

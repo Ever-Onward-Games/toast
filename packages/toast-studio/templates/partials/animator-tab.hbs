@@ -40,19 +40,19 @@
         </div>
 
         <div class="element-actions">
-          <button class="add-element-btn" data-type="text" title="Add Text Element">
+          <button type="button" class="add-element-btn" data-type="text" title="Add Text Element">
             <i class="fas fa-font"></i> <span>Text</span>
           </button>
-          <button class="add-element-btn" data-type="image" title="Add Image Element">
+          <button type="button" class="add-element-btn" data-type="image" title="Add Image Element">
             <i class="fas fa-image"></i> <span>Image</span>
           </button>
-          <button class="add-element-btn" data-type="sound" title="Add Sound Element">
+          <button type="button" class="add-element-btn" data-type="sound" title="Add Sound Element">
             <i class="fas fa-volume-up"></i> <span>Sound</span>
           </button>
         </div>
 
         <div class="element-controls">
-          <button class="delete-element-btn" {{#unless animator.selectedElement}}disabled{{/unless}} title="Delete Selected Element">
+          <button type="button" class="delete-element-btn" {{#unless animator.selectedElement}}disabled{{/unless}} title="Delete Selected Element">
             <i class="fas fa-trash"></i>
           </button>
         </div>
@@ -159,7 +159,7 @@
                   <div class="property-group">
                     <label>Source</label>
                     <input type="text" class="element-prop" data-prop="src" value="{{animator.selectedElement.src}}" placeholder="path/to/image.png">
-                    <button class="browse-asset-btn" data-asset-type="image">
+                    <button type="button" class="browse-asset-btn" data-asset-type="image">
                       <i class="fas fa-folder-open"></i> Browse
                     </button>
                   </div>
@@ -184,7 +184,7 @@
                   <div class="property-group">
                     <label>Source</label>
                     <input type="text" class="element-prop" data-prop="src" value="{{animator.selectedElement.src}}" placeholder="path/to/sound.wav">
-                    <button class="browse-asset-btn" data-asset-type="audio">
+                    <button type="button" class="browse-asset-btn" data-asset-type="audio">
                       <i class="fas fa-folder-open"></i> Browse
                     </button>
                   </div>
@@ -214,13 +214,13 @@
     {{!-- Bottom: Controls and Actions --}}
     <div class="animator-controls-panel">
       <div class="animator-actions">
-        <button class="save-animation-btn" {{#unless animator.hasElements}}disabled{{/unless}} title="Save animation as a package">
+        <button type="button" class="save-animation-btn" {{#unless animator.hasElements}}disabled{{/unless}} title="Save animation as a package">
           <i class="fas fa-save"></i> Save as Package
         </button>
-        <button class="preview-animation-btn" {{#unless animator.hasElements}}disabled{{/unless}} title="Preview animation locally">
+        <button type="button" class="preview-animation-btn" {{#unless animator.hasElements}}disabled{{/unless}} title="Preview animation locally">
           <i class="fas fa-play"></i> Preview
         </button>
-        <button class="clear-animation-btn" {{#unless animator.hasElements}}disabled{{/unless}} title="Clear all elements">
+        <button type="button" class="clear-animation-btn" {{#unless animator.hasElements}}disabled{{/unless}} title="Clear all elements">
           <i class="fas fa-broom"></i> Clear
         </button>
       </div>
