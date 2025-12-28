@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 3.0.0-beta.31
+
+### Changes
+- **Fixed canvas aspect ratio in Animator tab**:
+  - Added `aspect-ratio: 16/9` CSS property to maintain 1920x1080 proportions
+  - Added `min-height: 0` to canvas container to fix flexbox sizing issue
+  - Canvas no longer appears larger than actual rendering area
+  - Elements now display correctly without being cut off
+
 ## Version 3.0.0-beta.30
 
 ### Changes
