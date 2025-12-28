@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 3.0.0-beta.30
+
+### Changes
+- **Fixed canvas interaction bugs in Animator tab**:
+  - Fixed canvas resizing when element is selected - removed conflicting inline styles
+  - Fixed properties pane showing blank values - corrected Handlebars template context paths from `{{../properties.x}}` to `{{animator.properties.x}}`
+  - Fixed size changes (fontSize, width, height) now properly reflected in preview playback
+  - Confirmed canvas scale matches fullscreen viewport - elements maintain proportional screen space
+
 ## Version 3.0.0-beta.29
 
 ### Changes
