@@ -23,6 +23,22 @@ class StudioCanvas {
     this.elements = [];
     this.selectedElements = [];
 
+    // Interaction state
+    this.interactionMode = 'SELECT';
+    this.dragState = {
+      isActive: false,
+      handle: null,  // 'nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'rotate', 'move'
+      startX: 0,
+      startY: 0,
+      startProps: null,
+      element: null
+    };
+    this.hoveredHandle = null;
+
+    // Callbacks
+    this.onElementsChanged = null;  // Callback for element property changes
+    this.onSelectionChanged = null;  // Callback for selection changes
+
     // Set canvas size
     this.canvas.width = width;
     this.canvas.height = height;
@@ -31,6 +47,12 @@ class StudioCanvas {
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
     this.canvas.style.objectFit = 'contain';
+
+    // Attach mouse event listeners
+    this.canvas.addEventListener('mousedown', this._onMouseDown.bind(this));
+    this.canvas.addEventListener('mousemove', this._onMouseMove.bind(this));
+    this.canvas.addEventListener('mouseup', this._onMouseUp.bind(this));
+    this.canvas.addEventListener('mouseleave', this._onMouseLeave.bind(this));
   }
 
   /**
@@ -74,6 +96,14 @@ class StudioCanvas {
     // Render each element
     this.elements.forEach((element, index) => {
       this.renderElement(element, this.currentFrame);
+    });
+
+    // Render selection handles for selected elements
+    this.selectedElements.forEach(elementId => {
+      const element = this.elements.find(el => el.id === elementId);
+      if (element) {
+        this.renderSelectionHandles(element);
+      }
     });
   }
 
@@ -257,5 +287,581 @@ class StudioCanvas {
       x: (event.clientX - rect.left) * scaleX,
       y: (event.clientY - rect.top) * scaleY
     };
+  }
+
+  // ==========================================
+  // Hit Detection & Selection Handles
+  // ==========================================
+
+  /**
+   * Get element bounds in canvas space (accounting for transforms)
+   * @param {Object} element - Element
+   * @returns {Object} {minX, minY, maxX, maxY, centerX, centerY, width, height}
+   */
+  getElementBounds(element) {
+    const props = this.getElementProperties(element, this.currentFrame);
+
+    let width, height;
+
+    if (element.type === 'text') {
+      // Measure text
+      this.ctx.save();
+      this.ctx.font = `${props.fontWeight || 'normal'} ${props.fontSize}px Arial`;
+      const metrics = this.ctx.measureText(element.text || 'Text');
+      width = metrics.width;
+      height = props.fontSize;
+      this.ctx.restore();
+    } else if (element.type === 'image') {
+      width = props.width || 200;
+      height = props.height || 200;
+    } else {
+      // Sound or unknown type
+      width = 100;
+      height = 100;
+    }
+
+    // Calculate bounds with transforms
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+    const angle = (props.rotation || 0) * Math.PI / 180;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const scale = props.scale || 1.0;
+
+    // Four corners of the element (before rotation)
+    const corners = [
+      { x: -halfWidth * scale, y: -halfHeight * scale },
+      { x: halfWidth * scale, y: -halfHeight * scale },
+      { x: halfWidth * scale, y: halfHeight * scale },
+      { x: -halfWidth * scale, y: halfHeight * scale }
+    ];
+
+    // Rotate and translate corners
+    const transformedCorners = corners.map(corner => ({
+      x: props.x + (corner.x * cos - corner.y * sin),
+      y: props.y + (corner.x * sin + corner.y * cos)
+    }));
+
+    // Find bounds
+    const xs = transformedCorners.map(c => c.x);
+    const ys = transformedCorners.map(c => c.y);
+
+    return {
+      minX: Math.min(...xs),
+      minY: Math.min(...ys),
+      maxX: Math.max(...xs),
+      maxY: Math.max(...ys),
+      centerX: props.x,
+      centerY: props.y,
+      width: width * scale,
+      height: height * scale
+    };
+  }
+
+  /**
+   * Test if a point hits an element
+   * @param {Object} element - Element to test
+   * @param {number} canvasX - X coordinate in canvas space
+   * @param {number} canvasY - Y coordinate in canvas space
+   * @returns {boolean} True if hit
+   */
+  hitTest(element, canvasX, canvasY) {
+    const props = this.getElementProperties(element, this.currentFrame);
+
+    // Transform point to local space
+    const dx = canvasX - props.x;
+    const dy = canvasY - props.y;
+    const angle = -(props.rotation || 0) * Math.PI / 180;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    const localX = dx * cos - dy * sin;
+    const localY = dx * sin + dy * cos;
+
+    // Get element dimensions
+    let width, height;
+    if (element.type === 'text') {
+      this.ctx.save();
+      this.ctx.font = `${props.fontWeight || 'normal'} ${props.fontSize}px Arial`;
+      const metrics = this.ctx.measureText(element.text || 'Text');
+      width = metrics.width;
+      height = props.fontSize;
+      this.ctx.restore();
+    } else if (element.type === 'image') {
+      width = props.width || 200;
+      height = props.height || 200;
+    } else {
+      width = 100;
+      height = 100;
+    }
+
+    const scale = props.scale || 1.0;
+    const halfWidth = (width * scale) / 2;
+    const halfHeight = (height * scale) / 2;
+
+    return Math.abs(localX) <= halfWidth && Math.abs(localY) <= halfHeight;
+  }
+
+  /**
+   * Get element at canvas coordinates (for selection)
+   * @param {number} canvasX - X coordinate
+   * @param {number} canvasY - Y coordinate
+   * @returns {Object|null} Element or null
+   */
+  getElementAtPoint(canvasX, canvasY) {
+    // Test in reverse order (top to bottom in z-order)
+    for (let i = this.elements.length - 1; i >= 0; i--) {
+      if (this.hitTest(this.elements[i], canvasX, canvasY)) {
+        return this.elements[i];
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get all handle positions for an element
+   * @param {Object} element - Element
+   * @returns {Array<Object>} Array of {type, x, y, cursor}
+   */
+  getHandlePositions(element) {
+    const bounds = this.getElementBounds(element);
+    const props = this.getElementProperties(element, this.currentFrame);
+
+    const handles = [];
+    const halfWidth = bounds.width / 2;
+    const halfHeight = bounds.height / 2;
+    const angle = (props.rotation || 0) * Math.PI / 180;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    // Helper to rotate a point around center
+    const rotate = (localX, localY) => ({
+      x: bounds.centerX + (localX * cos - localY * sin),
+      y: bounds.centerY + (localX * sin + localY * cos)
+    });
+
+    // 8 resize handles
+    const resizeHandles = [
+      { type: 'nw', lx: -halfWidth, ly: -halfHeight, cursor: 'nw-resize' },
+      { type: 'n',  lx: 0,          ly: -halfHeight, cursor: 'n-resize' },
+      { type: 'ne', lx: halfWidth,  ly: -halfHeight, cursor: 'ne-resize' },
+      { type: 'e',  lx: halfWidth,  ly: 0,           cursor: 'e-resize' },
+      { type: 'se', lx: halfWidth,  ly: halfHeight,  cursor: 'se-resize' },
+      { type: 's',  lx: 0,          ly: halfHeight,  cursor: 's-resize' },
+      { type: 'sw', lx: -halfWidth, ly: halfHeight,  cursor: 'sw-resize' },
+      { type: 'w',  lx: -halfWidth, ly: 0,           cursor: 'w-resize' }
+    ];
+
+    resizeHandles.forEach(h => {
+      const pos = rotate(h.lx, h.ly);
+      handles.push({ type: h.type, x: pos.x, y: pos.y, cursor: h.cursor });
+    });
+
+    // Rotation handle (30px above top center)
+    const rotatePos = rotate(0, -halfHeight - 30);
+    handles.push({ type: 'rotate', x: rotatePos.x, y: rotatePos.y, cursor: 'crosshair' });
+
+    // Move handle (center)
+    handles.push({ type: 'move', x: bounds.centerX, y: bounds.centerY, cursor: 'move' });
+
+    return handles;
+  }
+
+  /**
+   * Get handle at a specific point
+   * @param {Object} element - Element to test
+   * @param {number} canvasX - X coordinate
+   * @param {number} canvasY - Y coordinate
+   * @returns {Object|null} Handle object or null
+   */
+  getHandleAtPoint(element, canvasX, canvasY) {
+    const handles = this.getHandlePositions(element);
+    const tolerance = 10; // pixels
+
+    // Test rotation handle first (priority)
+    const rotateHandle = handles.find(h => h.type === 'rotate');
+    if (rotateHandle) {
+      const dist = Math.sqrt(Math.pow(canvasX - rotateHandle.x, 2) + Math.pow(canvasY - rotateHandle.y, 2));
+      if (dist <= tolerance) {
+        return rotateHandle;
+      }
+    }
+
+    // Test resize handles
+    for (const handle of handles) {
+      if (handle.type !== 'rotate' && handle.type !== 'move') {
+        const dist = Math.sqrt(Math.pow(canvasX - handle.x, 2) + Math.pow(canvasY - handle.y, 2));
+        if (dist <= tolerance) {
+          return handle;
+        }
+      }
+    }
+
+    // Finally test if point is on element body (for move)
+    if (this.hitTest(element, canvasX, canvasY)) {
+      return handles.find(h => h.type === 'move');
+    }
+
+    return null;
+  }
+
+  /**
+   * Render selection handles for an element
+   * @param {Object} element - Selected element
+   */
+  renderSelectionHandles(element) {
+    const bounds = this.getElementBounds(element);
+    const handles = this.getHandlePositions(element);
+    const props = this.getElementProperties(element, this.currentFrame);
+
+    this.ctx.save();
+
+    // Draw bounding box
+    this.ctx.strokeStyle = 'rgba(74, 144, 226, 0.8)';
+    this.ctx.lineWidth = 2;
+    this.ctx.setLineDash([5, 5]);
+
+    this.ctx.translate(bounds.centerX, bounds.centerY);
+    this.ctx.rotate((props.rotation || 0) * Math.PI / 180);
+
+    const halfWidth = bounds.width / 2;
+    const halfHeight = bounds.height / 2;
+    this.ctx.strokeRect(-halfWidth, -halfHeight, bounds.width, bounds.height);
+
+    this.ctx.restore();
+
+    // Draw resize handles
+    handles.forEach(handle => {
+      if (handle.type !== 'move') {
+        this.ctx.save();
+
+        if (handle.type === 'rotate') {
+          // Rotation handle (circle)
+          this.ctx.beginPath();
+          this.ctx.arc(handle.x, handle.y, 6, 0, Math.PI * 2);
+          this.ctx.fillStyle = 'rgba(74, 144, 226, 0.9)';
+          this.ctx.fill();
+          this.ctx.strokeStyle = '#ffffff';
+          this.ctx.lineWidth = 2;
+          this.ctx.stroke();
+        } else {
+          // Resize handle (square)
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.fillRect(handle.x - 4, handle.y - 4, 8, 8);
+          this.ctx.strokeStyle = 'rgba(74, 144, 226, 0.9)';
+          this.ctx.lineWidth = 1;
+          this.ctx.strokeRect(handle.x - 4, handle.y - 4, 8, 8);
+        }
+
+        this.ctx.restore();
+      }
+    });
+
+    this.ctx.setLineDash([]);
+  }
+
+  // ==========================================
+  // Mouse Event Handlers
+  // ==========================================
+
+  /**
+   * Handle mouse down on canvas
+   * @param {MouseEvent} event
+   */
+  _onMouseDown(event) {
+    const coords = this.getCanvasCoordinates(event);
+
+    // Check if we clicked on a selected element's handle
+    if (this.selectedElements.length > 0) {
+      const selectedElement = this.elements.find(el => el.id === this.selectedElements[0]);
+      if (selectedElement) {
+        const handle = this.getHandleAtPoint(selectedElement, coords.x, coords.y);
+        if (handle) {
+          // Start drag operation
+          this.dragState = {
+            isActive: true,
+            handle: handle.type,
+            startX: coords.x,
+            startY: coords.y,
+            startProps: foundry.utils.deepClone(this.getElementProperties(selectedElement, this.currentFrame)),
+            element: selectedElement
+          };
+          this._updateCursor(handle);
+          return;
+        }
+      }
+    }
+
+    // Check if we clicked on an element (for selection)
+    const element = this.getElementAtPoint(coords.x, coords.y);
+    if (element) {
+      // Select the element
+      this.selectedElements = [element.id];
+
+      // Emit selection changed callback
+      if (this.onSelectionChanged) {
+        this.onSelectionChanged(element.id);
+      }
+
+      // Start move drag
+      const handle = this.getHandleAtPoint(element, coords.x, coords.y);
+      this.dragState = {
+        isActive: true,
+        handle: handle ? handle.type : 'move',
+        startX: coords.x,
+        startY: coords.y,
+        startProps: foundry.utils.deepClone(this.getElementProperties(element, this.currentFrame)),
+        element: element
+      };
+
+      this.render();
+    } else {
+      // Clicked on empty space - deselect
+      this.selectedElements = [];
+      if (this.onSelectionChanged) {
+        this.onSelectionChanged(null);
+      }
+      this.render();
+    }
+  }
+
+  /**
+   * Handle mouse move on canvas
+   * @param {MouseEvent} event
+   */
+  _onMouseMove(event) {
+    const coords = this.getCanvasCoordinates(event);
+
+    if (this.dragState.isActive) {
+      // Handle active drag
+      const deltaX = coords.x - this.dragState.startX;
+      const deltaY = coords.y - this.dragState.startY;
+
+      if (this.dragState.handle === 'move') {
+        this._handleMoveDrag(deltaX, deltaY);
+      } else if (this.dragState.handle === 'rotate') {
+        this._handleRotationDrag(coords.x, coords.y);
+      } else {
+        // Resize handle
+        this._handleResizeDrag(this.dragState.handle, coords.x, coords.y);
+      }
+
+      // Emit elements changed callback (with isDragging=true)
+      if (this.onElementsChanged) {
+        this.onElementsChanged(this.elements, true);
+      }
+    } else {
+      // Handle hover (cursor feedback)
+      if (this.selectedElements.length > 0) {
+        const selectedElement = this.elements.find(el => el.id === this.selectedElements[0]);
+        if (selectedElement) {
+          const handle = this.getHandleAtPoint(selectedElement, coords.x, coords.y);
+          this._updateCursor(handle);
+        }
+      }
+    }
+  }
+
+  /**
+   * Handle mouse up on canvas
+   * @param {MouseEvent} event
+   */
+  _onMouseUp(event) {
+    if (this.dragState.isActive) {
+      this.dragState.isActive = false;
+
+      // Emit elements changed callback (with isDragging=false to trigger properties sync)
+      if (this.onElementsChanged) {
+        this.onElementsChanged(this.elements, false);
+      }
+    }
+
+    this._updateCursor(null);
+  }
+
+  /**
+   * Handle mouse leaving canvas
+   * @param {MouseEvent} event
+   */
+  _onMouseLeave(event) {
+    if (this.dragState.isActive) {
+      this.dragState.isActive = false;
+
+      // Emit elements changed callback
+      if (this.onElementsChanged) {
+        this.onElementsChanged(this.elements, false);
+      }
+    }
+
+    this._updateCursor(null);
+  }
+
+  // ==========================================
+  // Drag Operations
+  // ==========================================
+
+  /**
+   * Handle move/translate drag operation
+   * @param {number} deltaX - Change in X
+   * @param {number} deltaY - Change in Y
+   */
+  _handleMoveDrag(deltaX, deltaY) {
+    if (!this.dragState.element) return;
+
+    const element = this.dragState.element;
+    if (!element.keyframes || element.keyframes.length === 0) {
+      element.keyframes = [{frame: 0, properties: {}, interpolation: 'ease-in-out'}];
+    }
+
+    element.keyframes[0].properties.x = this.dragState.startProps.x + deltaX;
+    element.keyframes[0].properties.y = this.dragState.startProps.y + deltaY;
+
+    this.render();
+  }
+
+  /**
+   * Handle resize drag operation
+   * @param {string} handle - Handle type (nw, n, ne, etc.)
+   * @param {number} currentX - Current mouse X
+   * @param {number} currentY - Current mouse Y
+   */
+  _handleResizeDrag(handle, currentX, currentY) {
+    if (!this.dragState.element) return;
+
+    const element = this.dragState.element;
+    const startProps = this.dragState.startProps;
+
+    if (!element.keyframes || element.keyframes.length === 0) {
+      element.keyframes = [{frame: 0, properties: {}, interpolation: 'ease-in-out'}];
+    }
+
+    // Calculate delta in local space
+    const dx = currentX - this.dragState.startX;
+    const dy = currentY - this.dragState.startY;
+    const angle = -(startProps.rotation || 0) * Math.PI / 180;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const localDX = dx * cos - dy * sin;
+    const localDY = dx * sin + dy * cos;
+
+    // Determine scale factor based on handle
+    let scaleX = 1, scaleY = 1;
+    let offsetX = 0, offsetY = 0;
+
+    if (element.type === 'text') {
+      // For text, resize by changing fontSize
+      const avgDelta = (localDX + localDY) / 2;
+      const newFontSize = Math.max(8, startProps.fontSize + avgDelta * 0.5);
+      element.keyframes[0].properties.fontSize = Math.round(newFontSize);
+    } else if (element.type === 'image') {
+      // For images, resize width/height
+      const startWidth = startProps.width || 200;
+      const startHeight = startProps.height || 200;
+
+      switch(handle) {
+        case 'nw':
+          scaleX = 1 - (localDX / startWidth);
+          scaleY = 1 - (localDY / startHeight);
+          offsetX = localDX / 2;
+          offsetY = localDY / 2;
+          break;
+        case 'ne':
+          scaleX = 1 + (localDX / startWidth);
+          scaleY = 1 - (localDY / startHeight);
+          offsetX = localDX / 2;
+          offsetY = localDY / 2;
+          break;
+        case 'se':
+          scaleX = 1 + (localDX / startWidth);
+          scaleY = 1 + (localDY / startHeight);
+          offsetX = localDX / 2;
+          offsetY = localDY / 2;
+          break;
+        case 'sw':
+          scaleX = 1 - (localDX / startWidth);
+          scaleY = 1 + (localDY / startHeight);
+          offsetX = localDX / 2;
+          offsetY = localDY / 2;
+          break;
+        case 'n':
+          scaleY = 1 - (localDY / startHeight);
+          offsetY = localDY / 2;
+          break;
+        case 's':
+          scaleY = 1 + (localDY / startHeight);
+          offsetY = localDY / 2;
+          break;
+        case 'e':
+          scaleX = 1 + (localDX / startWidth);
+          offsetX = localDX / 2;
+          break;
+        case 'w':
+          scaleX = 1 - (localDX / startWidth);
+          offsetX = localDX / 2;
+          break;
+      }
+
+      // Maintain aspect ratio for corner handles
+      if (['nw', 'ne', 'se', 'sw'].includes(handle)) {
+        const avgScale = (scaleX + scaleY) / 2;
+        scaleX = scaleY = avgScale;
+      }
+
+      const newWidth = Math.max(10, startWidth * scaleX);
+      const newHeight = Math.max(10, startHeight * scaleY);
+
+      element.keyframes[0].properties.width = Math.round(newWidth);
+      element.keyframes[0].properties.height = Math.round(newHeight);
+
+      // Adjust position to keep opposite corner fixed
+      const rotCos = Math.cos((startProps.rotation || 0) * Math.PI / 180);
+      const rotSin = Math.sin((startProps.rotation || 0) * Math.PI / 180);
+      element.keyframes[0].properties.x = startProps.x + (offsetX * rotCos - offsetY * rotSin);
+      element.keyframes[0].properties.y = startProps.y + (offsetX * rotSin + offsetY * rotCos);
+    }
+
+    this.render();
+  }
+
+  /**
+   * Handle rotation drag operation
+   * @param {number} currentX - Current mouse X
+   * @param {number} currentY - Current mouse Y
+   */
+  _handleRotationDrag(currentX, currentY) {
+    if (!this.dragState.element) return;
+
+    const element = this.dragState.element;
+    const startProps = this.dragState.startProps;
+
+    if (!element.keyframes || element.keyframes.length === 0) {
+      element.keyframes = [{frame: 0, properties: {}, interpolation: 'ease-in-out'}];
+    }
+
+    // Calculate angle from center to current mouse position
+    const dx = currentX - startProps.x;
+    const dy = currentY - startProps.y;
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+    // Add 90 degrees because 0 degrees should point up, not right
+    const rotation = angle + 90;
+
+    element.keyframes[0].properties.rotation = rotation;
+
+    this.render();
+  }
+
+  /**
+   * Update cursor based on interaction state
+   * @param {Object|null} handle - Handle under cursor
+   */
+  _updateCursor(handle) {
+    if (!handle) {
+      this.canvas.style.cursor = 'default';
+    } else if (this.dragState.isActive) {
+      this.canvas.style.cursor = 'grabbing';
+    } else {
+      this.canvas.style.cursor = handle.cursor || 'default';
+    }
   }
 }

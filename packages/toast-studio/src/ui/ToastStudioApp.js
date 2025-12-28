@@ -1617,6 +1617,25 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
     // Create StudioCanvas instance
     this.studioCanvas = new StudioCanvas(canvas, 1920, 1080);
 
+    // Set callbacks for canvas interaction
+    this.studioCanvas.onElementsChanged = (elements, isDragging) => {
+      // Update elements from canvas
+      this._updatingFromCanvas = true;
+      this.animatorElements = elements;
+      this._updatingFromCanvas = false;
+
+      // Only trigger full re-render when drag completes (not during drag for performance)
+      if (!isDragging) {
+        this.render(); // Sync properties pane
+      }
+    };
+
+    this.studioCanvas.onSelectionChanged = (elementId) => {
+      // Update selection from canvas
+      this.selectedElementId = elementId;
+      this.render(); // Update properties pane
+    };
+
     // Set initial elements
     this.studioCanvas.setElements(this.animatorElements);
     this.studioCanvas.setFrame(this.currentFrame);
@@ -1760,6 +1779,9 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
    */
   _onElementPropertyChange(event) {
     event.preventDefault();
+
+    // Skip if update is coming from canvas drag operation
+    if (this._updatingFromCanvas) return;
 
     if (!this.selectedElementId) return;
 

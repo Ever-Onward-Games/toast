@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 3.0.0-beta.29
+
+### Changes
+- **Added interactive canvas manipulation to Animator tab**:
+  - Elements can now be clicked and dragged to reposition them on the canvas
+  - Added 8 resize handles (corners and midpoints) for visual resizing
+  - Added rotation handle above elements for rotating
+  - Selection handles display when an element is selected (blue dashed bounding box)
+  - All canvas transformations automatically sync to the properties pane
+  - Property pane changes update the canvas in real-time
+  - Smooth 60fps drag operations with visual cursor feedback
+  - Text elements: Dragging resize handles scales fontSize proportionally
+  - Image elements: Dragging corner handles maintains aspect ratio, edge handles scale in one direction
+  - Rotation handle allows free rotation around element center
+  - Canvas interactions properly update selection state and trigger re-renders
+
 ## Version 3.0.0-beta.28
 
 ### Changes
