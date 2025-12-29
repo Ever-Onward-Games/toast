@@ -2,6 +2,8 @@
  * Toast Module - Full Screen Celebrations for Foundry VTT v13
  */
 
+import { AnchorCalculator } from './AnchorCalculator.js';
+
 class ToastManager {
   static MODULE_ID = "toast";
   static SOCKET_REQUEST = "module.toast.request";
@@ -11,6 +13,7 @@ class ToastManager {
   static registeredAnnouncers = {}; // Store for module-registered announcers
   static templates = {}; // Store for dynamic TTS templates
   static packageManager = null; // Package manager instance
+  static _currentElements = []; // Store current elements for anchor calculations
 
   /**
    * Initialize the Toast module
@@ -847,6 +850,9 @@ class ToastManager {
    * @param {Array} elements - Array of element configurations
    */
   static renderToast(elements) {
+    // Store elements for anchor calculations
+    this._currentElements = elements || [];
+
     // Remove any existing overlay to prevent stacking
     const existingOverlay = document.getElementById("toast-overlay");
     if (existingOverlay) {
@@ -861,6 +867,11 @@ class ToastManager {
 
     // Apply viewport scaling to maintain 1920x1080 coordinate system
     this.applyViewportScaling(overlay);
+
+    // Apply anchor calculations to all elements before creating nodes
+    elements.forEach(element => {
+      this.applyAnchorToElement(element, elements);
+    });
 
     // Process visual elements
     elements.forEach((element, index) => {
@@ -1470,6 +1481,63 @@ class ToastManager {
       });
     });
     observer.observe(overlay.parentNode || document.body, { childList: true });
+  }
+
+  /**
+   * Apply anchor calculations to element positions
+   * Modifies element.animation.startX/startY based on anchor settings
+   * @param {Object} element - Element to process
+   * @param {Array} allElements - All elements (for element-to-element anchoring)
+   */
+  static applyAnchorToElement(element, allElements) {
+    // Check if element has anchor data
+    if (!element.anchor || element.anchor.type === "none") {
+      return; // No anchoring
+    }
+
+    // Create a temporary element structure for AnchorCalculator
+    // It expects elements with keyframes[0].properties format
+    const tempElement = {
+      id: element.id,
+      type: element.type,
+      keyframes: [{
+        properties: {
+          x: element.animation?.startX || 0,
+          y: element.animation?.startY || 0,
+          anchor: element.anchor,
+          // Include dimensions for calculation
+          fontSize: element.fontSize,
+          width: element.width,
+          height: element.height
+        }
+      }]
+    };
+
+    // Convert all elements to temp format for calculation context
+    const tempElements = allElements.map(el => ({
+      id: el.id,
+      type: el.type,
+      keyframes: [{
+        properties: {
+          x: el.animation?.startX || 0,
+          y: el.animation?.startY || 0,
+          anchor: el.anchor,
+          fontSize: el.fontSize,
+          width: el.width,
+          height: el.height
+        }
+      }]
+    }));
+
+    // Calculate final position
+    const finalPos = AnchorCalculator.calculatePosition(tempElement, tempElements, 1920, 1080);
+
+    // Update element's animation position
+    if (!element.animation) {
+      element.animation = {};
+    }
+    element.animation.startX = finalPos.x;
+    element.animation.startY = finalPos.y;
   }
 
   /**

@@ -7,6 +7,9 @@
  * - Package management
  * - Visual toast editor (future)
  */
+
+import { DEFAULT_ANCHOR } from '../animator/AnchorCalculator.js';
+
 class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   constructor(options = {}) {
     super(options);
@@ -176,6 +179,11 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
       // Convert scale and opacity to percentages for display
       properties.scalePercent = Math.round(properties.scale * 100);
       properties.opacityPercent = Math.round(properties.opacity * 100);
+
+      // Ensure anchor has default values for template
+      if (!properties.anchor) {
+        properties.anchor = { ...DEFAULT_ANCHOR };
+      }
     }
 
     return {
@@ -705,6 +713,7 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
     // Animator: Property editing
     html.find(".element-prop").on("change", this._onElementPropertyChange.bind(this));
     html.find(".browse-asset-btn").on("click", this._onBrowseAsset.bind(this));
+    html.find(".anchor-btn").on("click", this._onAnchorButtonClick.bind(this));
 
     // Animator: Actions
     html.find(".save-animation-btn").on("click", this._onSaveAnimation.bind(this));
@@ -1674,7 +1683,8 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
             opacity: 1.0,
             fontSize: 72,
             color: '#ffffff',
-            fontWeight: 'normal'
+            fontWeight: 'normal',
+            anchor: { ...DEFAULT_ANCHOR }
           },
           interpolation: 'ease-in-out'
         }];
@@ -1691,7 +1701,8 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
             scale: 1.0,
             opacity: 1.0,
             width: 200,
-            height: 200
+            height: 200,
+            anchor: { ...DEFAULT_ANCHOR }
           },
           interpolation: 'ease-in-out'
         }];
@@ -1819,8 +1830,23 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
         }];
       }
 
-      // Update first keyframe (simple mode - no animation yet)
-      element.keyframes[0].properties[propName] = value;
+      // Handle nested properties (e.g., "anchor.type")
+      if (propName.includes(".")) {
+        const parts = propName.split(".");
+        const parent = parts[0];
+        const child = parts[1];
+
+        // Initialize parent object if it doesn't exist
+        if (!element.keyframes[0].properties[parent]) {
+          element.keyframes[0].properties[parent] = { ...DEFAULT_ANCHOR };
+        }
+
+        // Update nested property
+        element.keyframes[0].properties[parent][child] = value;
+      } else {
+        // Update first keyframe (simple mode - no animation yet)
+        element.keyframes[0].properties[propName] = value;
+      }
     }
 
     // Update canvas immediately
@@ -1859,6 +1885,45 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
         this.render();
       }
     }).render(true);
+  }
+
+  /**
+   * Handle anchor button click (viewport position grid)
+   */
+  _onAnchorButtonClick(event) {
+    event.preventDefault();
+
+    if (!this.selectedElementId) return;
+
+    const element = this.animatorElements.find(el => el.id === this.selectedElementId);
+    if (!element) return;
+
+    const position = event.currentTarget.dataset.position;
+
+    // Initialize keyframes if needed
+    if (!element.keyframes || element.keyframes.length === 0) {
+      element.keyframes = [{
+        frame: 0,
+        properties: {},
+        interpolation: 'ease-in-out'
+      }];
+    }
+
+    // Initialize anchor if needed
+    if (!element.keyframes[0].properties.anchor) {
+      element.keyframes[0].properties.anchor = { ...DEFAULT_ANCHOR };
+    }
+
+    // Update viewport position
+    element.keyframes[0].properties.anchor.viewportPosition = position;
+
+    // Update canvas immediately
+    if (this.studioCanvas) {
+      this.studioCanvas.setElements(this.animatorElements);
+    }
+
+    // Re-render to update active button state
+    this.render();
   }
 
   /**
@@ -1990,6 +2055,11 @@ class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin
             if (kf.properties.rotation) baseElement.rotation = kf.properties.rotation;
             if (kf.properties.scale && kf.properties.scale !== 1.0) baseElement.scale = kf.properties.scale;
             if (kf.properties.opacity && kf.properties.opacity !== 1.0) baseElement.opacity = kf.properties.opacity;
+
+            // Pass anchor data if present
+            if (kf.properties.anchor) {
+              baseElement.anchor = kf.properties.anchor;
+            }
           } else if (el.type === 'sound') {
             baseElement.volume = kf.properties.volume || 0.8;
           }

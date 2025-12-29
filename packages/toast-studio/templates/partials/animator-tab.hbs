@@ -119,6 +119,92 @@
                     <input type="number" class="element-prop" data-prop="opacity" value="{{animator.properties.opacityPercent}}" step="1" min="0" max="100">
                   </div>
                 </div>
+
+                {{!-- Anchoring controls --}}
+                <div class="property-section">
+                  <h5>Anchoring</h5>
+
+                  <div class="property-group">
+                    <label>Anchor Type</label>
+                    <select class="element-prop" data-prop="anchor.type">
+                      <option value="none" {{#if (eq animator.properties.anchor.type "none")}}selected{{/if}}>None (Absolute)</option>
+                      <option value="viewport" {{#if (eq animator.properties.anchor.type "viewport")}}selected{{/if}}>Viewport</option>
+                      <option value="element" {{#if (eq animator.properties.anchor.type "element")}}selected{{/if}}>Element</option>
+                    </select>
+                  </div>
+
+                  {{!-- Viewport anchor controls --}}
+                  {{#if (eq animator.properties.anchor.type "viewport")}}
+                    <div class="property-group">
+                      <label>Viewport Position</label>
+                      <div class="anchor-grid">
+                        <button type="button" class="anchor-btn {{#if (eq animator.properties.anchor.viewportPosition 'top-left')}}active{{/if}}" data-position="top-left">↖</button>
+                        <button type="button" class="anchor-btn {{#if (eq animator.properties.anchor.viewportPosition 'top-center')}}active{{/if}}" data-position="top-center">↑</button>
+                        <button type="button" class="anchor-btn {{#if (eq animator.properties.anchor.viewportPosition 'top-right')}}active{{/if}}" data-position="top-right">↗</button>
+                        <button type="button" class="anchor-btn {{#if (eq animator.properties.anchor.viewportPosition 'center-left')}}active{{/if}}" data-position="center-left">←</button>
+                        <button type="button" class="anchor-btn {{#if (eq animator.properties.anchor.viewportPosition 'center')}}active{{/if}}" data-position="center">●</button>
+                        <button type="button" class="anchor-btn {{#if (eq animator.properties.anchor.viewportPosition 'center-right')}}active{{/if}}" data-position="center-right">→</button>
+                        <button type="button" class="anchor-btn {{#if (eq animator.properties.anchor.viewportPosition 'bottom-left')}}active{{/if}}" data-position="bottom-left">↙</button>
+                        <button type="button" class="anchor-btn {{#if (eq animator.properties.anchor.viewportPosition 'bottom-center')}}active{{/if}}" data-position="bottom-center">↓</button>
+                        <button type="button" class="anchor-btn {{#if (eq animator.properties.anchor.viewportPosition 'bottom-right')}}active{{/if}}" data-position="bottom-right">↘</button>
+                      </div>
+                    </div>
+                  {{/if}}
+
+                  {{!-- Element anchor controls --}}
+                  {{#if (eq animator.properties.anchor.type "element")}}
+                    <div class="property-group">
+                      <label>Target Element</label>
+                      <select class="element-prop" data-prop="anchor.targetElementId">
+                        <option value="">-- Select --</option>
+                        {{#each animator.elements}}
+                          {{#unless (eq this.id ../animator.selectedElement.id)}}
+                            {{#unless (eq this.type 'sound')}}
+                              <option value="{{this.id}}" {{#if (eq this.id ../../animator.properties.anchor.targetElementId)}}selected{{/if}}>{{this.name}}</option>
+                            {{/unless}}
+                          {{/unless}}
+                        {{/each}}
+                      </select>
+                    </div>
+
+                    <div class="property-group">
+                      <label>My Anchor Point</label>
+                      <select class="element-prop" data-prop="anchor.sourceAnchorPoint">
+                        <option value="top-left" {{#if (eq animator.properties.anchor.sourceAnchorPoint 'top-left')}}selected{{/if}}>Top Left</option>
+                        <option value="top-center" {{#if (eq animator.properties.anchor.sourceAnchorPoint 'top-center')}}selected{{/if}}>Top Center</option>
+                        <option value="top-right" {{#if (eq animator.properties.anchor.sourceAnchorPoint 'top-right')}}selected{{/if}}>Top Right</option>
+                        <option value="center-left" {{#if (eq animator.properties.anchor.sourceAnchorPoint 'center-left')}}selected{{/if}}>Center Left</option>
+                        <option value="center" {{#if (eq animator.properties.anchor.sourceAnchorPoint 'center')}}selected{{/if}}>Center</option>
+                        <option value="center-right" {{#if (eq animator.properties.anchor.sourceAnchorPoint 'center-right')}}selected{{/if}}>Center Right</option>
+                        <option value="bottom-left" {{#if (eq animator.properties.anchor.sourceAnchorPoint 'bottom-left')}}selected{{/if}}>Bottom Left</option>
+                        <option value="bottom-center" {{#if (eq animator.properties.anchor.sourceAnchorPoint 'bottom-center')}}selected{{/if}}>Bottom Center</option>
+                        <option value="bottom-right" {{#if (eq animator.properties.anchor.sourceAnchorPoint 'bottom-right')}}selected{{/if}}>Bottom Right</option>
+                      </select>
+                    </div>
+
+                    <div class="property-group">
+                      <label>Target Anchor Point</label>
+                      <select class="element-prop" data-prop="anchor.targetAnchorPoint">
+                        <option value="top-left" {{#if (eq animator.properties.anchor.targetAnchorPoint 'top-left')}}selected{{/if}}>Top Left</option>
+                        <option value="top-center" {{#if (eq animator.properties.anchor.targetAnchorPoint 'top-center')}}selected{{/if}}>Top Center</option>
+                        <option value="top-right" {{#if (eq animator.properties.anchor.targetAnchorPoint 'top-right')}}selected{{/if}}>Top Right</option>
+                        <option value="center-left" {{#if (eq animator.properties.anchor.targetAnchorPoint 'center-left')}}selected{{/if}}>Center Left</option>
+                        <option value="center" {{#if (eq animator.properties.anchor.targetAnchorPoint 'center')}}selected{{/if}}>Center</option>
+                        <option value="center-right" {{#if (eq animator.properties.anchor.targetAnchorPoint 'center-right')}}selected{{/if}}>Center Right</option>
+                        <option value="bottom-left" {{#if (eq animator.properties.anchor.targetAnchorPoint 'bottom-left')}}selected{{/if}}>Bottom Left</option>
+                        <option value="bottom-center" {{#if (eq animator.properties.anchor.targetAnchorPoint 'bottom-center')}}selected{{/if}}>Bottom Center</option>
+                        <option value="bottom-right" {{#if (eq animator.properties.anchor.targetAnchorPoint 'bottom-right')}}selected{{/if}}>Bottom Right</option>
+                      </select>
+                    </div>
+                  {{/if}}
+
+                  <div class="property-info">
+                    <p class="hint">
+                      <i class="fas fa-info-circle"></i>
+                      X/Y values are offsets from anchor point
+                    </p>
+                  </div>
+                </div>
               {{/if}}
 
               {{!-- Text-specific properties --}}

@@ -1,5 +1,39 @@
 # Changelog
 
+## Version 3.0.0-beta.33
+
+### Changes
+- **Implemented Element Anchoring System for Toast Studio Animator**:
+  - Added flexible anchoring system allowing elements to be positioned relative to viewport edges/corners or other elements
+  - **Anchor Types**:
+    - **None**: Absolute positioning (default, backward compatible)
+    - **Viewport**: Anchor to 9 viewport positions (top-left, top-center, top-right, center-left, center, center-right, bottom-left, bottom-center, bottom-right)
+    - **Element**: Anchor to another element with bidirectional anchor points
+  - **Anchor Point System**:
+    - Source anchor point: Which point on the current element (e.g., "my bottom-center")
+    - Target anchor point: Which point on the target (viewport or element)
+    - X/Y values are now offsets from the anchor point, not absolute positions
+  - **Visual Feedback**:
+    - Orange dashed lines showing anchor connections in Studio canvas
+    - Circle markers for viewport anchors
+    - Square markers with arrowheads for element anchors
+    - Visual indicators only shown for selected elements
+  - **UI Enhancements**:
+    - New "Anchoring" section in properties pane with anchor type dropdown
+    - 3x3 grid selector for viewport anchor positions
+    - Dropdowns for element anchoring (target element, source/target anchor points)
+    - Filters out sound elements from anchor targets (no visual dimensions)
+  - **Edge Cases Handled**:
+    - Circular anchor reference detection (A → B → C → A)
+    - Missing target element fallback to center position
+    - Dimension calculation for text and image elements
+    - Anchor chain resolution (A anchored to B, B anchored to viewport)
+  - **Examples**:
+    - "My bottom-center to viewport top-center" + Y=50 → Element hangs 50px below top of screen
+    - "My left to Image1's right" + X=10 → Element positioned 10px to right of Image1
+    - "My center to Image1's center" → Element perfectly centered on Image1
+  - Feature will be useful for creating Token Effects vs Full Screen Effects in future updates
+
 ## Version 3.0.0-beta.32
 
 ### Changes

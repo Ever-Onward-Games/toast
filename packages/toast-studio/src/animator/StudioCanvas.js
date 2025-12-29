@@ -5,6 +5,9 @@
  * Phase 1: Static rendering at frame 0
  * Future: Interpolation, transform controls, timeline integration
  */
+
+import { AnchorCalculator } from './AnchorCalculator.js';
+
 class StudioCanvas {
   /**
    * Create a studio canvas renderer
@@ -96,10 +99,11 @@ class StudioCanvas {
       this.renderElement(element, this.currentFrame);
     });
 
-    // Render selection handles for selected elements
+    // Render selection handles and anchor indicators for selected elements
     this.selectedElements.forEach(elementId => {
       const element = this.elements.find(el => el.id === elementId);
       if (element) {
+        this.renderAnchorIndicators(element);
         this.renderSelectionHandles(element);
       }
     });
@@ -167,12 +171,25 @@ class StudioCanvas {
 
     // For Phase 1: If element has keyframes, use first keyframe
     // Otherwise use defaults
+    let props = defaults;
     if (element.keyframes && element.keyframes.length > 0) {
       const firstKeyframe = element.keyframes[0];
-      return { ...defaults, ...firstKeyframe.properties };
+      props = { ...defaults, ...firstKeyframe.properties };
     }
 
-    return defaults;
+    // Apply anchor calculations if anchored
+    if (props.anchor && props.anchor.type !== "none") {
+      const anchoredPos = AnchorCalculator.calculatePosition(
+        element,
+        this.elements,
+        this.width,
+        this.height
+      );
+      props.x = anchoredPos.x;
+      props.y = anchoredPos.y;
+    }
+
+    return props;
   }
 
   /**
@@ -556,6 +573,104 @@ class StudioCanvas {
     });
 
     this.ctx.setLineDash([]);
+  }
+
+  /**
+   * Render anchor indicators for an element
+   * Shows visual connection between element and its anchor point
+   * @param {Object} element - Element with anchor
+   */
+  renderAnchorIndicators(element) {
+    const props = this.getElementProperties(element, this.currentFrame);
+    const anchor = props.anchor;
+
+    // Only show for anchored elements
+    if (!anchor || anchor.type === "none") return;
+
+    this.ctx.save();
+
+    // Get element's actual position (from keyframes, before anchor calculation)
+    const rawProps = element.keyframes?.[0]?.properties || {};
+    let anchorBaseX = 0;
+    let anchorBaseY = 0;
+
+    // Get anchor base position
+    if (anchor.type === "viewport") {
+      const viewportPos = AnchorCalculator.calculateViewportAnchor(
+        anchor.viewportPosition || "top-left",
+        this.width,
+        this.height
+      );
+      anchorBaseX = viewportPos.x;
+      anchorBaseY = viewportPos.y;
+    } else if (anchor.type === "element") {
+      // Get target element position
+      const targetElement = this.elements?.find(el => el.id === anchor.targetElementId);
+      if (targetElement) {
+        const targetProps = this.getElementProperties(targetElement, this.currentFrame);
+        const targetDimensions = AnchorCalculator.getElementDimensions(targetElement);
+        const targetOffset = AnchorCalculator.getAnchorPointOffset(
+          anchor.targetAnchorPoint || "center",
+          targetDimensions.width,
+          targetDimensions.height
+        );
+        anchorBaseX = targetProps.x + targetOffset.x;
+        anchorBaseY = targetProps.y + targetOffset.y;
+      }
+    }
+
+    // Draw dashed line from element center to anchor point
+    this.ctx.strokeStyle = 'rgba(255, 165, 0, 0.8)'; // Orange
+    this.ctx.lineWidth = 2;
+    this.ctx.setLineDash([5, 5]);
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(props.x, props.y);
+    this.ctx.lineTo(anchorBaseX, anchorBaseY);
+    this.ctx.stroke();
+
+    this.ctx.setLineDash([]);
+
+    // Draw anchor point marker
+    if (anchor.type === "viewport") {
+      // Orange circle for viewport anchor
+      this.ctx.beginPath();
+      this.ctx.arc(anchorBaseX, anchorBaseY, 8, 0, Math.PI * 2);
+      this.ctx.fillStyle = 'rgba(255, 165, 0, 0.3)';
+      this.ctx.fill();
+      this.ctx.strokeStyle = 'rgba(255, 165, 0, 0.9)';
+      this.ctx.lineWidth = 2;
+      this.ctx.stroke();
+    } else if (anchor.type === "element") {
+      // Orange square for element anchor
+      this.ctx.fillStyle = 'rgba(255, 165, 0, 0.5)';
+      this.ctx.fillRect(anchorBaseX - 6, anchorBaseY - 6, 12, 12);
+      this.ctx.strokeStyle = 'rgba(255, 165, 0, 0.9)';
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeRect(anchorBaseX - 6, anchorBaseY - 6, 12, 12);
+
+      // Draw arrowhead pointing to anchor
+      const dx = anchorBaseX - props.x;
+      const dy = anchorBaseY - props.y;
+      const angle = Math.atan2(dy, dx);
+      const arrowSize = 10;
+
+      this.ctx.fillStyle = 'rgba(255, 165, 0, 0.9)';
+      this.ctx.beginPath();
+      this.ctx.moveTo(anchorBaseX, anchorBaseY);
+      this.ctx.lineTo(
+        anchorBaseX - arrowSize * Math.cos(angle - Math.PI / 6),
+        anchorBaseY - arrowSize * Math.sin(angle - Math.PI / 6)
+      );
+      this.ctx.lineTo(
+        anchorBaseX - arrowSize * Math.cos(angle + Math.PI / 6),
+        anchorBaseY - arrowSize * Math.sin(angle + Math.PI / 6)
+      );
+      this.ctx.closePath();
+      this.ctx.fill();
+    }
+
+    this.ctx.restore();
   }
 
   // ==========================================
