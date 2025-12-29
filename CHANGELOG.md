@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 3.0.0-beta.32
+
+### Changes
+- **Implemented resolution-independent coordinate system for Toast Player**:
+  - Added CSS transform scaling to maintain 1920x1080 coordinate system across all screen resolutions
+  - Element at (960, 540) now appears centered on ALL resolutions (4K, 1080p, 720p, etc.)
+  - Relative positioning maintained - items stay properly aligned regardless of screen size
+  - Letterboxing on non-16:9 screens (ultrawide, 4:3) to prevent stretching
+  - Dynamic window resize handling with automatic rescaling
+  - No more elements appearing in wrong positions on different resolutions!
+
 ## Version 3.0.0-beta.31
 
 ### Changes
