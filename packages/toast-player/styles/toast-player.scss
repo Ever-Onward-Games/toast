@@ -4,17 +4,15 @@
  */
 
 // Toast Overlay (full-screen toast display)
+// Now uses fixed 1920x1080 coordinate system with CSS transform scaling
 .toast-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  // Width and height set by JavaScript to 1920px x 1080px
+  // Transform applied by JavaScript to scale and center the overlay
   z-index: 10000;
   pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
   // Container for toast elements
   .toast-container {

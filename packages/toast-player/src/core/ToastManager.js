@@ -859,6 +859,9 @@ class ToastManager {
     overlay.id = "toast-overlay";
     overlay.className = "toast-overlay";
 
+    // Apply viewport scaling to maintain 1920x1080 coordinate system
+    this.applyViewportScaling(overlay);
+
     // Process visual elements
     elements.forEach((element, index) => {
       // Handle sound elements separately
@@ -1326,6 +1329,9 @@ class ToastManager {
     overlay.id = "toast-overlay";
     overlay.className = "toast-overlay";
 
+    // Apply viewport scaling to maintain 1920x1080 coordinate system
+    this.applyViewportScaling(overlay);
+
     // Process visual elements (skip sound elements for TTS toasts)
     elements.forEach((element, index) => {
       if (element.type === "sound") {
@@ -1407,6 +1413,63 @@ class ToastManager {
       overlay.classList.add("toast-fade-out");
       fadeOutTimeout = setTimeout(() => overlay.remove(), 500);
     }, maxDuration);
+  }
+
+  /**
+   * Apply viewport scaling to overlay to maintain 1920x1080 coordinate system
+   * Scales the overlay to fit the viewport while maintaining 16:9 aspect ratio
+   * @param {HTMLElement} overlay - The overlay element to scale
+   */
+  static applyViewportScaling(overlay) {
+    // Define the logical canvas size
+    const CANVAS_WIDTH = 1920;
+    const CANVAS_HEIGHT = 1080;
+
+    // Calculate scale to fit viewport while maintaining aspect ratio
+    const scaleX = window.innerWidth / CANVAS_WIDTH;
+    const scaleY = window.innerHeight / CANVAS_HEIGHT;
+    const scale = Math.min(scaleX, scaleY); // Use smaller scale to ensure everything fits (letterbox if needed)
+
+    // Calculate centered position (for letterboxing)
+    const scaledWidth = CANVAS_WIDTH * scale;
+    const scaledHeight = CANVAS_HEIGHT * scale;
+    const offsetX = (window.innerWidth - scaledWidth) / 2;
+    const offsetY = (window.innerHeight - scaledHeight) / 2;
+
+    // Apply fixed dimensions and transform
+    overlay.style.width = `${CANVAS_WIDTH}px`;
+    overlay.style.height = `${CANVAS_HEIGHT}px`;
+    overlay.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+    overlay.style.transformOrigin = 'top left';
+
+    // Update scaling on window resize
+    const handleResize = () => {
+      const newScaleX = window.innerWidth / CANVAS_WIDTH;
+      const newScaleY = window.innerHeight / CANVAS_HEIGHT;
+      const newScale = Math.min(newScaleX, newScaleY);
+
+      const newScaledWidth = CANVAS_WIDTH * newScale;
+      const newScaledHeight = CANVAS_HEIGHT * newScale;
+      const newOffsetX = (window.innerWidth - newScaledWidth) / 2;
+      const newOffsetY = (window.innerHeight - newScaledHeight) / 2;
+
+      overlay.style.transform = `translate(${newOffsetX}px, ${newOffsetY}px) scale(${newScale})`;
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Clean up resize listener when overlay is removed
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.removedNodes.forEach((node) => {
+          if (node === overlay) {
+            window.removeEventListener('resize', handleResize);
+            observer.disconnect();
+          }
+        });
+      });
+    });
+    observer.observe(overlay.parentNode || document.body, { childList: true });
   }
 
   /**
