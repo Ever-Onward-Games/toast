@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 3.0.0-beta.34
+
+### Changes
+- **Fixed build configuration for AnchorCalculator inclusion**:
+  - Added `AnchorCalculator.js` to build source modules list for both packages
+  - Files are now properly concatenated into main JS bundles
+  - Resolves 404 errors when loading modules in Foundry VTT
+  - This fixes the broken beta.33 release
+
 ## Version 3.0.0-beta.33
 
 ### Changes

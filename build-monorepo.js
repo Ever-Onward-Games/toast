@@ -33,6 +33,7 @@ const PACKAGES = {
     distDir: path.join(DIST_DIR, 'toast-player'),
     sourceModules: [
       // Core Layer (has all playback functionality for now)
+      'core/AnchorCalculator.js',
       'core/ToastManager.js',
 
       // Packages Layer (data model)
@@ -65,6 +66,7 @@ const PACKAGES = {
       'packages/PackageEditorDialog.js',
 
       // Animator Layer (Phase 1 - more coming in future phases)
+      'animator/AnchorCalculator.js',
       'animator/StudioCanvas.js',
 
       // UI Layer
