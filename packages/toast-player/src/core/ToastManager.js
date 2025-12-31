@@ -2,8 +2,6 @@
  * Toast Module - Full Screen Celebrations for Foundry VTT v13
  */
 
-import { AnchorCalculator } from './AnchorCalculator.js';
-
 class ToastManager {
   static MODULE_ID = "toast";
   static SOCKET_REQUEST = "module.toast.request";

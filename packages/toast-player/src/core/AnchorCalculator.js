@@ -17,7 +17,7 @@ const VIEWPORT_ANCHORS = {
 };
 
 // Default anchor configuration
-export const DEFAULT_ANCHOR = {
+const DEFAULT_ANCHOR = {
   type: "none",
   viewportPosition: "top-left",
   targetElementId: null,
@@ -25,7 +25,7 @@ export const DEFAULT_ANCHOR = {
   targetAnchorPoint: "center"
 };
 
-export class AnchorCalculator {
+class AnchorCalculator {
   /**
    * Calculate the final position of an element based on its anchor settings
    * @param {Object} element - The element to position

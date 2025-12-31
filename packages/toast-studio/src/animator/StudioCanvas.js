@@ -6,8 +6,6 @@
  * Future: Interpolation, transform controls, timeline integration
  */
 
-import { AnchorCalculator } from './AnchorCalculator.js';
-
 class StudioCanvas {
   /**
    * Create a studio canvas renderer

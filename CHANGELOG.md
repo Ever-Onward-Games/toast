@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 3.0.0-beta.35
+
+### Changes
+- **Fixed ES6 module syntax causing duplicate identifier errors**:
+  - Removed `export` keywords from both `AnchorCalculator.js` files (player and studio packages)
+  - Removed `import` statements from files that referenced AnchorCalculator
+  - Build system concatenates files into single bundle, making classes globally available
+  - Resolves "Uncaught SyntaxError: Identifier 'AnchorCalculator' has already been declared" error
+  - This fixes the broken beta.34 release
+
 ## Version 3.0.0-beta.34
 
 ### Changes

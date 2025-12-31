@@ -8,8 +8,6 @@
  * - Visual toast editor (future)
  */
 
-import { DEFAULT_ANCHOR } from '../animator/AnchorCalculator.js';
-
 class ToastStudioApp extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   constructor(options = {}) {
     super(options);
